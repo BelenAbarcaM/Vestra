@@ -3,6 +3,8 @@
 session_start();
 include '../../config/conexion.php';
 
+soloProfesor();
+
 $idPubli = $_POST['id_publicacion'];
 $texto = $_POST['texto'];
 $idClub = $_POST['id_club'];
