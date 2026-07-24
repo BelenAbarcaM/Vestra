@@ -4,6 +4,8 @@ session_start();
 
 include '../config/conexion.php';
 
+soloProfesor();
+
 $texto = $_POST['texto'];
 $idClub = $_POST['club'];
 $idUsuario = $_SESSION['id_usuario'];
