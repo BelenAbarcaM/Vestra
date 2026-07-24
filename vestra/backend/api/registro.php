@@ -6,7 +6,7 @@ include '../models/Usuario.php';
 
 $nombre = $_POST['name'];
 $correo = $_POST['email'];
-$contra = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+$contra = password_hash($_POST['password'], PASSWORD_DEFAULT);
 $foto = "default.png";
 if (str_ends_with($correo, "@est.cedesdonbosco.ed.cr")) {
 
