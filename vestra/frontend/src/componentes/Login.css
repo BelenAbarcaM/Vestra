@@ -1,0 +1,148 @@
+.login-contenedor {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+.App-logo {
+  height: 20vmin;
+  pointer-events: none;
+  border-radius: 50%;
+  margin-left: 30%;
+}
+.login-tarjeta {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.login-tarjeta h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  color: #1f2a37;
+  text-align: center;
+}
+
+.login-subtitulo {
+  margin: 8px 0 22px;
+  color: #556070;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-formulario {
+  display: grid;
+  gap: 10px;
+}
+
+.login-formulario label {
+  font-weight: 600;
+  color: #243447;
+  font-size: 1.4rem;
+  text-align: center;
+}
+.Isologo {
+  width: 432px;
+  height: auto;
+  margin-bottom: 20px;
+}
+.login-formulario input[type='text'],
+.login-formulario input[type='email'],
+.login-formulario input[type='password'] {
+  border: 1px solid #c9d4e2;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+
+.login-formulario input:focus {
+  outline: 2px solid #9ac0ff;
+  border-color: #4a90e2;
+}
+
+.login-opciones {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.92rem;
+  color: #374b63;
+}
+
+.login-enlace {
+  border: none;
+  background: transparent;
+  color: #2f6bb3;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-boton {
+  margin-top: 6px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  background: #1d6cd3;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-boton:hover {
+  background: #245a98;
+}
+
+.login-mensaje {
+  margin: 14px 0 0;
+  color: #0f5f36;
+  background: #e9f8ef;
+  border: 1px solid #bcf0d0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.92rem;
+}
+
+.login-registro {
+  margin: 16px 0 0;
+  font-size: 0.92rem;
+  color: #4a5568;
+}
+
+.login-registro a {
+  color: #2f6bb3;
+  font-weight: 600;
+}
+
+.login-link-texto {
+  border: none;
+  background: transparent;
+  color: #2f6bb3;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+@media (max-width: 480px) {
+  .login-contenedor {
+    padding: 12px;
+  }
+
+  .login-tarjeta {
+    padding: 20px;
+  }
+}
