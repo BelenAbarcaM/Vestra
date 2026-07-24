@@ -3,7 +3,7 @@
 session_start();
 include '../../config/conexion.php';
 
-$sql = "SELECT
+$listar = "SELECT
             p.id_publicacion AS id,
             p.Texto AS texto,
             p.Fecha AS fecha,
@@ -17,7 +17,7 @@ $sql = "SELECT
         WHERE p.Estado = 'Visible'
         ORDER BY p.Fecha DESC";
 
-$resultado = $conexion->query($sql);
+$resultado = $conexion->query($listar);
 
 if (!$resultado) {
     die("Error en la consulta: " . $conexion->error);
