@@ -1,0 +1,293 @@
+/* Perfil.css — estilo inspirado en Login.css: tarjeta centrada, colores y botones pulidos */
+
+/* Contenedor principal (tarjeta centrada) */
+.perfil-container {
+  padding: 20px;
+  max-width: 940px;
+  margin: 24px auto;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #1f2a37;
+  box-sizing: border-box;
+  /* tarjeta */
+  background: #f8f3ed;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  box-shadow: 0 14px 30px rgba(16, 24, 40, 0.08);
+}
+
+/* Header: título y acciones */
+.perfil-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.perfil-title {
+  font-size: 1.6rem;
+  margin: 0;
+  color: #0f1724;
+  letter-spacing: -0.2px;
+}
+
+.perfil-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Botones */
+.btn {
+  background: transparent;
+  border: 1px solid #d1d9e6;
+  color: #1f2a37;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 160ms ease;
+  box-shadow: none;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: #b6c7ea;
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Botón principal */
+.btn-primary {
+  background: linear-gradient(180deg,#2673e6,#1a5fcf);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(38,115,230,0.18);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.03);
+  box-shadow: 0 8px 22px rgba(38,115,230,0.22);
+}
+
+/* Form layout (móvil primero) */
+.perfil-form {
+ 
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-top: 12px;
+}
+
+/* Avatar column */
+.perfil-avatar-col {
+
+  justify-content: center;
+}
+
+.perfil-avatar-wrap {
+  position: relative;
+  text-align: center;
+  width: 140px;
+}
+
+.perfil-avatar {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 3px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  display: block;
+  margin: 0 60% auto;
+  background: linear-gradient(180deg,#f8fafc,#ffffff);
+}
+.perfil-avatar-label {
+  width: 100px;
+  height: 23px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid #f1f5f9;
+  box-shadow: 0 8px 20px rgba(16,24,40,0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  display: block;
+  font-size: 25px;
+  font-weight: 700;
+  margin: 0 70% auto;
+  background: linear-gradient(180deg,#f8fafc,#ffffff);
+}
+
+/* Hover ligero sobre avatar (solo en pantallas con puntero) */
+@media (hover: hover) {
+  .perfil-avatar-wrap:hover .perfil-avatar {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 36px rgba(16,24,40,0.08);
+  }
+}
+
+/* Etiqueta personalizada para subir avatar (botón debajo) */
+.perfil-avatar-label {
+  display: inline-block;
+  margin-top: 10px;
+  background: #f3f6fb;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: #234a80;
+  border: 1px solid #e6eefc;
+  transition: background 140ms ease, transform 120ms ease;
+}
+
+.perfil-avatar-label:hover {
+  transform: translateY(-2px);
+  background: #eaf3ff;
+}
+
+/* ocultar input nativo */
+.perfil-hidden-file {
+  display: none;
+}
+
+/* Data column */
+.perfil-data-col {
+  display: grid;
+  gap: 12px;
+}
+
+/* Campos */
+.perfil-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.perfil-field-label {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #22303f;
+}
+
+.perfil-input,
+.perfil-textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 120ms ease;
+}
+
+/* Focused inputs */
+.perfil-input:focus,
+.perfil-textarea:focus {
+  outline: none;
+  border-color: #8fb7ff;
+  box-shadow: 0 6px 18px rgba(66, 133, 244, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Placeholder suave */
+.perfil-input::placeholder,
+.perfil-textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Mensajes de estado con icono visual (pseudo-element) */
+.perfil-error,
+.perfil-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.perfil-error {
+  color: #9b1d1d;
+  background: #fff1f0;
+  border: 1px solid #ffd7d9;
+}
+
+.perfil-error::before {
+  content: "✖";
+  font-weight: 700;
+  color: #9b1d1d;
+  font-size: 1.05rem;
+}
+
+.perfil-success {
+  color: #064e3b;
+  background: #ecfdf5;
+  border: 1px solid #b7f3d0;
+}
+
+.perfil-success::before {
+  content: "✔";
+  font-weight: 700;
+  color: #064e3b;
+  font-size: 1.05rem;
+}
+
+/* Ayuda / subtítulo similar al login */
+.perfil-subtitulo {
+  margin-top: 8px;
+  color: #556070;
+  font-size: 0.95rem;
+}
+
+/* Pie / registro texto */
+.perfil-footer {
+  margin-top: 18px;
+  font-size: 0.92rem;
+  color: #475569;
+  text-align: center;
+}
+
+/* Desktop / tablet: dos columnas y mejor alineación */
+@media (min-width: 768px) {
+  .perfil-form {
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .perfil-avatar-wrap {
+    width: 220px;
+  }
+
+  .perfil-avatar {
+    width: 160px;
+    height: 160px;
+  }
+
+  .perfil-header {
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 420px) {
+  .perfil-container {
+    padding: 14px;
+    margin: 12px;
+  }
+
+  .perfil-avatar {
+    width: 110px;
+    height: 110px;
+  }
+
+  .perfil-title {
+    font-size: 1.25rem;
+  }
+}
