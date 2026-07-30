@@ -10,28 +10,60 @@ export default function Registro({ onIniciarSesion }) {
 	
 	const [mensaje, setMensaje] = useState('');
 
-	const manejarRegistro = (e) => {
-		e.preventDefault();
+	const manejarRegistro = async (e) => {
+    e.preventDefault();
 
-		if (!name.trim() || !email.trim() || !password.trim() || !confirmarPassword.trim()) {
-			setMensaje('Por favor, complete todos los campos.');
-			return;
-		}
+    if (!name.trim() || !email.trim() || !password.trim() || !confirmarPassword.trim()) {
+        setMensaje("Por favor, complete todos los campos.");
+        return;
+    }
 
-		if (password !== confirmarPassword) {
-			setMensaje('Las contraseñas no coinciden.');
-			return;
-		}
+    if (password !== confirmarPassword) {
+        setMensaje("Las contraseñas no coinciden.");
+        return;
+    }
 
+    try {
 
-		setMensaje(`Cuenta lista para registrarse: ${name}`);
-		console.log('Datos de registro', {
-			name,
-			email,
-			password,
-	
-		});
-	};
+        const datos = new FormData();
+
+        datos.append("name", name);
+        datos.append("email", email);
+        datos.append("password", password);
+
+        const respuesta = await fetch(
+            "http://localhost/vestra/backend/api/registro.php",
+            {
+                method: "POST",
+                body: datos
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        console.log(resultado);
+
+        if (resultado.success) {
+
+            setMensaje(resultado.mensaje);
+
+            setTimeout(() => {
+                onIniciarSesion();
+            }, 1500);
+
+        } else {
+
+            setMensaje(resultado.mensaje);
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+        setMensaje("Error al conectar con el servidor.");
+
+    }
+};
 
 	return (
 		<section className="login-contenedor">
