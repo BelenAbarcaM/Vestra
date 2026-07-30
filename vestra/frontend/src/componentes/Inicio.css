@@ -12,7 +12,95 @@
   color: #0b3550;
   padding-bottom: 78px; /* espacio para bottom nav */
   background: var(--bg);
+  background-color:#f7ead6;
+  min-height: 100vh;
 }
+
+/* Hamburguesa fija en esquina superior izquierda */
+.hamburger-ui { position: relative; z-index: 9999; }
+
+/* Botón */
+.hamburger-btn {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11,107,143,0.9);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 6px;
+  box-shadow: 0 6px 14px rgba(6,30,40,0.2);
+  z-index: 10001;
+}
+.hamburger-btn:focus { outline: 2px solid rgba(255,255,255,0.18); }
+
+/* líneas */
+.hamburger-lines { display:inline-block; width:20px; height:14px; position:relative; }
+.hamburger-lines span {
+  position:absolute; left:0; right:0; height:2px; background:#fff; display:block; transition: transform .22s ease, opacity .18s ease;
+}
+.hamburger-lines span:nth-child(1){ top:0; }
+.hamburger-lines span:nth-child(2){ top:6px; }
+.hamburger-lines span:nth-child(3){ bottom:0; }
+
+/* overlay */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+  z-index: 10000;
+}
+
+/* drawer lateral */
+.mobile-drawer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 280px;
+  max-width: 80%;
+  background: #fff;
+  transform: translateX(-110%);
+  transition: transform .26s cubic-bezier(.2,.9,.2,1);
+  z-index: 10002;
+  box-shadow: 0 20px 40px rgba(6,30,40,0.18);
+  padding: 18px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* abrir/estado visible */
+.mobile-drawer.open { transform: translateX(0); }
+.drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* close button inside drawer */
+.drawer-close {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #0b3550;
+}
+
+/* items */
+.drawer-list { list-style: none; margin: 0; padding: 6px 0 0; display:flex; flex-direction:column; gap:8px; }
+.drawer-list a { display:block; padding: 10px 12px; color: #0b3550; text-decoration: none; border-radius: 8px; font-weight:700; }
+.drawer-list a:hover { background: rgba(11,107,143,0.06); color: var(--blue); }
+
+/* bloquear scroll del body mientras esté abierto */
+body.drawer-open { overflow: hidden; }
 
 /* Hero */
 .cedes-hero {
@@ -24,19 +112,18 @@
 .cedes-hero-inner {
   width: 60%;
   max-width: 520px;
-  background: #f7ead6;
+  background: #fffaf1;
   padding: 14px 12px;
   text-align: center;
-  box-shadow: 0 6px 16px rgba(6,6,6,0.06);
   position: relative;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
 }
 
 .cedes-title { margin: 0; line-height: 1; font-weight: 800; letter-spacing: 1px; }
-.cedes-title .line1 { color: var(--blue); font-size: 30px; font-family: 'Fuente'; }
-.cedes-title .line2 { color: var(--accent); font-size: 30px; font-family: 'Fuente'; }
-.cedes-title .line3 { color: var(--blue); font-size: 30px; font-family: 'Fuente'; }
+.cedes-title .line1 { color: var(--blue); font-size: 25px; font-family: 'Fuente'; }
+.cedes-title .line2 { color: var(--accent); font-size: 25px; font-family: 'Fuente'; }
+.cedes-title .line3 { color: var(--blue); font-size: 25px; font-family: 'Fuente'; }
 
 .cedes-deco {
   width: 50px;
@@ -67,20 +154,13 @@
   box-shadow: 0 3px 8px rgba(6,30,40,0.03);
 }
 
-.cedes-search .search-icon {
-  position: relative;
-  left: 48%;
-  margin-right: -30px;
-  stroke: var(--blue);
-  opacity: 0.95;
-  color: #fff5e2;
-}
+
 
 /* Feed and cards */
 .cedes-feed { max-width: 520px; margin: 10px auto 0; display:flex; flex-direction:column; gap: 10px; }
 
 .cedes-card {
-  background: #f1fffaff;
+  background: #ffffff;
   border-radius: 25px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(6,30,41,0.05);
@@ -91,7 +171,6 @@
 /* header row inside card */
 .card-header {
   display:flex;
-  justify-content:space-between;
   align-items:center;
   padding: 10px;
   font-size: 15px,
@@ -123,7 +202,15 @@
 
 /* footer small notes */
 .card-footer { margin-top:6px; display:flex; flex-direction:column; gap:6px; background: rgba(11,107,143,0.03); padding:8px; border-radius:8px; font-size:0.85rem; }
-.small-note { color: #406a72; }
+.small-note { 
+    color: #292e3d;
+    background-color: #e5ebec;
+    padding: 8px;
+    text-align: left;
+    border-radius: 5px;
+    padding-left: 50px;
+}
+
 
 /* bottom navigation */
 .cedes-bottomnav {
@@ -134,7 +221,7 @@
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background: #fff;
+  background: #0b6b8f;
   padding: 8px 12px;
   border-radius: 26px;
   box-shadow: 0 10px 24px rgba(6,30,40,0.10);
@@ -145,9 +232,17 @@
 
 .nav-btn { background: transparent; border:none; padding:6px; display:flex; align-items:center; justify-content:center; color:var(--blue); font-size:16px; }
 .nav-btn.add {
-  background: var(--blue); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  color:#fff; transform: translateY(-5px);
-  box-shadow: 0 7px 16px rgba(11,107,143,0.16);
+    background: #68c2e4;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 7px 16px rgba(11, 107, 143, 0.16);
+    margin-top: 12px;
 }
 
 /* responsive tweaks: en pantallas grandes subir un poco las imágenes */
@@ -160,13 +255,6 @@
 @font-face {
   font-family: 'Fuente';
   src: url('../Findel-Display-Regular.otf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Fuente2';
-  src: url('../LeagueSpartan-Bold.otf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
@@ -207,17 +295,7 @@ input::placeholder, textarea::placeholder {
 }
 
 /* icono lupa dentro del input, alineado a la izquierda */
-.cedes-search .search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  stroke: var(--blue);     /* color de la lupa (puedes cambiar la variable) */
-  width: 18px;
-  height: 18px;
-  opacity: 0.95;
-  pointer-events: none;    /* no interfiere al clickear el input */
-}
+
 
 /* placeholder más sutil */
 .cedes-search input::placeholder {
@@ -274,7 +352,11 @@ input::placeholder, textarea::placeholder {
 .topbar-search-btn:hover { background: rgba(255,255,255,0.06); }
 
 /* icono svg toma el color actual (currentColor) */
-.topbar-search-btn .search-icon { width: 22px; height: 22px; color: #fff; }
+.topbar-search-btn .search-icon {     width: 25px;
+    height: 25px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(6, 30, 41, 0.2);
+    border-radius: 5px; }
 
 /* Panel desplegable (inicialmente oculto por max-height) */
 .search-panel {
@@ -299,7 +381,7 @@ input::placeholder, textarea::placeholder {
 /* contenido del panel: píldora blanca centrada */
 .search-panel-inner {
   width: 92%;
-  margin: 10px 0;
+  margin: 7px 0;
   background: #ffffff;
   border-radius: 999px;
   box-shadow: 0 8px 22px rgba(6,30,40,0.12);
@@ -308,14 +390,6 @@ input::placeholder, textarea::placeholder {
   gap: 8px;
   padding: 6px 12px;
   box-sizing: border-box;
-}
-
-/* lupa dentro del panel (izquierda) */
-.search-panel-inner .search-icon-inline {
-  width: 18px;
-  height: 18px;
-  color: #0b6b8f;
-  flex: 0 0 18px;
 }
 
 /* input del buscador desplegable */
@@ -351,12 +425,19 @@ input::placeholder, textarea::placeholder {
 }
 
 /* Ajustes para posts más delgados */
-.cedes-main { justify-content:center; }
+.cedes-main { 
+  justify-content:center; 
+  background-color: #fffaf1;
+  width: 30%;
+  margin: auto;
+}
+
+
 
 /* reduce el ancho máximo del feed y centra */
 .cedes-feed {
   max-width: 360px; /* ancho más delgado: cambia a 320/340 si quieres aún más estrecho */
-  margin: 10px auto 0;
+  margin: auto ;
   padding-left: 8px;
   padding-right: 8px;
 }
@@ -378,10 +459,10 @@ input::placeholder, textarea::placeholder {
 
 /* cabecera de la card: avatar más pequeña y texto más compacto */
 .author-avatar {
-  width: 32px;
-  height: 32px;
+  width: 45px;
+  height: 45px;
 }
-.author-name { font-size: 0.88rem; }
+.author-name { font-size: 0.95rem; }
 
 /* imagen del post menos alta */
 .card-image img, .image-placeholder {
@@ -392,7 +473,12 @@ input::placeholder, textarea::placeholder {
 
 /* cuerpo y texto más ajustado */
 .card-body { padding: 8px 6px; gap:6px; }
-.card-caption { font-size: 0.9rem; margin: 0; }
+.card-caption {
+   font-size: 13px;
+    margin: 0;
+    text-align: left;
+    color: #3a6b8a;
+}
 
 /* acciones y botones más pequeños */
 .comment-btn { padding: 6px 10px; font-size: 0.86rem; border-radius: 14px; }
@@ -408,4 +494,276 @@ input::placeholder, textarea::placeholder {
 @media (min-width: 760px) {
   .cedes-feed, .cedes-hero-inner { max-width: 420px; }
   .card-image img, .image-placeholder { height: 180px; }
+}
+
+/* Buscar: panel abre a la izquierda de la lupita y a la par (alineado verticalmente) */
+.topbar { position: relative; }
+
+/* fuerza la lupita a la derecha */
+.topbar-search-btn {
+  margin-left: auto !important;
+  z-index: 220;
+}
+
+/* panel de búsqueda: aparece a la izquierda de la lupita, centrado verticalmente respecto al topbar */
+.topbar .search-panel {
+  position: absolute;
+  top: 50%;
+  right: 40px;                /* distancia desde el borde derecho hasta el panel; ajusta si tu botón es más grande */
+  left: auto;
+  transform: translateY(-50%) scale(.98);
+  transform-origin: right center;
+  width: 250px;               /* ancho del panel */
+  max-width: calc(100% - 96px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 215;
+  box-sizing: border-box;
+  height: 65px;
+}
+
+/* estado abierto (tu JS añade .open) */
+.topbar .search-panel.open {
+  transform: translateY(-50%) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* input y controles dentro del panel, claros sobre el fondo azul */
+.topbar .search-panel input,
+.topbar .search-panel .top-search-input {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 8px 10px;
+}
+
+.cedes-card { position: relative; }
+.cedes-card .post-date {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.06);
+  color: #0b3550;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.post-date::before,
+.cedes-card time::before {       /* o usa url() para svg de fondo */
+  display: inline-block;
+  margin-right: 6px;
+  transform: translateY(-1px);
+}
+
+.post-time{
+    background: #eaf6fb;
+    color: #6bb9d6;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 5px;
+}
+
+/* Comentarios integrados con .cedes-card (pegar al final de Inicio.css) */
+.comments-list { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+
+/* contenedor del comentario, alineado con la tarjeta */
+.comment-item {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:8px;
+  border-radius:10px;
+  background: transparent;
+  position: relative;
+}
+
+/* avatar (ajuste para tu diseño) */
+.comment-avatar {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  flex:0 0 40px;
+  border: 2px solid rgba(11,107,143,0.06);
+}
+
+/* cuerpo del comentario */
+.comment-body { flex:1 1 auto; min-width:0; }
+.comment-meta { display:flex; gap:8px; align-items:center; font-size:0.85rem; color:var(--muted); margin-bottom:4px; }
+.comment-author { font-weight:700; color:#0b3550; font-size:0.92rem; }
+.comment-time { font-size:0.78rem; color:#6b7280; }
+
+/* texto del comentario (encaja con tu .card-caption y .card-body) */
+.comment-text { color:#0b3550; font-size:0.92rem; line-height:1.3; }
+
+/* botón like a la derecha */
+.comment-like {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background: transparent;
+  border: 1px solid rgba(11,107,143,0.08);
+  color: var(--blue);
+  padding: 6px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight:700;
+  flex: 0 0 auto;
+  margin-left: 8px;
+  transition: background .16s ease, transform .12s ease;
+}
+.comment-like .icon-heart { color: currentColor; display:block; }
+.comment-like .like-count { font-size:0.95rem; color: inherit; }
+
+/* hover */
+.comment-like:hover { background: rgba(11,107,143,0.06); transform: translateY(-1px); }
+
+/* estado "liked" (ajusta color si prefieres) */
+.comment-like.liked {
+  background: rgba(11,107,143,0.12);
+  color: #e63946; /* color del corazón cuando está liked */
+  border-color: rgba(230,57,70,0.14);
+}
+.comment-like.liked .icon-heart { color: #e63946; filter: drop-shadow(0 2px 4px rgba(230,57,70,0.12)); }
+
+/* responsive */
+@media (max-width:420px) {
+  .comment-avatar { width:36px; height:36px; }
+  .comment-like { padding:6px; gap:6px; }
+  .comment-text { font-size:0.9rem; }
+}
+/* Header */
+.topbar{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón hamburguesa */
+.hamburger-btn{
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background .2s;
+}
+
+.hamburger-btn:hover{
+    background: rgba(123, 197, 218, 0.15);
+}
+
+/* ===== Comentarios ===== */
+
+.card-footer{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.comment-item{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    background:#f7f9fb;
+    border-radius:12px;
+    padding:10px;
+}
+
+.comment-avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #0b6b8f22;
+}
+
+.comment-body{
+    flex:1;
+}
+
+.comment-meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
+}
+
+.comment-author{
+    font-weight:700;
+    color:#0b3550;
+    font-size:14px;
+}
+
+.comment-time{
+    font-size:12px;
+    color:#7a7a7a;
+}
+
+.comment-text{
+    font-size:14px;
+    color:#444;
+    line-height:1.45;
+}
+
+.card-actions{
+    display:flex;
+    align-items:center;
+    margin-top:8px;
+    text-align: right;
+}
+
+.actions-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.comment-btn,
+.like-btn{
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:50%;
+    background:#eef7fb;
+    cursor:pointer;
+    font-size:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition:.2s;
+}
+
+.comment-btn:hover,
+.like-btn:hover{
+    background:#d8eef8;
+    transform:scale(1.08);
+}
+
+.likes-count{
+    font-weight:700;
+    color:#0b3550;
+    margin-left:2px;
 }
