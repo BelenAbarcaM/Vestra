@@ -2,23 +2,56 @@ import React, { useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
 
-export default function Login({ onCrearCuenta }) {
+export default function Login({ onCrearCuenta, onLoginCorrecto }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [recordarme, setRecordarme] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
-  const manejarEnvio = (e) => {
-    e.preventDefault();
+  const manejarEnvio = async (e) => {
+  e.preventDefault();
 
-    if (!email.trim() || !password.trim()) {
-      setMensaje('Por favor, complete todos los campos.');
-      return;
-    }
+  if (!email.trim() || !password.trim()) {
+    setMensaje("Por favor, complete todos los campos.");
+    return;
+  }
 
-    setMensaje(`Bienvenido/a. Ingreso preparado para: ${email}`);
-    console.log('Datos de inicio de sesion', { email, password, recordarme });
-  };
+  try {
+    const datos = new FormData();
+
+    datos.append("email", email);
+    datos.append("pass", password);
+
+    const respuesta = await fetch(
+      "http://localhost/vestra/backend/api/login.php",
+      {
+        method: "POST",
+        body: datos
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+console.log(resultado);
+
+if (resultado.success) {
+
+    setMensaje("Bienvenido " + resultado.usuario);
+
+    setTimeout(() => {
+        onLoginCorrecto();
+    }, 1000);
+
+} else {
+
+    setMensaje(resultado.mensaje);
+
+}
+  } catch (error) {
+    console.error(error);
+    setMensaje("Error al conectar con el servidor.");
+  }
+};    
 
   return (
     <section className="login-contenedor">
@@ -81,3 +114,4 @@ export default function Login({ onCrearCuenta }) {
     </section>
   );
 }
+
