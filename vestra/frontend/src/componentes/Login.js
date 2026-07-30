@@ -114,4 +114,3 @@ if (resultado.success) {
     </section>
   );
 }
-
