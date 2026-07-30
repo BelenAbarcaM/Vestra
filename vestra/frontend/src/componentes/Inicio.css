@@ -8,7 +8,7 @@
 
 .cedes-root{
   padding: 10px;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   color: #0b3550;
   padding-bottom: 78px; /* espacio para bottom nav */
   background: var(--bg);
@@ -19,24 +19,24 @@
   display:flex;
   justify-content:center;
   margin-bottom: 8px;
-  
 }
 
 .cedes-hero-inner {
   width: 60%;
   max-width: 520px;
   background: #f7ead6;
-  border-radius: 10px;
   padding: 14px 12px;
   text-align: center;
   box-shadow: 0 6px 16px rgba(6,6,6,0.06);
   position: relative;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 
 .cedes-title { margin: 0; line-height: 1; font-weight: 800; letter-spacing: 1px; }
-.cedes-title .line1 { color: var(--blue); font-size: 20px; font-family: 'Fuente'; }
-.cedes-title .line2 { color: var(--accent); font-size: 20px; font-family: 'Fuente'; }
-.cedes-title .line3 { color: var(--blue); font-size: 20px; font-family: 'Fuente'; }
+.cedes-title .line1 { color: var(--blue); font-size: 30px; font-family: 'Fuente'; }
+.cedes-title .line2 { color: var(--accent); font-size: 30px; font-family: 'Fuente'; }
+.cedes-title .line3 { color: var(--blue); font-size: 30px; font-family: 'Fuente'; }
 
 .cedes-deco {
   width: 50px;
@@ -69,10 +69,11 @@
 
 .cedes-search .search-icon {
   position: relative;
-  left: 81%;
+  left: 48%;
   margin-right: -30px;
   stroke: var(--blue);
   opacity: 0.95;
+  color: #fff5e2;
 }
 
 /* Feed and cards */
@@ -80,10 +81,11 @@
 
 .cedes-card {
   background: #f1fffaff;
-  border-radius: 12px;
+  border-radius: 25px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(6,30,41,0.05);
   border: 1px solid rgba(11,107,143,0.05);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 /* header row inside card */
@@ -92,6 +94,7 @@
   justify-content:space-between;
   align-items:center;
   padding: 10px;
+  font-size: 15px,
 }
 
 .author { display:flex; align-items:center; gap:8px; }
@@ -124,7 +127,7 @@
 
 /* bottom navigation */
 .cedes-bottomnav {
-  position: fixed;
+  position: sticky;
   left: 12px;
   right: 12px;
   bottom: 14px;
@@ -137,7 +140,7 @@
   box-shadow: 0 10px 24px rgba(6,30,40,0.10);
   z-index: 60;
   max-width: 540px;
-  margin: 0 auto;
+  margin: auto;
 }
 
 .nav-btn { background: transparent; border:none; padding:6px; display:flex; align-items:center; justify-content:center; color:var(--blue); font-size:16px; }
@@ -161,7 +164,248 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Fuente2';
+  src: url('../LeagueSpartan-Bold.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 input::placeholder, textarea::placeholder {
   color: #fff5e2;
+  opacity: 0.8;
+}
+
+/* ===== Buscador estilo referencia (pégalo al final de Inicio.css) ===== */
+.cedes-hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+}
+
+/* muestra el buscador antes que el título sin tocar el HTML */
+.cedes-search {
+  order: -1;                   /* aparece antes que el título */
+  width: 100%;
+  max-width: 360px;            /* ancho del buscador */
+  margin: 6px auto 12px;       /* centrado y separación */
+  position: relative;
+}
+
+/* píldora blanca con sombra y espacio para la lupa a la izquierda */
+.cedes-search input[type="search"] {
+  width: 100%;
+  padding: 10px 14px 10px 40px; /* espacio para el icono */
+  border-radius: 999px;
+  border: 1px solid rgba(11,107,143,0.08);
+  background: #ffffff;          /* blanco como en la referencia */
+  color: #0b3550;
+  font-size: 0.95rem;
+  outline: none;
+  box-shadow: 0 6px 16px rgba(6,30,40,0.08);
+}
+
+/* icono lupa dentro del input, alineado a la izquierda */
+.cedes-search .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  stroke: var(--blue);     /* color de la lupa (puedes cambiar la variable) */
+  width: 18px;
+  height: 18px;
+  opacity: 0.95;
+  pointer-events: none;    /* no interfiere al clickear el input */
+}
+
+/* placeholder más sutil */
+.cedes-search input::placeholder {
+  color: #9aa7ad;
   opacity: 1;
+}
+
+/* ajuste para pantallas muy estrechas */
+@media (max-width: 380px) {
+  .cedes-search { max-width: calc(100% - 28px); }
+}
+
+/* ===== Header azul con buscador desplegable ===== */
+.topbar {
+    background: #0b6b8f;
+    color: #fff;
+    width: 423px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(6, 30, 40, 0.12);
+    position: sticky;
+    z-index: 80;
+    margin: auto;
+    margin-top: z;
+    height: 40px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.topbar-inner {
+  width: 100%;
+  max-width: 420px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* espacio a la izquierda para que quede centrado como referencia */
+.topbar-space { flex: 1; }
+
+/* botón lupa en header */
+.topbar-search-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 6px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.topbar-search-btn:hover { background: rgba(255,255,255,0.06); }
+
+/* icono svg toma el color actual (currentColor) */
+.topbar-search-btn .search-icon { width: 22px; height: 22px; color: #fff; }
+
+/* Panel desplegable (inicialmente oculto por max-height) */
+.search-panel {
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease;
+  opacity: 0;
+  background: transparent; /* fondo transparente para que parezca debajo del header */
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.search-panel.open {
+  max-height: 96px; /* suficiente para el input */
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* contenido del panel: píldora blanca centrada */
+.search-panel-inner {
+  width: 92%;
+  margin: 10px 0;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(6,30,40,0.12);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  box-sizing: border-box;
+}
+
+/* lupa dentro del panel (izquierda) */
+.search-panel-inner .search-icon-inline {
+  width: 18px;
+  height: 18px;
+  color: #0b6b8f;
+  flex: 0 0 18px;
+}
+
+/* input del buscador desplegable */
+.top-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 6px;
+  font-size: 0.95rem;
+  color: #0b3550;
+  width: 100%;
+}
+
+/* boton para cerrar (x) */
+.search-close {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 16px;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.search-close:hover { color: #0b6b8f; }
+
+/* evitar que el panel solape el contenido (opcional) */
+.cedes-main { padding-top: 8px; }
+
+/* adaptable en móviles muy pequeños */
+@media (max-width: 400px) {
+  .search-panel-inner { width: 94%; padding: 6px 10px; }
+  .topbar-inner { padding: 6px 8px; }
+}
+
+/* Ajustes para posts más delgados */
+.cedes-main { justify-content:center; }
+
+/* reduce el ancho máximo del feed y centra */
+.cedes-feed {
+  max-width: 360px; /* ancho más delgado: cambia a 320/340 si quieres aún más estrecho */
+  margin: 10px auto 0;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* limitar también el hero para que coincida con el ancho del feed */
+.cedes-hero-inner {
+  width: 100%;
+  max-width: 360px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* tarjetas más compactas */
+.cedes-card {
+  padding: 8px;                 /* menos espacio interior */
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+/* cabecera de la card: avatar más pequeña y texto más compacto */
+.author-avatar {
+  width: 32px;
+  height: 32px;
+}
+.author-name { font-size: 0.88rem; }
+
+/* imagen del post menos alta */
+.card-image img, .image-placeholder {
+  height: 140px;                /* reduce altura de la imagen */
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* cuerpo y texto más ajustado */
+.card-body { padding: 8px 6px; gap:6px; }
+.card-caption { font-size: 0.9rem; margin: 0; }
+
+/* acciones y botones más pequeños */
+.comment-btn { padding: 6px 10px; font-size: 0.86rem; border-radius: 14px; }
+.like-btn { font-size: 14px; }
+
+/* footer pequeño */
+.card-footer { padding:6px; font-size:0.8rem; border-radius:8px; }
+
+/* bottom nav: asegurar que no supere el ancho nuevo */
+.cedes-bottomnav { max-width: 380px; left: auto; right: auto; }
+
+/* responsive: en pantallas más anchas aumentar un poco sin volver al ancho grande */
+@media (min-width: 760px) {
+  .cedes-feed, .cedes-hero-inner { max-width: 420px; }
+  .card-image img, .image-placeholder { height: 180px; }
 }
