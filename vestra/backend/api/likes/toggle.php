@@ -5,6 +5,7 @@ include '../../config/conexion.php';
 
 header('Content-Type: application/json');
 
+// Verificar que el usuario haya iniciado sesión
 if (!isset($_SESSION['id_usuario'])) {
     echo json_encode([
         "success" => false,
@@ -15,6 +16,7 @@ if (!isset($_SESSION['id_usuario'])) {
 
 $id_usuario = $_SESSION['id_usuario'];
 
+// Obtener el id de la publicación
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!isset($data['id_publicacion'])) {
@@ -27,6 +29,7 @@ if (!isset($data['id_publicacion'])) {
 
 $id_publicacion = $data['id_publicacion'];
 
+// Verificar si ya existe el like
 $sql = "SELECT id_likes
         FROM likepublicacion
         WHERE id_usuario = ? AND id_publicacion = ?";
@@ -38,6 +41,7 @@ $resultado = $stmt->get_result();
 
 if ($resultado->num_rows > 0) {
 
+    // Ya existe → quitar like
     $sql = "DELETE FROM likepublicacion
             WHERE id_usuario = ? AND id_publicacion = ?";
 
@@ -53,6 +57,7 @@ if ($resultado->num_rows > 0) {
 
 } else {
 
+    // No existe → agregar like
     $sql = "INSERT INTO likepublicacion (id_usuario, id_publicacion)
             VALUES (?, ?)";
 
