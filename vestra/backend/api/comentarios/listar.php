@@ -1,9 +1,21 @@
 <?php
 
-session_start();
 include '../../config/conexion.php';
 
+session_start();
+
 header("Content-Type: application/json");
+
+
+if (!isset($_SESSION['id_usuario'])) {
+    echo json_encode([
+        "success" => false,
+        "mensaje" => "Usuario no autenticado"
+    ]);
+    exit;
+}
+
+$id_usuario = $_SESSION['id_usuario'];
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -18,20 +30,43 @@ if (!isset($data['id_publicacion'])) {
 $id_publicacion = $data['id_publicacion'];
 
 $sql = "SELECT
-            c.id_Comentario,
+            c.id_comentario,
             c.texto,
             c.fecha,
             u.Nombre AS usuario,
-            u.Foto_url AS foto_usuario
-        FROM comentario c
+            u.Foto_url AS foto_usuario,
+
+            COUNT(lc.id_likes) AS likes,
+
+            MAX(
+                CASE
+                    WHEN lc.id_usuario = ? THEN 1
+                    ELSE 0
+                END
+            ) AS liked
+
+        FROM Comentario c
+
         INNER JOIN Usuario u
             ON c.id_usuario = u.id_usuario
+
+        LEFT JOIN likecomentario lc
+            ON c.id_comentario = lc.id_comentario
+
         WHERE c.id_publicacion = ?
         AND c.estado = 'Visible'
-        ORDER BY likes DESC, p.Fecha DESC";
+
+        GROUP BY
+            c.id_comentario,
+            c.texto,
+            c.fecha,
+            u.Nombre,
+            u.Foto_url
+
+        ORDER BY likes DESC, c.fecha DESC";
 
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("i", $id_publicacion);
+$stmt->bind_param("ii", $id_usuario, $id_publicacion);
 $stmt->execute();
 
 $resultado = $stmt->get_result();

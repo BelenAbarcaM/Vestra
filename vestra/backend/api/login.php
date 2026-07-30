@@ -23,6 +23,16 @@ $resultado = mysqli_stmt_get_result($consulta);
 if(mysqli_num_rows($resultado) > 0){
 
     $usuario = mysqli_fetch_assoc($resultado);
+    if($usuario['verificado'] == 0){
+
+    echo json_encode([
+        "success" => false,
+        "mensaje" => "Debes verificar tu correo antes de iniciar sesión."
+    ]);
+
+    exit();
+
+}
 
     if(password_verify($contra, $usuario['Contraseña'])){
 

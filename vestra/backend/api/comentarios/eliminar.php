@@ -17,7 +17,7 @@ $id_usuario = $_SESSION['id_usuario'];
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['id_comentario'])) {
+if (!isset($data['id_Comentario'])) {
     echo json_encode([
         "success" => false,
         "mensaje" => "Falta el id del comentario"
@@ -25,7 +25,7 @@ if (!isset($data['id_comentario'])) {
     exit;
 }
 
-$id_comentario = $data['id_comentario'];
+$id_Comentario = $data['id_Comentario'];
 
 
 $eliminar = "UPDATE comentario

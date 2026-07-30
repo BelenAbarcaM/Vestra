@@ -3,7 +3,6 @@
 session_start();
 include '../../config/conexion.php';
 
-soloProfesor();
 
 $idPubli = $_POST['id_publicacion'];
 if (empty($idPubli)) {

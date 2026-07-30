@@ -3,22 +3,20 @@
 session_start();
 include '../../config/conexion.php';
 
-soloProfesor();
-
 $idPubli = $_POST['id_publicacion'];
 $texto = $_POST['texto'];
 $idClub = $_POST['id_club'];
 $idUsuario = $_SESSION['id_usuario'];
 $imagen = $_FILES['imagen'];
 
-if ($_FILES['imagen']['error'] == 0) {
+if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {
     $imagen = $_FILES['imagen'];
     $nombreImagen = uniqid() . "_" . $imagen['name'];
     $rutaDestino = __DIR__ . "/../../../uploads/publicaciones/" . $nombreImagen;
 
     move_uploaded_file($imagen['tmp_name'], $rutaDestino);
 } else {
-    $sqlFoto = "SELECT Imagen_url
+    $sqlFoto = "SELECT imagen_url
                 FROM Publicacion
                 WHERE id_publicacion = ?";
 
@@ -29,7 +27,7 @@ if ($_FILES['imagen']['error'] == 0) {
     $resultado = $stmtFoto->get_result();
     $publicacion = $resultado->fetch_assoc();
 
-    $nombreImagen = $publicacion['Imagen_url'];
+    $nombreImagen = $publicacion['imagen_url'];
 }
 
 $edit = "UPDATE publicacion
@@ -37,11 +35,11 @@ SET
     Texto = ?,
     id_usuario = ?,
     id_club = ?,
-    Imagen_url = ?
+    imagen_url = ?
 WHERE id_publicacion = ?";
 
 $stmt = $conexion->prepare($edit);
-$stmt->bind_param("siis", $texto, $idUsuario, $idClub, $nombreImagen, $idPublicacion);
+$stmt->bind_param("siisi", $texto, $idUsuario, $idClub, $nombreImagen, $idPubli);
 
 if ($stmt->execute()) {
     echo "Publicación actualizada correctamente.";

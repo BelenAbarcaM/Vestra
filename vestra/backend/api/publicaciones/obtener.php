@@ -12,7 +12,7 @@ $obtener = "SELECT
             p.id_publicacion AS id,
             p.Texto AS texto,
             p.Fecha AS fecha,
-            CONCAT('uploads/publicaciones/', p.Imagen_url) AS imagen,
+            CONCAT('uploads/publicaciones/', p.imagen_url) AS imagen,
             u.Nombre AS usuario,
             u.Foto_url AS foto_usuario,
             c.Nombre AS club
@@ -28,7 +28,7 @@ $stmt = $conexion->prepare($obtener);
 
 $stmt->bind_param("i", $idClub);
 
-$stmt->execute
+$stmt->execute();
 
 $resultado = $stmt->get_result();
 

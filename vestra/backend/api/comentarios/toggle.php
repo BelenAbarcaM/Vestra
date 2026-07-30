@@ -17,7 +17,7 @@ $id_usuario = $_SESSION['id_usuario'];
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['id_publicacion'])) {
+if (!isset($data['id_comentario'])) {
     echo json_encode([
         "success" => false,
         "mensaje" => "Falta el id de la publicación"
@@ -25,24 +25,24 @@ if (!isset($data['id_publicacion'])) {
     exit;
 }
 
-$id_publicacion = $data['id_publicacion'];
+$id_comentario = $data['id_comentario'];
 
 $sql = "SELECT id_likes
-        FROM likepublicacion
-        WHERE id_usuario = ? AND id_publicacion = ?";
+        FROM likecomentario
+        WHERE id_usuario = ? AND id_comentario = ?";
 
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("ii", $id_usuario, $id_publicacion);
+$stmt->bind_param("ii", $id_usuario, $id_comentario);
 $stmt->execute();
 $resultado = $stmt->get_result();
 
 if ($resultado->num_rows > 0) {
 
-    $sql = "DELETE FROM likepublicacion
-            WHERE id_usuario = ? AND id_publicacion = ?";
+    $sql = "DELETE FROM likecomentario
+            WHERE id_usuario = ? AND id_comentario = ?";
 
     $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("ii", $id_usuario, $id_publicacion);
+    $stmt->bind_param("ii", $id_usuario, $id_comentario);
     $stmt->execute();
 
     echo json_encode([
@@ -53,11 +53,11 @@ if ($resultado->num_rows > 0) {
 
 } else {
 
-    $sql = "INSERT INTO likepublicacion (id_usuario, id_publicacion)
+    $sql = "INSERT INTO likecomentario (id_usuario, id_comentario)
             VALUES (?, ?)";
 
     $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("ii", $id_usuario, $id_publicacion);
+    $stmt->bind_param("ii", $id_usuario, $id_comentario);
     $stmt->execute();
 
     echo json_encode([
