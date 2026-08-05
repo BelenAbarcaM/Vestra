@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
 include '../config/conexion.php';
 
@@ -8,7 +10,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 
-$correo = $_POST['correo'] ?? '';
+$correo = $_SESSION['correo_verificacion'] ?? '';
 $codigo = $_POST['codigo'] ?? '';
 
 
@@ -21,7 +23,7 @@ if(empty($correo) || empty($codigo)){
 }
 
 
-// Buscar usuario
+// Buscar al brosito
 $sql = "SELECT id_usuario, codigo_verificacion 
         FROM usuario 
         WHERE Correo = ?";
@@ -74,6 +76,8 @@ if($usuario['codigo_verificacion'] == $codigo){
 
 
     mysqli_stmt_execute($actualizar);
+
+    unset($_SESSION['correo_verificacion']);
 
 
     echo json_encode([

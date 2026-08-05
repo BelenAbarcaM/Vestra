@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 include '../config/conexion.php';
 
@@ -25,8 +26,6 @@ if(empty($correo)){
 
 }
 
-
-// Buscar usuario
 $buscar = mysqli_prepare(
     $conexion,
     "SELECT id_usuario, Nombre 
@@ -65,11 +64,10 @@ if(mysqli_num_rows($resultado) == 0){
 $usuario = mysqli_fetch_assoc($resultado);
 
 
-// Crear código
 $codigo = rand(100000,999999);
 
 
-// Fecha de expiración (15 minutos)
+// Fecha q se vence
 $expira = date(
     "Y-m-d H:i:s",
     strtotime("+15 minutes")
@@ -77,7 +75,6 @@ $expira = date(
 
 
 
-// Guardar código
 $actualizar = mysqli_prepare(
     $conexion,
     "UPDATE usuario
@@ -184,7 +181,7 @@ Vía Estudiantil Salesiana
 
 
 <h2 style='color:#3E5C76; margin-top:0;'>
-Hola {$usuario['Nombre']} 👋
+Hola {$usuario['Nombre']} 
 </h2>
 
 
@@ -231,7 +228,7 @@ $codigo
 
 <p style='margin:0; color:#666; font-size:14px; line-height:1.5;'>
 
-⏱️ Este código estará disponible durante <b>15 minutos</b>.
+⏱ Este código estará disponible durante <b>15 minutos</b>.
 
 <br><br>
 
@@ -261,7 +258,7 @@ VESTRA · Colegio Técnico Profesional Don Bosco
 
 
 <p style='margin:8px 0 0; color:#999; font-size:12px;'>
-Conectando estudiantes, clubes y comunidad 🦦
+Conectando estudiantes, clubes y comunidad 
 </p>
 
 
@@ -285,6 +282,8 @@ Conectando estudiantes, clubes y comunidad 🦦
 
 
     $mail->send();
+
+    $_SESSION['correo_recuperacion'] = $correo;
 
 
     echo json_encode([

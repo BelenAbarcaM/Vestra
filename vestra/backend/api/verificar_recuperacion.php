@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 include '../config/conexion.php';
 
@@ -8,7 +9,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 
-$correo = $_POST['correo'] ?? '';
+$correo = $_SESSION['correo_recuperacion'] ?? '';
 $codigo = $_POST['codigo'] ?? '';
 
 
@@ -24,7 +25,7 @@ if(empty($correo) || empty($codigo)){
 }
 
 
-// Buscar usuario
+// Buscar al brosito
 $buscar = mysqli_prepare(
     $conexion,
     "SELECT id_usuario, codigo_recuperacion, recuperacion_expira
@@ -95,6 +96,21 @@ if(strtotime($usuario['recuperacion_expira']) < time()){
 
 
 // Código correcto
+$actualizar = mysqli_prepare(
+    $conexion,
+    "UPDATE usuario
+     SET codigo_recuperacion = NULL,
+         recuperacion_expira = NULL
+     WHERE id_usuario = ?"
+);
+
+mysqli_stmt_bind_param(
+    $actualizar,
+    "i",
+    $usuario['id_usuario']
+);
+
+mysqli_stmt_execute($actualizar);
 
 echo json_encode([
     "success" => true,

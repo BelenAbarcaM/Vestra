@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 
 include '../config/conexion.php';
 
@@ -8,7 +10,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
 
-$correo = $_POST['correo'] ?? '';
+$correo = $_SESSION['correo_recuperacion'] ?? '';
 $nueva_password = $_POST['password'] ?? '';
 
 
@@ -26,7 +28,6 @@ if(empty($correo) || empty($nueva_password)){
 
 
 
-// Buscar usuario
 
 $buscar = mysqli_prepare(
     $conexion,
@@ -67,7 +68,6 @@ $usuario = mysqli_fetch_assoc($resultado);
 
 
 
-// Encriptar nueva contraseña
 
 $password_hash = password_hash(
     $nueva_password,
@@ -75,8 +75,6 @@ $password_hash = password_hash(
 );
 
 
-
-// Actualizar contraseña y borrar código
 
 $actualizar = mysqli_prepare(
     $conexion,
@@ -98,6 +96,7 @@ mysqli_stmt_bind_param(
 
 
 if(mysqli_stmt_execute($actualizar)){
+    unset($_SESSION['correo_recuperacion']);
 
 
     echo json_encode([

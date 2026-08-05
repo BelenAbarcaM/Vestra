@@ -6,7 +6,7 @@ include '../../config/conexion.php';
 
 $texto = $_POST['texto'];
 $idClub = $_POST['id_club'];;
-$idUsuario = 1;
+$idUsuario = $_SESSION['id_usuario'];
 $imagen = $_FILES['imagen'];
 $nombreImagen = uniqid() . "_" . $imagen['name'];
 $rutaDestino = "../../../uploads/publicaciones/" . $nombreImagen;

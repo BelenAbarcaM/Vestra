@@ -1,7 +1,11 @@
 <?php
+session_start();
+
 
 include '../config/conexion.php';
 include '../models/Usuario.php';
+
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -40,6 +44,7 @@ $resultado = registrarUsuario(
     $tipo_usuario,
     $codigo
 );
+
 
 if ($resultado) {
 
@@ -105,7 +110,7 @@ Vía Estudiantil Salesiana
 
 
 <h2 style='color:#3E5C76;'>
-¡Bienvenido a VESTRA, $nombre! 👋
+¡Bienvenido a VESTRA, $nombre! 
 </h2>
 
 
@@ -192,11 +197,11 @@ Conectando estudiantes, clubes y comunidad.
 ";
 
         $mail->send();
+        $_SESSION['correo_verificacion'] = $correo;
 
     } catch (Exception $e) {
     }
 }
-
 echo json_encode($resultado);
 
 ?>
