@@ -1,244 +1,187 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./Perfil.css";
-import './Login.css';
-/**
- * Props:
- * - initialProfile: { name, email, bio, avatarUrl }
- * - onSave: async function(formData) => { success: true, avatarUrl?: string } or throw Error / return { success: false, message }
- */
-export default function Perfil({ initialProfile = {}, onSave } = {}) {
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+import React, { useState } from 'react';
+import './Perfil.css';
 
-  const [profile, setProfile] = useState({
-    name: initialProfile.name || "",
-    email: initialProfile.email || "",
-    bio: initialProfile.bio || "",
-    avatarUrl: initialProfile.avatarUrl || "",
-  });
+export default function Perfil({ onCerrarSesion }) {
+  const espaciosInsignias = Array.from({ length: 3 });
 
-  const originalRef = useRef(profile);
-  const fileInputRef = useRef(null);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [editando, setEditando] = useState(false);
+  const [nombre, setNombre] = useState('Nombre del perfil');
+  const [bio, setBio] = useState(
+    'Descripción del perfil.'
+  );
+  const [imagenPerfil, setImagenPerfil] = useState('');
 
-  useEffect(() => {
-    // Si cambian las props iniciales, sincronizamos
-    setProfile({
-      name: initialProfile.name || "",
-      email: initialProfile.email || "",
-      bio: initialProfile.bio || "",
-      avatarUrl: initialProfile.avatarUrl || "",
-    });
-    originalRef.current = {
-      name: initialProfile.name || "",
-      email: initialProfile.email || "",
-      bio: initialProfile.bio || "",
-      avatarUrl: initialProfile.avatarUrl || "",
-    };
-    // limpieza de preview al desmontar
-    return () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialProfile.name, initialProfile.email, initialProfile.bio, initialProfile.avatarUrl]);
+  const [borradorNombre, setBorradorNombre] = useState(nombre);
+  const [borradorBio, setBorradorBio] = useState(bio);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setProfile((p) => ({ ...p, [name]: value }));
-  }
+  const handleEditar = () => {
+    setBorradorNombre(nombre);
+    setBorradorBio(bio);
+    setEditando(true);
+  };
 
-  function handleFileChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarFile(file);
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    const url = URL.createObjectURL(file);
-    setAvatarPreview(url);
-  }
+  const handleCancelar = () => {
+    setBorradorNombre(nombre);
+    setBorradorBio(bio);
+    setEditando(false);
+  };
 
-  function enterEdit() {
-    setError("");
-    setSuccess("");
-    setEditMode(true);
-  }
+  const handleGuardar = () => {
+    setNombre(borradorNombre.trim() || 'Nombre del perfil');
+    setBio(
+      borradorBio.trim() ||
+        'Descripcion del perfil.'
+    );
+    setEditando(false);
+  };
 
-  function cancelEdit() {
-    setError("");
-    setSuccess("");
-    setEditMode(false);
-    setAvatarFile(null);
-    if (avatarPreview) {
-      URL.revokeObjectURL(avatarPreview);
-      setAvatarPreview(null);
-    }
-    if (originalRef.current) setProfile(originalRef.current);
-  }
-
-  async function handleSave(e) {
-    e && e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    // Validaciones simples front
-    if (!profile.name.trim()) {
-      setError("El nombre es requerido.");
-      return;
-    }
-    if (!profile.email.trim() || !/^\S+@\S+\.\S+$/.test(profile.email)) {
-      setError("Email inválido.");
+  const handleCerrarSesion = () => {
+    if (typeof onCerrarSesion === 'function') {
+      onCerrarSesion();
       return;
     }
 
-    setSaving(true);
-    try {
-      const formData = new FormData();
-      formData.append("name", profile.name);
-      formData.append("email", profile.email);
-      formData.append("bio", profile.bio || "");
-      if (avatarFile) formData.append("avatar", avatarFile);
+    alert('Cerrar sesión');
+  };
 
-      if (typeof onSave === "function") {
-        // El onSave es responsabilidad del consumidor (frontend que integra con backend)
-        const result = await onSave(formData);
-        if (result?.success) {
-          setSuccess("Perfil actualizado.");
-          setEditMode(false);
-          // actualizar avatarUrl si el handler devolvió uno
-          if (result.avatarUrl) {
-            setProfile((p) => ({ ...p, avatarUrl: result.avatarUrl }));
-          }
-          originalRef.current = { ...profile, avatarUrl: result?.avatarUrl || profile.avatarUrl };
-          setAvatarFile(null);
-          if (avatarPreview) {
-            URL.revokeObjectURL(avatarPreview);
-            setAvatarPreview(null);
-          }
-        } else {
-          throw new Error(result?.message || "No se pudo actualizar el perfil.");
-        }
-      } else {
-        // Simulación de guardado local (sin backend) para desarrollo rápido
-        await new Promise((r) => setTimeout(r, 800));
-        setSuccess("Cambios guardados (simulado).");
-        setEditMode(false);
-        originalRef.current = { ...profile };
-        setAvatarFile(null);
-        if (avatarPreview) {
-          URL.revokeObjectURL(avatarPreview);
-          setAvatarPreview(null);
-        }
-      }
-    } catch (err) {
-      setError(err?.message || "Error al guardar.");
-    } finally {
-      setSaving(false);
+  const handleCambiarImagen = (e) => {
+    const archivo = e.target.files?.[0];
+
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+      alert('Selecciona una imagen válida.');
+      return;
     }
-  }
 
-  if (loading) {
-    return <div className="perfil-container">Cargando…</div>;
-  }
+    const lector = new FileReader();
+
+    lector.onload = () => {
+      setImagenPerfil(lector.result);
+    };
+
+    lector.readAsDataURL(archivo);
+  };
 
   return (
-    <main className="login-contenedor" role="main">
-      <div className="login-tarjeta">
-      <header className="perfil-header">
-        <h1 className="perfil-title">Mi perfil</h1>
-        <div className="perfil-actions">
-          {!editMode ? (
-            <button className="btn" onClick={enterEdit} aria-label="Editar perfil">
+    <section className="perfil-page">
+      <div className="perfil-card">
+        <div className="perfil-top-actions">
+          {!editando ? (
+            <button
+              type="button"
+              className="perfil-btn-editar perfil-btn-mini"
+              onClick={handleEditar}
+            >
               Editar
             </button>
           ) : (
-            <>
+            <div className="perfil-acciones-edicion">
               <button
-                className="btn btn-primary"
-                onClick={handleSave}
-                disabled={saving}
-                aria-label="Guardar cambios"
+                type="button"
+                className="perfil-btn-secundario perfil-btn-mini"
+                onClick={handleCancelar}
               >
-                {saving ? "Guardando…" : "Guardar"}
-              </button>
-              <button className="btn" onClick={cancelEdit} aria-label="Cancelar edición">
                 Cancelar
               </button>
-            </>
+              <button
+                type="button"
+                className="perfil-btn-editar perfil-btn-mini"
+                onClick={handleGuardar}
+              >
+                Guardar
+              </button>
+            </div>
           )}
-        </div>
-      </header>
 
-      <form className="perfil-form" onSubmit={handleSave} noValidate>
-        <div className="perfil-avatar-col">
-          <div className="perfil-avatar-wrap">
-            <img
-              src={avatarPreview || profile.avatarUrl || "./logito.png"}
-              alt=":v"
-              className="perfil-avatar"
-            />
-            {editMode && (
-              <>
-                <label className="perfil-avatar-label" htmlFor="avatarInput">
-                  Cambiar foto
-                </label>
-                <input
-                  id="avatarInput"
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="perfil-hidden-file"
-                />
-              </>
-            )}
+          <button
+            type="button"
+            className="perfil-btn-salir"
+            onClick={handleCerrarSesion}
+          >
+            Salir
+          </button>
+        </div>
+
+        <div className="perfil-topbar">
+          <div className="perfil-topbar-texto">
+            <h1 className="perfil-heading">Perfil</h1>
+            <p className="perfil-subtitulo">Tu espacio personal en Vestra</p>
           </div>
         </div>
 
-        <div className="perfil-data-col">
-          <label className="perfil-field">
-            <span className="perfil-field-label">Nombre</span>
-            <input
-              name="name"
-              value={profile.name}
-              onChange={handleChange}
-              disabled={!editMode}
-              className="perfil-input"
-              aria-required="true"
-            />
-          </label>
+        <div className="perfil-linea" />
 
-          <label className="perfil-field">
-            <span className="perfil-field-label">Email</span>
-            <input
-              name="email"
-              value={profile.email}
-              onChange={handleChange}
-              disabled={!editMode}
-              className="perfil-input"
-              type="email"
-            />
-          </label>
+        <div className="perfil-hero">
+          <div className="perfil-avatar">
+            {imagenPerfil ? (
+              <img
+                src={imagenPerfil}
+                alt="Perfil"
+                className="perfil-avatar-img"
+              />
+            ) : (
+              <span className="perfil-avatar-icon">:v</span>
+            )}
+          </div>
 
-          <label className="perfil-field">
-            <span className="perfil-field-label">Bio</span>
-            <textarea
-              name="bio"
-              value={profile.bio}
-              onChange={handleChange}
-              disabled={!editMode}
-              className="perfil-textarea"
-              rows={4}
-            />
-          </label>
+          {editando ? (
+            <label className="perfil-btn-foto">
+              Cambiar foto
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCambiarImagen}
+                className="perfil-input-file"
+              />
+            </label>
+          ) : null}
 
-          {error && <div className="perfil-error" role="alert">{error}</div>}
-          {success && <div className="perfil-success" role="status">{success}</div>}
+          {!editando ? (
+            <>
+              <h2 className="perfil-nombre">{nombre}</h2>
+              <p className="perfil-bio">{bio}</p>
+            </>
+          ) : (
+            <div className="perfil-formulario-edicion">
+              <input
+                type="text"
+                className="perfil-input"
+                value={borradorNombre}
+                onChange={(e) => setBorradorNombre(e.target.value)}
+                placeholder="Nombre"
+              />
+              <textarea
+                className="perfil-textarea"
+                value={borradorBio}
+                onChange={(e) => setBorradorBio(e.target.value)}
+                placeholder="Descripción del perfil"
+                rows={3}
+              />
+            </div>
+          )}
         </div>
-      </form>
+
+        <section className="perfil-seccion perfil-seccion-suave">
+          <h3 className="perfil-titulo-seccion">Insignias</h3>
+
+          <div className="perfil-insignias">
+            {espaciosInsignias.map((_, index) => (
+              <div
+                key={index}
+                className="perfil-insignia-vacia"
+                aria-hidden="true"
+              >
+                <span>+</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="perfil-seccion">
+          <h3 className="perfil-titulo-likes">Likes guardados</h3>
+        </section>
       </div>
-    </main>
+    </section>
   );
 }
