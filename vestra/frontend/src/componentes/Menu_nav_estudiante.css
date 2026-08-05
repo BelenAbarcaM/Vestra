@@ -1,0 +1,31 @@
+.cedes-bottomnav {
+  position: sticky;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background: #0b6b8f;
+  padding: 8px 12px;
+  border-radius: 26px;
+  box-shadow: 0 10px 24px rgba(6,30,40,0.10);
+  z-index: 60;
+  max-width: 540px;
+  margin: auto;
+}
+
+.nav-btn { background: transparent; border:none; padding:6px; display:flex; align-items:center; justify-content:center; color:var(--blue); font-size:16px; }
+.nav-btn.add {
+    background: #68c2e4;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transform: translateY(-5px);
+    box-shadow: 0 7px 16px rgba(11, 107, 143, 0.16);
+    margin-top: 12px;
+}
