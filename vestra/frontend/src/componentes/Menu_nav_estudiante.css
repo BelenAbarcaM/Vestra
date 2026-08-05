@@ -29,3 +29,14 @@
     box-shadow: 0 7px 16px rgba(11, 107, 143, 0.16);
     margin-top: 12px;
 }
+
+.nav-btn.active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border-radius: 14px;
+}
+
+.nav-icon {
+  line-height: 1;
+  display: block;
+}
