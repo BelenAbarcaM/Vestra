@@ -23,12 +23,13 @@ body {
   padding: 28px;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
   text-align: left;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .verificar-tarjeta h1 {
   margin: 0;
   font-size: 1.9rem;
-  color: #1f2a37;
+  color: #05438f;
   text-align: center;
 }
 
