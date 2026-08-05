@@ -1,0 +1,104 @@
+.insc-root {
+  min-height: 100vh;
+  background: #f7ead6;
+  padding: 12px 10px 92px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.insc-top {
+  max-width: 440px;
+  margin: 0 auto 10px;
+  background: #fffaf1;
+  border-radius: 14px;
+  padding: 14px 12px;
+  box-shadow: 0 6px 14px rgba(6, 30, 40, 0.08);
+}
+
+.insc-title {
+  margin: 0 0 10px;
+  text-align: center;
+  color: #0b6b8f;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.insc-search {
+  width: 100%;
+  border: 1px solid rgba(11, 107, 143, 0.12);
+  border-radius: 999px;
+  padding: 10px 12px;
+  outline: none;
+  color: #0b3550;
+}
+
+.insc-search::placeholder {
+  color: #0b3550;
+  opacity: 0.65;
+}
+
+.insc-feed {
+  max-width: 440px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+}
+
+.insc-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(11, 107, 143, 0.08);
+  box-shadow: 0 8px 20px rgba(6, 30, 40, 0.1);
+  overflow: hidden;
+}
+
+.insc-card-image img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  display: block;
+}
+
+.insc-card-body {
+  padding: 12px;
+}
+
+.insc-card-title {
+  margin: 0 0 6px;
+  color: #0b3550;
+  font-size: 1rem;
+}
+
+.insc-card-desc {
+  margin: 0 0 10px;
+  color: #455564;
+  font-size: 0.92rem;
+}
+
+.insc-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #0b6b8f;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.insc-btn {
+  border: none;
+  background: #23c9e9;
+  color: #fff;
+  font-weight: 700;
+  padding: 9px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.insc-btn:hover {
+  background: #12b8d8;
+}
+
+.insc-empty {
+  text-align: center;
+  color: #6b7280;
+}
