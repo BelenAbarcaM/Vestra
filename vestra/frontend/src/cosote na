@@ -1,0 +1,108 @@
+import { useState } from 'react';
+import './App.css';
+
+import Login from './componentes/Login';
+import Registro from './componentes/Registro';
+import Inicio from './componentes/Inicio';
+import Perfil from './componentes/Perfil';
+import DesarrollaIdea from './componentes/Desarrolla_idea';
+
+import MenuNavEstudiante from './componentes/Menu_nav_estudiante';
+import MenuNavEncargado from './componentes/Menu_nav_encargado';
+import MenuNavInvitado from './componentes/Menu_nav_invitado';
+
+function App() {
+  // pantallas principales
+  const [pantalla, setPantalla] = useState('login'); // login | registro | app
+
+  // rol de usuario
+  const [rol, setRol] = useState('estudiante'); // estudiante | profesor | encargado | invitado
+
+  // vista interna del panel
+  const [vistaPanel, setVistaPanel] = useState('inicio');
+
+  const entrarApp = (payload) => {
+    // Soporta onLoginCorrecto() o onLoginCorrecto({ rol: 'profesor' })
+    const rolRecibido = payload?.rol || 'estudiante';
+    setRol(rolRecibido);
+    setVistaPanel('inicio');
+    setPantalla('app');
+  };
+
+  const cerrarSesion = () => {
+    setPantalla('login');
+    setRol('estudiante');
+    setVistaPanel('inicio');
+  };
+
+  const renderContenido = () => {
+    if (vistaPanel === 'inicio') return <Inicio />;
+    if (vistaPanel === 'crear' || vistaPanel === 'aprobar') return <DesarrollaIdea />;
+    if (vistaPanel === 'perfil') return <Perfil onCerrarSesion={cerrarSesion} />;
+
+    // placeholders para vistas aún no hechas
+    return (
+      <div style={{ padding: 16 }}>
+        <h3 style={{ margin: 0, color: '#0b3550' }}>{vistaPanel}</h3>
+        <p style={{ marginTop: 8 }}>Vista en construcción.</p>
+      </div>
+    );
+  };
+
+  const renderMenu = () => {
+
+    if (rol === 'encargado') {
+      return (
+        <MenuNavEncargado
+          vistaActiva={vistaPanel}
+          onCambiarVista={setVistaPanel}
+        />
+      );
+    }
+
+    if (rol === 'invitado') {
+      return (
+        <MenuNavInvitado
+          vistaActiva={vistaPanel}
+          onCambiarVista={setVistaPanel}
+          onSalirSesion={cerrarSesion}
+        />
+      );
+    }
+
+    return (
+      <MenuNavEstudiante
+        vistaActiva={vistaPanel}
+        onCambiarVista={setVistaPanel}
+      />
+    );
+  };
+
+  if (pantalla === 'login') {
+    return (
+      <div className="App">
+        <Login
+          onCrearCuenta={() => setPantalla('registro')}
+          onLoginCorrecto={entrarApp}
+        />
+      </div>
+    );
+  }
+
+  if (pantalla === 'registro') {
+    return (
+      <div className="App">
+        <Registro onIniciarSesion={() => setPantalla('login')} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="App">
+      {renderContenido()}
+      {renderMenu()}
+    </div>
+  );
+}
+
+export default App;
