@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (function_exists('mysqli_report')) {
+    mysqli_report(MYSQLI_REPORT_OFF);
+}
 include '../config/conexion.php';
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
@@ -13,13 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-if ($conexion->connect_errno) {
-    echo json_encode([
-        "success" => false,
-        "mensaje" => "No se pudo conectar con la base de datos."
-    ]);
-    exit;
-}
+$dbDisponible = isset($conexion) && !$conexion->connect_errno;
 
 function crearTablasChatbot($conexion) {
     $conexion->query("
@@ -285,6 +282,79 @@ function moderarMensajeGemini($mensaje) {
     ];
 }
 
+function generarRespuestaGeminiSinBd($mensaje) {
+    $gemini = obtenerConfigGemini();
+
+    if (empty($gemini['api_key']) || !function_exists('curl_init')) {
+        return '';
+    }
+
+    $prompt = "Eres Vivi, un asistente escolar amable para el proyecto Vestra de CEDES Don Bosco. Estas en modo de prueba sin base de datos, asi que no puedes guardar conversaciones ni consultar registros reales. Aun asi debes responder la pregunta del usuario con contenido util. Responde en espanol, natural y en 2 a 4 oraciones. No te quedes solo en saludar si el usuario pregunta algo. Puedes ayudar con: que es Vestra, clubes, inscripciones, publicaciones, eventos, objetivo del proyecto, funcionamiento general y como se conectaria con MySQL. Si te preguntan por datos exactos de la base de datos, aclara que en este modo no tienes acceso a MySQL.\n\nDatos base del proyecto: Vestra significa Via Estudiantil Salesiana. Es una red social escolar para CEDES Don Bosco que centraliza publicaciones, clubes, eventos, comentarios e informacion importante para mejorar la comunicacion y participacion estudiantil.\n\nUsuario: " . $mensaje;
+
+    $payload = [
+        'contents' => [
+            [
+                'role' => 'user',
+                'parts' => [
+                    ['text' => $prompt]
+                ]
+            ]
+        ],
+        'generationConfig' => [
+            'temperature' => 0.4
+        ],
+        'safetySettings' => [
+            [
+                'category' => 'HARM_CATEGORY_HARASSMENT',
+                'threshold' => 'BLOCK_LOW_AND_ABOVE'
+            ],
+            [
+                'category' => 'HARM_CATEGORY_HATE_SPEECH',
+                'threshold' => 'BLOCK_LOW_AND_ABOVE'
+            ],
+            [
+                'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                'threshold' => 'BLOCK_LOW_AND_ABOVE'
+            ],
+            [
+                'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                'threshold' => 'BLOCK_LOW_AND_ABOVE'
+            ]
+        ]
+    ];
+
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($gemini['model']) . ':generateContent?key=' . urlencode($gemini['api_key']);
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 35
+    ]);
+
+    $rawResponse = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    if ($rawResponse === false || $httpCode < 200 || $httpCode >= 300) {
+        return '';
+    }
+
+    $respuesta = json_decode($rawResponse, true);
+    if (!is_array($respuesta)) {
+        return '';
+    }
+
+    if (!empty($respuesta['promptFeedback']['blockReason']) || (($respuesta['candidates'][0]['finishReason'] ?? '') === 'SAFETY')) {
+        return respuestaMensajeBloqueado();
+    }
+
+    return extraerTextoGemini($respuesta);
+}
+
 function generarRespuesta($mensaje, $conexion) {
     $texto = normalizarTexto($mensaje);
 
@@ -344,12 +414,11 @@ function generarRespuesta($mensaje, $conexion) {
     return "Puedo ayudarte con informacion sobre Vestra, CEDES Don Bosco, clubes, inscripciones, publicaciones, eventos y la base de datos del proyecto. Preguntame algo de esas areas y te respondo con gusto.";
 }
 
-crearTablasChatbot($conexion);
-
 $data = json_decode(file_get_contents("php://input"), true);
 $mensaje = trim($data['mensaje'] ?? '');
 $sessionToken = trim($data['session_token'] ?? '');
 $conversacionId = isset($data['conversacion_id']) ? (int) $data['conversacion_id'] : 0;
+$modoSinBd = !$dbDisponible || !empty($data['sin_bd']);
 $usuarioId = null;
 
 if ($mensaje === '') {
@@ -364,7 +433,11 @@ if ($sessionToken === '') {
     $sessionToken = uniqid('sess_', true);
 }
 
-if ($conversacionId <= 0) {
+if (!$modoSinBd) {
+    crearTablasChatbot($conexion);
+}
+
+if (!$modoSinBd && $conversacionId <= 0) {
     $stmt = $conexion->prepare("SELECT id FROM conversaciones WHERE session_token = ? ORDER BY id DESC LIMIT 1");
     $stmt->bind_param("s", $sessionToken);
     $stmt->execute();
@@ -376,7 +449,7 @@ if ($conversacionId <= 0) {
     $stmt->close();
 }
 
-if ($conversacionId <= 0) {
+if (!$modoSinBd && $conversacionId <= 0) {
     $titulo = function_exists('mb_substr') ? mb_substr($mensaje, 0, 70) : substr($mensaje, 0, 70);
     $stmt = $conexion->prepare("INSERT INTO conversaciones (usuario_id, session_token, titulo) VALUES (?, ?, ?)");
     $stmt->bind_param("iss", $usuarioId, $sessionToken, $titulo);
@@ -386,26 +459,40 @@ if ($conversacionId <= 0) {
 }
 
 $moderacion = moderarMensajeGemini($mensaje);
-$respuesta = $moderacion['blocked']
-    ? respuestaMensajeBloqueado()
-    : generarRespuesta($mensaje, $conexion);
+$respuesta = respuestaMensajeBloqueado();
 
-$stmt = $conexion->prepare("INSERT INTO mensajes (conversacion_id, remitente, mensaje) VALUES (?, 'user', ?)");
-$stmt->bind_param("is", $conversacionId, $mensaje);
-$stmt->execute();
-$stmt->close();
+if (!$moderacion['blocked']) {
+    if ($modoSinBd) {
+        $respuestaGemini = generarRespuestaGeminiSinBd($mensaje);
+        $respuesta = $respuestaGemini !== ''
+            ? $respuestaGemini
+            : "Estoy en modo de prueba sin base de datos. Puedo conversar sobre Vestra, pero no pude conectar con Gemini en este momento.";
+    } else {
+        $respuesta = generarRespuesta($mensaje, $conexion);
+    }
+}
 
-$stmt = $conexion->prepare("INSERT INTO mensajes (conversacion_id, remitente, mensaje) VALUES (?, 'bot', ?)");
-$stmt->bind_param("is", $conversacionId, $respuesta);
-$stmt->execute();
-$stmt->close();
+if (!$modoSinBd) {
+    $stmt = $conexion->prepare("INSERT INTO mensajes (conversacion_id, remitente, mensaje) VALUES (?, 'user', ?)");
+    $stmt->bind_param("is", $conversacionId, $mensaje);
+    $stmt->execute();
+    $stmt->close();
+
+    $stmt = $conexion->prepare("INSERT INTO mensajes (conversacion_id, remitente, mensaje) VALUES (?, 'bot', ?)");
+    $stmt->bind_param("is", $conversacionId, $respuesta);
+    $stmt->execute();
+    $stmt->close();
+}
 
 echo json_encode([
     "success" => true,
     "respuesta" => $respuesta,
     "conversacion_id" => $conversacionId,
-    "session_token" => $sessionToken
+    "session_token" => $sessionToken,
+    "modo_sin_bd" => $modoSinBd
 ]);
 
-$conexion->close();
+if ($dbDisponible) {
+    $conexion->close();
+}
 ?>

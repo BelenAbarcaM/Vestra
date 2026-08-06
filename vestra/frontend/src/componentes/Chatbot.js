@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Chatbot.css";
 import botPhoto from "../assets/logito.png";
 
-const API_URL = "http://localhost/vestra/backend/api/chatbot.php";
+const API_URL = "http://localhost/vestra/vestra/backend/api/chatbot.php";
 const STORAGE_KEY = "vestra_chatbot_session";
+const TEST_WITHOUT_DATABASE = true;
 const TEASER_VISIBLE_MS = 7000;
 const TEASER_GAP_MS = 5000;
 
@@ -114,6 +115,7 @@ export default function Chatbot() {
           mensaje: text,
           session_token: session.session_token || "",
           conversacion_id: session.conversacion_id || 0,
+          sin_bd: TEST_WITHOUT_DATABASE,
         }),
       });
 
