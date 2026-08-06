@@ -90,12 +90,12 @@ function generarRespuesta($mensaje, $conexion) {
     $bloqueadas = ['puta', 'carepicha', 'mierda', 'hijueputa'];
     foreach ($bloqueadas as $palabra) {
         if (strpos($texto, $palabra) !== false) {
-            return "Soy el asistente de Vestra. Puedo ayudarte con informacion del proyecto, clubes, publicaciones, inscripciones y funcionamiento de la plataforma. Mantengamos una conversacion respetuosa.";
+            return "Soy Vivi, el asistente de Vestra. Puedo ayudarte con informacion del proyecto, clubes, publicaciones, inscripciones y funcionamiento de la plataforma. Mantengamos una conversacion respetuosa.";
         }
     }
 
     if (preg_match('/\b(hola|buenas|hey|saludos)\b/', $texto)) {
-        return "Hola, soy VestraBot. Puedo ayudarte con dudas sobre Vestra, clubes, inscripciones, publicaciones y el uso de la plataforma.";
+        return "Hola, soy Vivi. Puedo ayudarte con dudas sobre Vestra, clubes, inscripciones, publicaciones y el uso de la plataforma.";
     }
 
     if (strpos($texto, 'que es vestra') !== false || strpos($texto, 'que significa vestra') !== false || strpos($texto, 'vestra') !== false && strpos($texto, 'que') !== false) {

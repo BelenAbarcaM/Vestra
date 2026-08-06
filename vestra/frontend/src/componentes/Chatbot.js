@@ -1,15 +1,34 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Chatbot.css";
+import botPhoto from "../assets/logito.png";
 
 const API_URL = "http://localhost/vestra/backend/api/chatbot.php";
 const STORAGE_KEY = "vestra_chatbot_session";
+const TEASER_VISIBLE_MS = 7000;
+const TEASER_GAP_MS = 5000;
 
 const initialMessages = [
   {
     id: "welcome",
     sender: "bot",
-    text: "Hola, soy VestraBot. Preguntame sobre Vestra, clubes, inscripciones, publicaciones o la base de datos.",
+    text: "Hola, soy Vivi. Estoy aqui para ayudarte a conocer Vestra, sus clubes, publicaciones, inscripciones y el funcionamiento del proyecto.",
   },
+];
+
+const teaserMessages = [
+  "Soy Vivi, estoy para ayudarte",
+  "Preguntame que es Vestra",
+  "Te cuento sobre los clubes",
+  "Quieres ideas para consultar?",
+];
+
+const suggestedQuestions = [
+  "Que es Vestra?",
+  "Que clubes hay?",
+  "Como me inscribo a un club?",
+  "Que publicaciones hay?",
+  "Que problema resuelve Vestra?",
+  "Como funciona la base de datos?",
 ];
 
 export default function Chatbot() {
@@ -17,6 +36,8 @@ export default function Chatbot() {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [teaserVisible, setTeaserVisible] = useState(false);
+  const [teaserIndex, setTeaserIndex] = useState(0);
   const [session, setSession] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
@@ -38,10 +59,38 @@ export default function Chatbot() {
     } catch {}
   }, [session]);
 
-  async function sendMessage(event) {
-    event.preventDefault();
+  useEffect(() => {
+    if (open) {
+      setTeaserVisible(false);
+      return;
+    }
 
-    const text = input.trim();
+    let hideTimer;
+
+    const showTeaser = () => {
+      setTeaserVisible(true);
+
+      hideTimer = setTimeout(() => {
+        setTeaserVisible(false);
+        setTeaserIndex((current) => (current + 1) % teaserMessages.length);
+      }, TEASER_VISIBLE_MS);
+    };
+
+    const firstTimer = setTimeout(showTeaser, 900);
+    const interval = setInterval(
+      showTeaser,
+      TEASER_VISIBLE_MS + TEASER_GAP_MS
+    );
+
+    return () => {
+      clearTimeout(firstTimer);
+      clearTimeout(hideTimer);
+      clearInterval(interval);
+    };
+  }, [open]);
+
+  async function sendText(textToSend) {
+    const text = textToSend.trim();
     if (!text || loading) return;
 
     const userMessage = {
@@ -101,14 +150,26 @@ export default function Chatbot() {
     }
   }
 
+  async function sendMessage(event) {
+    event.preventDefault();
+    await sendText(input);
+  }
+
+  async function sendSuggestedQuestion(question) {
+    await sendText(question);
+  }
+
   return (
     <div className={`chatbot ${open ? "open" : ""}`}>
       {open && (
-        <section className="chatbot-panel" aria-label="Chatbot Vestra">
+        <section className="chatbot-panel" aria-label="Chatbot Vivi">
           <header className="chatbot-header">
-            <div>
-              <strong>VestraBot</strong>
-              <span>Asistente escolar</span>
+            <div className="chatbot-identity">
+              <img src={botPhoto} alt="" className="chatbot-avatar" />
+              <div>
+                <strong>Vivi</strong>
+                <span>Tu guia de Vestra</span>
+              </div>
             </div>
             <button
               type="button"
@@ -119,6 +180,26 @@ export default function Chatbot() {
               <i className="icon-cancel" aria-hidden="true" />
             </button>
           </header>
+
+          <div className="chatbot-guide">
+            <div className="chatbot-guide-copy">
+              <span>Ideas para empezar</span>
+              <strong>Elige una pregunta o escribe la tuya.</strong>
+            </div>
+
+            <div className="chatbot-suggestions" aria-label="Preguntas sugeridas">
+              {suggestedQuestions.map((question) => (
+                <button
+                  key={question}
+                  type="button"
+                  onClick={() => sendSuggestedQuestion(question)}
+                  disabled={loading}
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="chatbot-messages" ref={listRef}>
             {messages.map((message) => (
@@ -139,7 +220,7 @@ export default function Chatbot() {
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Escribe tu pregunta"
+              placeholder="Preguntale a Vivi"
               disabled={loading}
             />
             <button
@@ -153,6 +234,12 @@ export default function Chatbot() {
         </section>
       )}
 
+      {!open && teaserVisible && (
+        <div className="chatbot-teaser" role="status">
+          {teaserMessages[teaserIndex]}
+        </div>
+      )}
+
       <button
         type="button"
         className="chatbot-toggle"
@@ -160,7 +247,11 @@ export default function Chatbot() {
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
       >
-        <i className={open ? "icon-cancel" : "icon-comment"} aria-hidden="true" />
+        {open ? (
+          <i className="icon-cancel" aria-hidden="true" />
+        ) : (
+          <img src={botPhoto} alt="" className="chatbot-toggle-photo" />
+        )}
       </button>
     </div>
   );
