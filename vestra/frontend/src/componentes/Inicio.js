@@ -3,6 +3,7 @@ import "./Inicio.css";
 import "../App.css";
 import "../fontello/css/fontello.css";
 import logito from "../assets/logito.png";
+import Chatbot from "./Chatbot";
 
 export default function Inicio({ posts: initialPosts = null }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -510,6 +511,7 @@ export default function Inicio({ posts: initialPosts = null }) {
         </nav>
         </main>
       </div>
+      <Chatbot />
     </div>
   );
 }
