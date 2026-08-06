@@ -4,4 +4,4 @@ dist/
 .env
 .env.*
 *.log
-
+vestra/backend/config/gemini_local.php
