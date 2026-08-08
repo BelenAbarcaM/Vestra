@@ -102,21 +102,16 @@
 }
 
 .hamburger-btn {
-    position: fixed;
-    top: 17px;
-    left: max(14px, calc((100vw - 430px) / 2 + -13px));
-    z-index: 1003;
-    width: 38px;
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.14);
-    border-radius: 11px;
-    transition: background 0.2s ease, transform 0.2s ease;
-    outline: 0;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 11px;
+  transition: background 0.2s ease, transform 0.2s ease;
+  margin-left: 15px;
 }
 
 .hamburger-btn:hover {
@@ -726,6 +721,53 @@ textarea::placeholder {
   border: 0;
   border-radius: 9px;
   cursor: pointer;
+}
+
+.comment-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.comment-input {
+  min-width: 0;
+  flex: 1;
+  padding: 10px 12px;
+  color: #173447;
+  font-size: 0.92rem;
+  background: #f7f9fb;
+  border: 1px solid #dce8ed;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(11, 107, 143, 0.12);
+}
+
+.comment-send-btn {
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  background: var(--primary);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.comment-send-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.comment-send-btn:disabled {
+  background: #a0c7da;
+  cursor: not-allowed;
 }
 
 .hamburger-menu {

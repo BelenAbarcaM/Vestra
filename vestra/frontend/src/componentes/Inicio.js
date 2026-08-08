@@ -5,13 +5,15 @@ import "../fontello/css/fontello.css";
 import logito from "../assets/logito.png";
 import Chatbot from "./Chatbot";
 
-export default function Inicio({ posts: initialPosts = null }) {
+export default function Inicio({ posts: initialPosts = null, onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [expandedComments, setExpandedComments] = useState({});
   const [expandedCaptions, setExpandedCaptions] = useState({});
+  const [commentDrafts, setCommentDrafts] = useState({});
+  const [commentBoxOpen, setCommentBoxOpen] = useState({});
 
   const searchInputRef = useRef(null);
   const FALLBACK_IMAGE = logito;
@@ -182,8 +184,88 @@ export default function Inicio({ posts: initialPosts = null }) {
   }, [query, localPosts, selectedCategory]);
 
   function selectCategory(category) {
+    if (category === 'Inscripciones abiertas') {
+      setMenuOpen(false);
+      if (typeof onNavigate === 'function') {
+        onNavigate('inscripciones');
+        return;
+      }
+    }
+
     setSelectedCategory(category);
     setMenuOpen(false);
+  }
+
+  function closeSearch() {
+    setSearchOpen(false);
+    setQuery("");
+    setSelectedCategory("Todas");
+  }
+
+  function toggleCommentInput(postId) {
+    setCommentBoxOpen((previous) => ({
+      ...previous,
+      [postId]: !previous[postId],
+    }));
+  }
+
+  function handleCommentDraftChange(postId, value) {
+    setCommentDrafts((previous) => ({
+      ...previous,
+      [postId]: value,
+    }));
+  }
+
+  function formatCommentTime(comment) {
+    if (comment.created_at) {
+      const diffSeconds = Math.max(
+        0,
+        Math.floor((Date.now() - new Date(comment.created_at).getTime()) / 1000)
+      );
+      if (diffSeconds < 60) return "Ahora";
+      if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m`;
+      if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)}h`;
+      return `${Math.floor(diffSeconds / 86400)}d`;
+    }
+    return comment.time || "Ahora";
+  }
+
+  function addComment(postId) {
+    const text = (commentDrafts[postId] || "").trim();
+    if (!text) return;
+
+    setLocalPosts((previous) =>
+      previous.map((post) => {
+        if (post.id !== postId) return post;
+
+        const newComment = {
+          id: `${postId}-c${Date.now()}`,
+          author: "Tú",
+          avatar: FALLBACK_IMAGE,
+          created_at: new Date().toISOString(),
+          text,
+          likes: 0,
+        };
+
+        return {
+          ...post,
+          comments_list: [...(post.comments_list || []), newComment],
+        };
+      })
+    );
+
+    setCommentDrafts((previous) => ({
+      ...previous,
+      [postId]: "",
+    }));
+    setExpandedComments((previous) => ({
+      ...previous,
+      [postId]: true,
+    }));
+    setCommentBoxOpen((previous) => ({
+      ...previous,
+      [postId]: false,
+    }));
   }
 
   function toggleLike(postId) {
@@ -315,7 +397,7 @@ export default function Inicio({ posts: initialPosts = null }) {
               />
               <button
                 className="search-close"
-                onClick={() => setSearchOpen(false)}
+                onClick={closeSearch}
                 aria-label="Cerrar búsqueda"
               >
                 <i className="icon-cancel" aria-hidden="true" />
@@ -405,7 +487,12 @@ export default function Inicio({ posts: initialPosts = null }) {
 
                   <div className="card-actions">
                     <div className="actions-left">
-                      <button className="comment-btn" title="Comentar">
+                      <button
+                        type="button"
+                        className="comment-btn"
+                        title="Comentar"
+                        onClick={() => toggleCommentInput(post.id)}
+                      >
                         <i className="icon-comment" aria-hidden="true" />
                       </button>
 
@@ -442,7 +529,7 @@ export default function Inicio({ posts: initialPosts = null }) {
                               {comment.author}
                             </span>
                             <span className="comment-time">
-                              {comment.time}
+                              {formatCommentTime(comment)}
                             </span>
                           </div>
                           <div className="comment-text">{comment.text}</div>
@@ -469,6 +556,32 @@ export default function Inicio({ posts: initialPosts = null }) {
                       </div>
                     ))}
 
+                    {commentBoxOpen[post.id] && (
+                      <div className="comment-input-row">
+                        <input
+                          type="text"
+                          className="comment-input"
+                          placeholder="Escribe un comentario..."
+                          value={commentDrafts[post.id] || ""}
+                          onChange={(event) =>
+                            handleCommentDraftChange(post.id, event.target.value)
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addComment(post.id);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="comment-send-btn"
+                          onClick={() => addComment(post.id)}
+                        >
+                          Enviar
+                        </button>
+                      </div>
+                    )}
                     {comments.length > 1 && (
                       <button
                         className="comment-toggle"
@@ -492,20 +605,57 @@ export default function Inicio({ posts: initialPosts = null }) {
             </div>
           )}
                   <nav className="cedes-bottomnav" aria-label="Menú principal">
-          <button className="nav-btn" aria-label="Inicio">
+          <button
+            type="button"
+            className="nav-btn"
+            aria-label="Inicio"
+            onClick={() => {
+              if (typeof onNavigate === 'function') {
+                onNavigate('inicio');
+                return;
+              }
+              window.location.href = '/';
+            }}
+          >
             <i className="icon-home" aria-hidden="true" />
-            onClick
           </button>
 
-          <button className="nav-btn" aria-label="Crear publicación">
+          <button
+            type="button"
+            className="nav-btn"
+            aria-label="Chats"
+            onClick={() => {
+              if (typeof onNavigate === 'function') {
+                onNavigate('chats');
+              }
+            }}
+          >
             <i className="icon-comment" aria-hidden="true" />
           </button>
 
-          <button className="nav-btn" aria-label="Crear publicación">
+          <button
+            type="button"
+            className="nav-btn"
+            aria-label="Ideas"
+            onClick={() => {
+              if (typeof onNavigate === 'function') {
+                onNavigate('ideas');
+              }
+            }}
+          >
             <i className="icon-lightbulb" aria-hidden="true" />
           </button>
 
-          <button className="nav-btn" aria-label="Perfil">
+          <button
+            type="button"
+            className="nav-btn"
+            aria-label="Perfil"
+            onClick={() => {
+              if (typeof onNavigate === 'function') {
+                onNavigate('perfil');
+              }
+            }}
+          >
             <i className="icon-user" aria-hidden="true" />
           </button>
         </nav>
