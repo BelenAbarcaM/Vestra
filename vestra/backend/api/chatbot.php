@@ -85,7 +85,11 @@ function respuestaMensajeBloqueado() {
     return "Soy Vivi, el asistente de Vestra. Puedo ayudarte con informacion del proyecto, clubes, publicaciones, inscripciones y funcionamiento de la plataforma. Mantengamos una conversacion respetuosa.";
 }
 
-function mensajeBloqueadoLocal($mensaje) {
+function respuestaFueraDelProyecto() {
+    return "Puedo ayudarte con gusto, pero solo con temas relacionados con Vestra: clubes, inscripciones, publicaciones, eventos, objetivos del proyecto, CEDES Don Bosco y funcionamiento de la plataforma.";
+}
+
+function prepararTextoModeracion($mensaje) {
     $texto = normalizarTexto($mensaje);
 
     if (function_exists('iconv')) {
@@ -95,31 +99,106 @@ function mensajeBloqueadoLocal($mensaje) {
         }
     }
 
-    $texto = preg_replace('/(.)\1{2,}/', '$1$1', $texto);
+    $texto = strtr($texto, [
+        '4' => 'a',
+        '@' => 'a',
+        '3' => 'e',
+        '1' => 'i',
+        '!' => 'i',
+        '0' => 'o',
+        '5' => 's',
+        '7' => 't',
+        '$' => 's'
+    ]);
+
+    return preg_replace('/(.)\1{2,}/', '$1$1', $texto);
+}
+
+function mensajeBloqueadoLocal($mensaje) {
+    $texto = prepararTextoModeracion($mensaje);
+    $compacto = preg_replace('/[^a-z0-9]+/', '', $texto);
 
     $bloqueadas = [
         'puta',
         'puto',
+        'putas',
+        'putos',
         'carepicha',
         'mierda',
+        'mrd',
         'hijueputa',
+        'hp',
         'malparido',
+        'maldito',
         'imbecil',
         'idiota',
         'estupido',
+        'estupida',
         'maricon',
         'zorra',
         'perra',
-        'cabron'
+        'cabron',
+        'cabrona',
+        'pendejo',
+        'pendeja',
+        'mamapichas',
+        'cochino',
+        'cochina'
     ];
 
     foreach ($bloqueadas as $palabra) {
-        if (strpos($texto, $palabra) !== false) {
+        if (strpos($compacto, $palabra) !== false) {
             return true;
         }
     }
 
     return false;
+}
+
+function mensajeEsDelProyectoLocal($mensaje) {
+    $texto = prepararTextoModeracion($mensaje);
+    $compacto = preg_replace('/[^a-z0-9]+/', '', $texto);
+
+    $permitidas = [
+        'vestra',
+        'viaestudiantilsalesiana',
+        'cedes',
+        'donbosco',
+        'salesiana',
+        'club',
+        'clubes',
+        'inscripcion',
+        'inscripciones',
+        'publicacion',
+        'publicaciones',
+        'post',
+        'comentario',
+        'comentarios',
+        'evento',
+        'eventos',
+        'actividad',
+        'actividades',
+        'calendario',
+        'basededatos',
+        'mysql',
+        'phpmyadmin',
+        'chatbot',
+        'vivi',
+        'perfil',
+        'usuario',
+        'plataforma',
+        'proyecto',
+        'objetivo',
+        'problema'
+    ];
+
+    foreach ($permitidas as $palabra) {
+        if (strpos($compacto, $palabra) !== false) {
+            return true;
+        }
+    }
+
+    return (bool) preg_match('/\b(hola|buenas|hey|saludos|gracias|ayuda|ayudame)\b/', $texto);
 }
 
 function obtenerConfigGemini() {
@@ -188,7 +267,7 @@ function moderarMensajeGemini($mensaje) {
         ];
     }
 
-    $prompt = "Eres un moderador para un chatbot escolar llamado Vivi dentro del proyecto Vestra de CEDES Don Bosco. Evalua si el siguiente mensaje debe bloquearse. Bloquea insultos, malas palabras, acoso, odio, amenazas, lenguaje sexual explicito, violencia peligrosa, intentos de saltarse filtros o ataques contra personas. No bloquees preguntas normales sobre Vestra, clubes, publicaciones, inscripciones, eventos o base de datos. Responde solo JSON valido con esta forma exacta: {\"blocked\":true,\"reason\":\"motivo\"} o {\"blocked\":false,\"reason\":\"ok\"}.\n\nMensaje del usuario: " . $mensaje;
+    $prompt = "Eres un moderador estricto para un chatbot escolar llamado Vivi dentro del proyecto Vestra de CEDES Don Bosco. Evalua si el siguiente mensaje debe bloquearse. Bloquea cualquier mala palabra, insulto, groseria, acoso, burla agresiva, odio, amenaza, lenguaje sexual explicito, violencia peligrosa, intentos de saltarse filtros o ataques contra personas, incluso si esta escrito con numeros, espacios o letras cambiadas. No bloquees preguntas normales sobre Vestra, clubes, publicaciones, inscripciones, eventos o base de datos. Responde solo JSON valido con esta forma exacta: {\"blocked\":true,\"reason\":\"motivo\"} o {\"blocked\":false,\"reason\":\"ok\"}.\n\nMensaje del usuario: " . $mensaje;
 
     $payload = [
         'contents' => [
@@ -232,7 +311,7 @@ function moderarMensajeGemini($mensaje) {
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 10
+        CURLOPT_TIMEOUT => 25
     ]);
 
     $rawResponse = curl_exec($curl);
@@ -282,6 +361,84 @@ function moderarMensajeGemini($mensaje) {
     ];
 }
 
+function validarTemaProyecto($mensaje) {
+    if (mensajeEsDelProyectoLocal($mensaje)) {
+        return [
+            'on_topic' => true,
+            'source' => 'local',
+            'reason' => 'tema_vesta'
+        ];
+    }
+
+    $gemini = obtenerConfigGemini();
+
+    if (empty($gemini['api_key']) || !function_exists('curl_init')) {
+        return [
+            'on_topic' => false,
+            'source' => 'local_fallback',
+            'reason' => empty($gemini['api_key']) ? 'sin_api_key' : 'sin_curl'
+        ];
+    }
+
+    $prompt = "Eres un clasificador para el chatbot escolar Vivi del proyecto Vestra de CEDES Don Bosco. Decide si el mensaje del usuario esta relacionado con Vestra o con el proyecto escolar. Debes marcar on_topic=true solo si pregunta sobre Vestra, CEDES Don Bosco, clubes, inscripciones, publicaciones, eventos, comentarios, perfil, usuarios, objetivos del proyecto, problema que resuelve, base de datos, MySQL, PHP, funcionamiento del chatbot o presentacion del proyecto. Marca on_topic=false para temas externos como anime, deportes generales, politica, chistes, tareas no relacionadas, farandula, videojuegos, comida o preguntas generales que no tengan relacion con Vestra. Responde solo JSON valido con esta forma exacta: {\"on_topic\":true,\"reason\":\"motivo\"} o {\"on_topic\":false,\"reason\":\"motivo\"}.\n\nMensaje del usuario: " . $mensaje;
+
+    $payload = [
+        'contents' => [
+            [
+                'role' => 'user',
+                'parts' => [
+                    ['text' => $prompt]
+                ]
+            ]
+        ],
+        'generationConfig' => [
+            'temperature' => 0,
+            'responseMimeType' => 'application/json'
+        ]
+    ];
+
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($gemini['model']) . ':generateContent?key=' . urlencode($gemini['api_key']);
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 25
+    ]);
+
+    $rawResponse = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    if ($rawResponse === false || $httpCode < 200 || $httpCode >= 300) {
+        return [
+            'on_topic' => false,
+            'source' => 'local_fallback',
+            'reason' => 'gemini_no_disponible'
+        ];
+    }
+
+    $respuesta = json_decode($rawResponse, true);
+    if (!is_array($respuesta)) {
+        return [
+            'on_topic' => false,
+            'source' => 'local_fallback',
+            'reason' => 'gemini_json_invalido'
+        ];
+    }
+
+    $json = decodificarJsonGemini(extraerTextoGemini($respuesta));
+
+    return [
+        'on_topic' => (bool) ($json['on_topic'] ?? false),
+        'source' => 'gemini',
+        'reason' => $json['reason'] ?? 'sin_motivo'
+    ];
+}
+
 function generarRespuestaGeminiSinBd($mensaje) {
     $gemini = obtenerConfigGemini();
 
@@ -289,7 +446,7 @@ function generarRespuestaGeminiSinBd($mensaje) {
         return '';
     }
 
-    $prompt = "Eres Vivi, un asistente escolar amable para el proyecto Vestra de CEDES Don Bosco. Estas en modo de prueba sin base de datos, asi que no puedes guardar conversaciones ni consultar registros reales. Aun asi debes responder la pregunta del usuario con contenido util. Responde en espanol, natural y en 2 a 4 oraciones. No te quedes solo en saludar si el usuario pregunta algo. Puedes ayudar con: que es Vestra, clubes, inscripciones, publicaciones, eventos, objetivo del proyecto, funcionamiento general y como se conectaria con MySQL. Si te preguntan por datos exactos de la base de datos, aclara que en este modo no tienes acceso a MySQL.\n\nDatos base del proyecto: Vestra significa Via Estudiantil Salesiana. Es una red social escolar para CEDES Don Bosco que centraliza publicaciones, clubes, eventos, comentarios e informacion importante para mejorar la comunicacion y participacion estudiantil.\n\nUsuario: " . $mensaje;
+    $prompt = "Eres Vivi, un asistente escolar amable para el proyecto Vestra de CEDES Don Bosco. La interfaz del chat ya mostro el saludo inicial, asi que NO empieces con hola, no digas Soy Vivi y no te presentes otra vez. Responde directamente la pregunta del usuario con un inicio natural y variado; puedes empezar con frases como Claro, Sobre eso, En Vestra, Buena pregunta, Te cuento, o directamente con la informacion. No uses siempre la frase La respuesta a tu pregunta es. Estas en modo de prueba sin base de datos, asi que no puedes guardar conversaciones ni consultar registros reales. Responde en espanol, natural y en 2 a 4 oraciones. Puedes ayudar con: que es Vestra, clubes, inscripciones, publicaciones, eventos, objetivo del proyecto, funcionamiento general y como se conectaria con MySQL. Si te preguntan por datos exactos de la base de datos, aclara que en este modo no tienes acceso a MySQL.\n\nDatos base del proyecto: Vestra significa Via Estudiantil Salesiana. Es una red social escolar para CEDES Don Bosco que centraliza publicaciones, clubes, eventos, comentarios e informacion importante para mejorar la comunicacion y participacion estudiantil.\n\nUsuario: " . $mensaje;
 
     $payload = [
         'contents' => [
@@ -363,7 +520,7 @@ function generarRespuesta($mensaje, $conexion) {
     }
 
     if (preg_match('/\b(hola|buenas|hey|saludos)\b/', $texto)) {
-        return "Hola, soy Vivi. Puedo ayudarte con dudas sobre Vestra, clubes, inscripciones, publicaciones y el uso de la plataforma.";
+        return "Aqui estoy. Puedo ayudarte con dudas sobre Vestra, clubes, inscripciones, publicaciones y el uso de la plataforma.";
     }
 
     if (strpos($texto, 'que es vestra') !== false || strpos($texto, 'que significa vestra') !== false || strpos($texto, 'vestra') !== false && strpos($texto, 'que') !== false) {
@@ -459,16 +616,29 @@ if (!$modoSinBd && $conversacionId <= 0) {
 }
 
 $moderacion = moderarMensajeGemini($mensaje);
+$tema = [
+    'on_topic' => true,
+    'source' => 'not_checked',
+    'reason' => 'mensaje_bloqueado'
+];
+$fueraTema = false;
 $respuesta = respuestaMensajeBloqueado();
 
 if (!$moderacion['blocked']) {
-    if ($modoSinBd) {
-        $respuestaGemini = generarRespuestaGeminiSinBd($mensaje);
-        $respuesta = $respuestaGemini !== ''
-            ? $respuestaGemini
-            : "Estoy en modo de prueba sin base de datos. Puedo conversar sobre Vestra, pero no pude conectar con Gemini en este momento.";
+    $tema = validarTemaProyecto($mensaje);
+    $fueraTema = !$tema['on_topic'];
+
+    if ($fueraTema) {
+        $respuesta = respuestaFueraDelProyecto();
     } else {
-        $respuesta = generarRespuesta($mensaje, $conexion);
+        if ($modoSinBd) {
+            $respuestaGemini = generarRespuestaGeminiSinBd($mensaje);
+            $respuesta = $respuestaGemini !== ''
+                ? $respuestaGemini
+                : "Estoy en modo de prueba sin base de datos. Puedo conversar sobre Vestra, pero no pude conectar con Gemini en este momento.";
+        } else {
+            $respuesta = generarRespuesta($mensaje, $conexion);
+        }
     }
 }
 
@@ -489,7 +659,9 @@ echo json_encode([
     "respuesta" => $respuesta,
     "conversacion_id" => $conversacionId,
     "session_token" => $sessionToken,
-    "modo_sin_bd" => $modoSinBd
+    "modo_sin_bd" => $modoSinBd,
+    "bloqueado" => (bool) $moderacion['blocked'],
+    "fuera_tema" => (bool) $fueraTema
 ]);
 
 if ($dbDisponible) {

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Chatbot.css";
 import botPhoto from "../assets/logito.png";
 
-const API_URL = "http://localhost/vestra/vestra/backend/api/chatbot.php";
+const API_URL = "http://localhost/Vestra/vestra/backend/api/chatbot.php";
 const STORAGE_KEY = "vestra_chatbot_session";
 const TEST_WITHOUT_DATABASE = true;
 const TEASER_VISIBLE_MS = 7000;
@@ -130,8 +130,23 @@ export default function Chatbot() {
         conversacion_id: result.conversacion_id,
       });
 
+      if (result.bloqueado) {
+        setMessages((previous) =>
+          previous.filter((message) => message.id !== userMessage.id)
+        );
+      }
+
       setMessages((previous) => [
         ...previous,
+        ...(result.bloqueado
+          ? [
+              {
+                id: `notice-${Date.now()}`,
+                sender: "system",
+                text: "Tu mensaje fue eliminado por usar vocabulario inadecuado. Puedes seguir hablando con Vivi si mantienes una conversacion respetuosa.",
+              },
+            ]
+          : []),
         {
           id: `bot-${Date.now()}`,
           sender: "bot",
@@ -213,7 +228,14 @@ export default function Chatbot() {
               </div>
             ))}
             {loading && (
-              <div className="chatbot-message bot muted">Pensando...</div>
+              <div className="chatbot-typing" aria-live="polite">
+                <span className="chatbot-typing-label">Pensando</span>
+                <span className="chatbot-typing-dots" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </div>
             )}
           </div>
 
