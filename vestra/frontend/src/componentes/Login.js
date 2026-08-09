@@ -22,6 +22,10 @@ export default function Login({ onCrearCuenta, onLoginCorrecto }) {
     datos.append("email", email);
     datos.append("pass", password);
 
+console.log("EMAIL QUE ENVÍA:", email);
+console.log("PASSWORD QUE ENVÍA:", password);
+console.log("LONGITUD PASSWORD:", password.length);
+
     const respuesta = await fetch(
       "http://localhost/vestra/backend/api/login.php",
       {
@@ -36,11 +40,14 @@ console.log(resultado);
 
 if (resultado.success) {
 
+    localStorage.setItem("id_usuario", resultado.id_usuario);
+
     setMensaje("Bienvenido " + resultado.usuario);
 
     setTimeout(() => {
         onLoginCorrecto();
     }, 1000);
+
 
 } else {
 
@@ -112,5 +119,4 @@ if (resultado.success) {
         </p>
       </div>
     </section>
-  );
-}
+  );}

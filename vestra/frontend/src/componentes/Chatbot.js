@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Chatbot.css";
 import botPhoto from "../assets/logito.png";
 
-const API_URL = "http://localhost/Vestra/vestra/backend/api/chatbot.php";
+const API_URL = "http://localhost/vestra/backend/api/chatbot.php";
 const STORAGE_KEY = "vestra_chatbot_session";
-const TEST_WITHOUT_DATABASE = true;
+const TEST_WITHOUT_DATABASE = false;
 const TEASER_VISIBLE_MS = 7000;
 const TEASER_GAP_MS = 5000;
 
