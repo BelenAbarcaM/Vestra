@@ -83,22 +83,23 @@ VALUES (?, ?, ?, ?, ?, ?, 0)");
 }
 
 
-function actualizarPerfil($conexion, $id_usuario, $nombre, $foto, $clubes){
+function actualizarPerfil($conexion, $id_usuario, $nombre, $bio, $foto){
 
 
-    // Actualizar datos básicos
+    // Actualizar el perfil waza
     $actualizar = mysqli_prepare(
         $conexion,
         "UPDATE usuario
-        SET Nombre = ?, Foto_url = ?
+        SET Nombre = ?, bio = ?, Foto_url = ?
         WHERE id_usuario = ?"
     );
 
 
     mysqli_stmt_bind_param(
         $actualizar,
-        "ssi",
+        "sssi",
         $nombre,
+        $bio,
         $foto,
         $id_usuario
     );
@@ -107,53 +108,32 @@ function actualizarPerfil($conexion, $id_usuario, $nombre, $foto, $clubes){
     if(!mysqli_stmt_execute($actualizar)){
         return false;
     }
+}
 
 
+    //Rellenar los datazos
+    function obtenerPerfil($conexion, $id_usuario){
 
-    // Borrar clubes anteriores
-    $delete = mysqli_prepare(
+    $consulta = mysqli_prepare(
         $conexion,
-        "DELETE FROM usuario_club
+        "SELECT id_usuario, Nombre, Correo, Foto_url, bio
+        FROM usuario
         WHERE id_usuario = ?"
     );
 
-
     mysqli_stmt_bind_param(
-        $delete,
+        $consulta,
         "i",
         $id_usuario
     );
 
+    mysqli_stmt_execute($consulta);
 
-    mysqli_stmt_execute($delete);
+    $resultado = mysqli_stmt_get_result($consulta);
 
-
-
-    // Guardar nuevos clubes
-    foreach($clubes as $id_club){
-
-
-        $insert = mysqli_prepare(
-            $conexion,
-            "INSERT INTO usuario_club
-            (id_usuario,id_club)
-            VALUES (?,?)"
-        );
-
-
-        mysqli_stmt_bind_param(
-            $insert,
-            "ii",
-            $id_usuario,
-            $id_club
-        );
-
-
-        mysqli_stmt_execute($insert);
-
+    if(mysqli_num_rows($resultado) === 0){
+        return false;
     }
 
-
-    return true;
-
+    return mysqli_fetch_assoc($resultado);
 }

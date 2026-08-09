@@ -18,7 +18,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 $nombre = $_POST['name'] ?? '';
 $correo = $_POST['email'] ?? '';
 $contra = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
-$foto = "default.png";
+$foto = "default.jpeg";
 $codigo = rand(100000,999999);
 if (str_ends_with($correo, "@est.cedesdonbosco.ed.cr")) {
 
