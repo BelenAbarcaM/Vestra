@@ -2,75 +2,96 @@ import React, { useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
 
-export default function Login({ onCrearCuenta, onLoginCorrecto }) {
+export default function Login({
+  onCrearCuenta,
+  onLoginCorrecto,
+  onRecuperarContrasena
+}) {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [recordarme, setRecordarme] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
   const manejarEnvio = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!email.trim() || !password.trim()) {
-    setMensaje("Por favor, complete todos los campos.");
-    return;
+    if (!email.trim() || !password.trim()) {
+      setMensaje("Por favor, complete todos los campos.");
+      return;
+    }
+
+    try {
+
+      const datos = new FormData();
+
+      datos.append("email", email);
+      datos.append("pass", password);
+
+      console.log("EMAIL QUE ENVÍA:", email);
+      console.log("PASSWORD QUE ENVÍA:", password);
+      console.log("LONGITUD PASSWORD:", password.length);
+
+      const respuesta = await fetch(
+  "http://localhost/vestra/backend/api/login.php",
+  {
+    method: "POST",
+    body: datos,
+    credentials: "include"
   }
+);
 
-  try {
-    const datos = new FormData();
+      const resultado = await respuesta.json();
 
-    datos.append("email", email);
-    datos.append("pass", password);
+      console.log(resultado);
 
-console.log("EMAIL QUE ENVÍA:", email);
-console.log("PASSWORD QUE ENVÍA:", password);
-console.log("LONGITUD PASSWORD:", password.length);
+      if (resultado.success) {
 
-    const respuesta = await fetch(
-      "http://localhost/vestra/backend/api/login.php",
-      {
-        method: "POST",
-        body: datos
+        localStorage.setItem("id_usuario", resultado.id_usuario);
+
+        setMensaje("Bienvenido " + resultado.usuario);
+
+        setTimeout(() => {
+          onLoginCorrecto();
+        }, 1000);
+
+      } else {
+
+        setMensaje(resultado.mensaje);
+
       }
-    );
 
-    const resultado = await respuesta.json();
+    } catch (error) {
 
-console.log(resultado);
+      console.error(error);
+      setMensaje("Error al conectar con el servidor.");
 
-if (resultado.success) {
-
-    localStorage.setItem("id_usuario", resultado.id_usuario);
-
-    setMensaje("Bienvenido " + resultado.usuario);
-
-    setTimeout(() => {
-        onLoginCorrecto();
-    }, 1000);
-
-
-} else {
-
-    setMensaje(resultado.mensaje);
-
-}
-  } catch (error) {
-    console.error(error);
-    setMensaje("Error al conectar con el servidor.");
-  }
-};    
+    }
+  };
 
   return (
+
     <section className="login-contenedor">
+
       <div className="login-tarjeta">
         <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
-         <img src={logo} className="App-logo" alt="logo" /> 
+        <img src={logo} className="App-logo" alt="logo" />
 
         <h1>Iniciar sesion</h1>
-        <p className="login-subtitulo">Acceda con su email y contraseña</p>
 
-        <form className="login-formulario" onSubmit={manejarEnvio}>
-          <label htmlFor="email">Correo electronico</label>
+        <p className="login-subtitulo">
+          Acceda con su email y contraseña
+        </p>
+
+        <form
+          className="login-formulario"
+          onSubmit={manejarEnvio}
+        >
+
+          <label htmlFor="email">
+            Correo electronico
+          </label>
+
           <input
             id="email"
             type="email"
@@ -80,7 +101,10 @@ if (resultado.success) {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <label htmlFor="password">Contraseña</label>
+          <label htmlFor="password">
+            Contraseña
+          </label>
+
           <input
             id="password"
             type="password"
@@ -91,32 +115,58 @@ if (resultado.success) {
           />
 
           <div className="login-opciones">
-            <label className="login-check">
-              <input
-                type="checkbox"
-                checked={recordarme}
-                onChange={(e) => setRecordarme(e.target.checked)}
-              />
-              Recordarme
-            </label>
-            <button type="button" className="login-enlace">
+
+            <button
+              type="button"
+              className="login-enlace"
+              onClick={async () => {
+
+                const resultado =
+                  await onRecuperarContrasena(email);
+
+                if (!resultado.success) {
+                  setMensaje(resultado.mensaje);
+                }
+
+              }}
+            >
               Olvidé mi contraseña
             </button>
+
           </div>
 
-          <button type="submit" className="login-boton">
+          <button
+            type="submit"
+            className="login-boton"
+          >
             Entrar
           </button>
+
         </form>
 
-        {mensaje && <p className="login-mensaje">{mensaje}</p>}
+        {mensaje && (
+          <p className="login-mensaje">
+            {mensaje}
+          </p>
+        )}
 
         <p className="login-registro">
+
           No tiene cuenta?{' '}
-          <button type="button" className="login-link-texto" onClick={onCrearCuenta}>
+
+          <button
+            type="button"
+            className="login-link-texto"
+            onClick={onCrearCuenta}
+          >
             Crear cuenta
           </button>
+
         </p>
+
       </div>
+
     </section>
-  );}
+
+  );
+}

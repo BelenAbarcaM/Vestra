@@ -35,19 +35,20 @@ export default function Perfil({ onCerrarSesion }) {
           setBio(resultado.usuario.bio || "Descripción del perfil.");
 
           if (resultado.usuario.Foto_url) {
+            let urlFoto;
 
-  let urlFoto;
+            if (resultado.usuario.Foto_url === "default.jpeg") {
+              urlFoto =
+                "http://localhost/vestra/uploads/default.jpeg";
+            } else {
+              urlFoto =
+                `http://localhost/vestra/uploads/perfiles/${resultado.usuario.Foto_url}`;
+            }
 
-  if (resultado.usuario.Foto_url === "default.jpeg") {
-    urlFoto = "http://localhost/vestra/uploads/default.jpeg";
-  } else {
-    urlFoto = `http://localhost/vestra/uploads/perfiles/${resultado.usuario.Foto_url}`;
-  }
+            console.log("URL de la foto:", urlFoto);
 
-  console.log("URL de la foto:", urlFoto);
-
-  setImagenPerfil(urlFoto);
-}
+            setImagenPerfil(urlFoto);
+          }
         }
       })
       .catch((error) => {
@@ -69,98 +70,124 @@ export default function Perfil({ onCerrarSesion }) {
   };
 
   const handleGuardar = async () => {
-    const idUsuario = localStorage.getItem("id_usuario");
+  const idUsuario = localStorage.getItem("id_usuario");
 
-    if (!idUsuario) {
-      alert("No se encontró el usuario.");
+  if (!idUsuario) {
+    alert("No se encontró el usuario.");
+    return;
+  }
+
+  const datos = new FormData();
+
+  datos.append("id_usuario", idUsuario);
+  datos.append("nombre", borradorNombre.trim());
+  datos.append("bio", borradorBio.trim());
+
+  if (archivoFoto) {
+    datos.append("foto", archivoFoto);
+  }
+
+  try {
+    const respuesta = await fetch(
+      "http://localhost/vestra/backend/api/perfil/editar.php",
+      {
+        method: "POST",
+        body: datos
+      }
+    );
+
+    console.log("Status HTTP:", respuesta.status);
+
+    const textoRespuesta = await respuesta.text();
+
+    console.log("Respuesta del servidor:", textoRespuesta);
+
+    let resultado;
+
+    try {
+      resultado = JSON.parse(textoRespuesta);
+    } catch (error) {
+      console.error(
+        "La respuesta NO es JSON:",
+        textoRespuesta
+      );
+
+      alert(
+        "El servidor devolvió un error. Revisa la consola."
+      );
+
       return;
     }
 
-    const datos = new FormData();
+    console.log("Actualización:", resultado);
 
-    datos.append("id_usuario", idUsuario);
-    datos.append("nombre", borradorNombre.trim());
-    datos.append("bio", borradorBio.trim());
+    if (resultado.success) {
+      setNombre(
+        borradorNombre.trim() || "Nombre del perfil"
+      );
 
-    if (archivoFoto) {
-      datos.append("foto", archivoFoto);
+      setBio(
+        borradorBio.trim() || "Descripción del perfil."
+      );
+
+      setArchivoFoto(null);
+      setEditando(false);
+
+      alert("Perfil actualizado correctamente.");
+
+      if (resultado.foto) {
+        setImagenPerfil(
+          `http://localhost/vestra/uploads/perfiles/${resultado.foto}`
+        );
+      }
+
+    } else {
+      alert(
+        resultado.message || "No se pudo actualizar el perfil."
+      );
     }
 
+  } catch (error) {
+    console.error(
+      "Error actualizando perfil:",
+      error
+    );
+
+    alert("Error al conectar con el servidor.");
+  }
+};
+
+  const handleCerrarSesion = async () => {
     try {
       const respuesta = await fetch(
-        "http://localhost/vestra/backend/api/perfil/actualizar.php",
+        "http://localhost/vestra/backend/api/logout.php",
         {
-          method: "POST",
-          body: datos
+          method: "GET"
         }
       );
 
       const resultado = await respuesta.json();
 
-      console.log("Actualización:", resultado);
+      console.log("Logout:", resultado);
 
       if (resultado.success) {
-        setNombre(borradorNombre.trim() || "Nombre del perfil");
-        setBio(borradorBio.trim() || "Descripción del perfil.");
+        localStorage.removeItem("id_usuario");
 
-        setArchivoFoto(null);
-        setEditando(false);
-
-        alert("Perfil actualizado correctamente.");
-
-        // Volver a cargar la foto desde el servidor
-        if (resultado.foto) {
-          setImagenPerfil(
-            `http://localhost/vestra/uploads/perfiles/${resultado.foto}`
-          );
+        if (typeof onCerrarSesion === "function") {
+          onCerrarSesion();
         }
-      } else {
-        alert(resultado.message);
       }
 
     } catch (error) {
-      console.error("Error actualizando perfil:", error);
-      alert("Error al conectar con el servidor.");
-    }
-  };
-
-const handleCerrarSesion = async () => {
-
-  try {
-
-    const respuesta = await fetch(
-      "http://localhost/vestra/backend/api/logout.php",
-      {
-        method: "GET"
-      }
-    );
-
-    const resultado = await respuesta.json();
-
-    console.log("Logout:", resultado);
-
-    if (resultado.success) {
+      console.error("Error cerrando sesión:", error);
 
       localStorage.removeItem("id_usuario");
 
       if (typeof onCerrarSesion === "function") {
         onCerrarSesion();
       }
-
     }
-
-  } catch (error) {
-
-    console.error("Error cerrando sesión:", error);
-
-    localStorage.removeItem("id_usuario");
-
-    if (typeof onCerrarSesion === "function") {
-      onCerrarSesion();
-    }
-
-  }
-};
+  };
 
   const handleCambiarImagen = (e) => {
     const archivo = e.target.files?.[0];
@@ -184,51 +211,32 @@ const handleCerrarSesion = async () => {
   };
 
   return (
-  <section className="perfil-page">
+    <section className="perfil-contenedor">
 
-    <div className="perfil-card">
+      <div className="perfil-card">
 
-        <div className="perfil-acciones">
-          {!editando ? (
-  <button
-    type="button"
-    className="perfil-btn-editar"
-    onClick={handleEditar}
-  >
-    Editar
-  </button>
-) : (
-  <div className="perfil-acciones-edicion">
-    <button
-      type="button"
-      className="perfil-btn-secundario"
-      onClick={handleCancelar}
-    >
-      Cancelar
-    </button>
+        {/* BARRA SUPERIOR */}
 
-    <button
-      type="button"
-      className="perfil-btn-editar"
-      onClick={handleGuardar}
-    >
-      Guardar
-    </button>
-  </div>
-)}
+        <button
+          className="perfil-btn-editar"
+          onClick={handleEditar}
+          aria-label="Editar perfil"
+          title="Editar perfil"
+        >
+          <i className="icon-edit"></i>
+        </button>
 
-          <button
-            type="button"
-            className="perfil-btn-salir"
-            onClick={handleCerrarSesion}
-          >
-            Salir
-          </button>
-        </div>
+        <button
+          className="perfil-btn-salir"
+          onClick={handleCerrarSesion}
+        >
+          Salir
+        </button>
 
         <div className="perfil-topbar">
           <div className="perfil-topbar-texto">
             <h1 className="perfil-heading">Perfil</h1>
+
             <p className="perfil-subtitulo">
               Tu espacio personal en Vestra
             </p>
@@ -236,6 +244,8 @@ const handleCerrarSesion = async () => {
         </div>
 
         <div className="perfil-linea" />
+
+        {/* PERFIL */}
 
         <div className="perfil-hero">
 
@@ -251,7 +261,7 @@ const handleCerrarSesion = async () => {
             )}
           </div>
 
-          {editando ? (
+          {editando && (
             <label className="perfil-btn-foto">
               Cambiar foto
 
@@ -262,12 +272,17 @@ const handleCerrarSesion = async () => {
                 className="perfil-input-file"
               />
             </label>
-          ) : null}
+          )}
 
           {!editando ? (
             <>
-              <h2 className="perfil-nombre">{nombre}</h2>
-              <p className="perfil-bio">{bio}</p>
+              <h2 className="perfil-nombre">
+                {nombre}
+              </h2>
+
+              <p className="perfil-bio">
+                {bio}
+              </p>
             </>
           ) : (
             <div className="perfil-formulario-edicion">
@@ -276,14 +291,18 @@ const handleCerrarSesion = async () => {
                 type="text"
                 className="perfil-input"
                 value={borradorNombre}
-                onChange={(e) => setBorradorNombre(e.target.value)}
+                onChange={(e) =>
+                  setBorradorNombre(e.target.value)
+                }
                 placeholder="Nombre"
               />
 
               <textarea
                 className="perfil-textarea"
                 value={borradorBio}
-                onChange={(e) => setBorradorBio(e.target.value)}
+                onChange={(e) =>
+                  setBorradorBio(e.target.value)
+                }
                 placeholder="Descripción del perfil"
                 rows={3}
               />
@@ -293,10 +312,16 @@ const handleCerrarSesion = async () => {
 
         </div>
 
+        {/* INSIGNIAS */}
+
         <section className="perfil-seccion perfil-seccion-suave">
-          <h3 className="perfil-titulo-seccion">Insignias</h3>
+
+          <h3 className="perfil-titulo-seccion">
+            Insignias
+          </h3>
 
           <div className="perfil-insignias">
+
             {espaciosInsignias.map((_, index) => (
               <div
                 key={index}
@@ -306,16 +331,45 @@ const handleCerrarSesion = async () => {
                 <span>+</span>
               </div>
             ))}
+
           </div>
+
         </section>
 
+        {/* LIKES */}
+
         <section className="perfil-seccion">
+
           <h3 className="perfil-titulo-likes">
             Likes guardados
           </h3>
+
         </section>
 
+        {/* BOTONES DE EDICIÓN */}
+
+        {editando && (
+          <div className="perfil-acciones-edicion">
+
+            <button
+              className="perfil-btn-guardar"
+              onClick={handleGuardar}
+            >
+              Guardar
+            </button>
+
+            <button
+              className="perfil-btn-cancelar"
+              onClick={handleCancelar}
+            >
+              Cancelar
+            </button>
+
+          </div>
+        )}
+
       </div>
+
     </section>
   );
 }

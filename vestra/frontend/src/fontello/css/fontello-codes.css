@@ -9,9 +9,14 @@
 .icon-heart-empty:before { content: '\e807'; } /* '' */
 .icon-music:before { content: '\e808'; } /* '' */
 .icon-cancel:before { content: '\e809'; } /* '' */
+.icon-chat:before { content: '\e80a'; } /* '' */
+.icon-inbox:before { content: '\e80b'; } /* '' */
+.icon-edit:before { content: '\e80c'; } /* '' */
 .icon-football:before { content: '\e818'; } /* '' */
 .icon-religious-christian:before { content: '\e82f'; } /* '' */
 .icon-menu:before { content: '\f0c9'; } /* '' */
 .icon-bell-alt:before { content: '\f0f3'; } /* '' */
+.icon-doc-inv:before { content: '\f15b'; } /* '' */
+.icon-paper-plane:before { content: '\f1d8'; } /* '' */
 .icon-usb:before { content: '\f287'; } /* '' */
 .icon-comment:before { content: '\f4ac'; } /* '' */

@@ -5,29 +5,40 @@ import logo from '../logito.png';
 export default function VerificarDatos({
   modo = 'registro',
   correo = 'correo@ejemplo.com',
-  codigoInicial = '123456',
   onSuccess,
 }) {
+
   const inputsRef = useRef([]);
 
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
-  const [codigoDemo, setCodigoDemo] = useState(codigoInicial);
 
   const titulo =
-    modo === 'recuperacion' ? 'Verificar código' : 'Completar registro';
+    modo === 'recuperacion'
+      ? 'Verificar código'
+      : 'Completar registro';
 
   const subtitulo =
     modo === 'recuperacion'
       ? `Ingresa el código de 6 cifras enviado a ${correo} para recuperar tu contraseña.`
       : `Ingresa el código de 6 cifras enviado a ${correo} para completar tu registro.`;
 
-  const codigoCompleto = useMemo(() => codigo.join(''), [codigo]);
+  const codigoCompleto = useMemo(
+    () => codigo.join(''),
+    [codigo]
+  );
+
 
   const handleChange = (index, value) => {
-    const limpio = value.replace(/\D/g, '').slice(0, 1);
+
+    const limpio = value
+      .replace(/\D/g, '')
+      .slice(0, 1);
+
     const nuevo = [...codigo];
+
     nuevo[index] = limpio;
+
     setCodigo(nuevo);
     setError('');
 
@@ -36,28 +47,47 @@ export default function VerificarDatos({
     }
   };
 
+
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !codigo[index] && index > 0) {
+
+    if (
+      e.key === 'Backspace' &&
+      !codigo[index] &&
+      index > 0
+    ) {
       inputsRef.current[index - 1]?.focus();
     }
   };
 
+
   const handlePaste = (e) => {
+
     e.preventDefault();
-    const texto = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+
+    const texto = e.clipboardData
+      .getData('text')
+      .replace(/\D/g, '')
+      .slice(0, 6);
+
     if (!texto) return;
 
     const nuevo = ['', '', '', '', '', ''];
+
     for (let i = 0; i < texto.length; i += 1) {
       nuevo[i] = texto[i];
     }
 
     setCodigo(nuevo);
     setError('');
-    inputsRef.current[Math.min(texto.length, 5)]?.focus();
+
+    inputsRef.current[
+      Math.min(texto.length, 5)
+    ]?.focus();
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (codigoCompleto.length !== 6) {
@@ -65,52 +95,163 @@ export default function VerificarDatos({
       return;
     }
 
-    if (codigoCompleto !== codigoDemo) {
-      setError('El código no es correcto.');
-      return;
-    }
 
-    if (typeof onSuccess === 'function') {
-      onSuccess({
-        modo,
-        correo,
-        codigo: codigoCompleto,
+    try {
+
+      const datos = new FormData();
+
+      datos.append('codigo', codigoCompleto);
+
+
+      let url = '';
+
+
+      if (modo === 'recuperacion') {
+
+        url =
+          'http://localhost/vestra/backend/api/verificar_recuperacion.php';
+
+      } else {
+
+        url =
+          'http://localhost/vestra/backend/api/verificar_codigo.php';
+
+      }
+
+
+      const respuesta = await fetch(url, {
+        method: 'POST',
+        body: datos,
+        credentials: 'include'
       });
-      return;
+
+
+      const resultado = await respuesta.json();
+
+      console.log(
+        'Respuesta verificación:',
+        resultado
+      );
+
+
+      if (resultado.success) {
+
+        setError('');
+
+        if (typeof onSuccess === 'function') {
+
+          onSuccess({
+            modo,
+            correo,
+            codigo: codigoCompleto,
+            id_usuario:
+              resultado.id_usuario || null
+          });
+
+        }
+
+        return;
+      }
+
+
+      setError(
+        resultado.mensaje ||
+        'El código no es correcto.'
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        'Error verificando código:',
+        error
+      );
+
+      setError(
+        'Error al conectar con el servidor.'
+      );
+    }
+  };
+
+
+const handleReenviar = async () => {
+  if (!correo || !correo.trim()) {
+    setError('No se encontró el correo para reenviar el código.');
+    return;
+  }
+
+  try {
+    const datos = new FormData();
+    datos.append('correo', correo);
+
+    const respuesta = await fetch(
+      'http://localhost/vestra/backend/api/solicitar_recuperacion.php',
+      {
+        method: 'POST',
+        body: datos,
+        credentials: 'include'
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    console.log('Respuesta reenvío:', resultado);
+
+    if (resultado.success) {
+      setCodigo(['', '', '', '', '', '']);
+      setError('');
+      inputsRef.current[0]?.focus();
+
+      alert('Se envió un nuevo código a tu correo.');
+    } else {
+      setError(resultado.mensaje || 'No se pudo reenviar el código.');
     }
 
-    alert(
-      modo === 'recuperacion'
-        ? 'Código correcto. Continúa con el cambio de contraseña.'
-        : 'Código correcto. Registro completado.'
-    );
-  };
+  } catch (error) {
+    console.error('Error reenviando código:', error);
+    setError('Error al conectar con el servidor.');
+  }
+};
 
-  const handleReenviar = () => {
-    const nuevoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
-    setCodigoDemo(nuevoCodigo);
-    setCodigo(['', '', '', '', '', '']);
-    setError('');
-    alert(`Código de prueba reenviado: ${nuevoCodigo}`);
-    inputsRef.current[0]?.focus();
-  };
 
   return (
+
     <div className="verificar-contenedor">
+
       <div className="verificar-tarjeta">
-        <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
-         <img src={logo} className="App-logo" alt="logo" /> 
+
+        <img
+          src={require('../vestra.png')}
+          className="Isologo"
+          alt="vestra"
+        />
+
+        <img
+          src={logo}
+          className="App-logo"
+          alt="logo"
+        />
+
         <h1>{titulo}</h1>
 
-        <p className="verificar-subtitulo">{subtitulo}</p>
 
-        <p className="verificar-demo">
-          Código de prueba: <strong>{codigoDemo}</strong>
+        <p className="verificar-subtitulo">
+          {subtitulo}
         </p>
 
-        <form className="verificar-formulario" onSubmit={handleSubmit}>
-          <div className="verificar-codigo" onPaste={handlePaste}>
+
+        <form
+          className="verificar-formulario"
+          onSubmit={handleSubmit}
+        >
+
+          <div
+            className="verificar-codigo"
+            onPaste={handlePaste}
+          >
+
             {codigo.map((digito, index) => (
+
               <input
                 key={index}
                 ref={(el) => {
@@ -120,20 +261,40 @@ export default function VerificarDatos({
                 inputMode="numeric"
                 maxLength={1}
                 value={digito}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
+                onChange={(e) =>
+                  handleChange(
+                    index,
+                    e.target.value
+                  )
+                }
+                onKeyDown={(e) =>
+                  handleKeyDown(index, e)
+                }
                 aria-label={`Dígito ${index + 1}`}
                 className="verificar-input"
               />
+
             ))}
+
           </div>
 
-          {error ? <p className="verificar-error">{error}</p> : null}
 
-          <button type="submit" className="verificar-boton">
+          {error ? (
+            <p className="verificar-error">
+              {error}
+            </p>
+          ) : null}
+
+
+          <button
+            type="submit"
+            className="verificar-boton"
+          >
             Verificar código
           </button>
+
         </form>
+
 
         <button
           type="button"
@@ -142,7 +303,10 @@ export default function VerificarDatos({
         >
           Reenviar código
         </button>
+
       </div>
+
     </div>
+
   );
 }

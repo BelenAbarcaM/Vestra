@@ -2,11 +2,31 @@ import React, { useEffect, useState } from 'react';
 import './Menu_nav_estudiante.css';
 
 const items = [
-  { id: 'inicio', label: 'Inicio', icon: '🏠' },
-  { id: 'mensajes', label: 'Mensajes', icon: '💬' },
-  { id: 'crear', label: 'Crear', icon: '＋', extraClass: 'add' },
-  { id: 'ajustes', label: 'Ajustes', icon: '⚙️' },
-  { id: 'perfil', label: 'Perfil', icon: '👤' },
+  {
+    id: 'inicio',
+    label: 'Inicio',
+    icon: 'icon-home',
+  },
+  {
+    id: 'mensajes',
+    label: 'Mensajes',
+    icon: 'icon-chat',
+  },
+  {
+    id: 'clubes',
+    label: 'Clubes',
+    icon: 'icon-doc-inv',
+  },
+  {
+    id: 'buzon',
+    label: 'Buzón',
+    icon: 'icon-lightbulb',
+  },
+  {
+    id: 'perfil',
+    label: 'Perfil',
+    icon: 'icon-user',
+  },
 ];
 
 export default function MenuNavEstudiante({
@@ -28,19 +48,21 @@ export default function MenuNavEstudiante({
   };
 
   return (
-    <nav className="cedes-bottomnav" aria-label="Menú estudiante">
-      {items.map(({ id, label, icon, extraClass = '' }) => (
-        <button
-          key={id}
-          type="button"
-          aria-label={label}
-          aria-pressed={activa === id}
-          onClick={() => handleClick(id)}
-          className={`nav-btn ${extraClass} ${activa === id ? 'active' : ''}`.trim()}
-        >
-          <span className="nav-icon">{icon}</span>
-        </button>
-      ))}
-    </nav>
-  );
+  <nav className="cedes-bottomnav">
+    {items.map(({ id, label, icon }) => (
+      <button
+        key={id}
+        type="button"
+        aria-label={label}
+        aria-pressed={activa === id}
+        onClick={() => handleClick(id)}
+        className={`nav-btn ${
+          activa === id ? "active" : ""
+        }`.trim()}
+      >
+        <i className={icon} aria-hidden="true" />
+      </button>
+    ))}
+  </nav>
+);
 }

@@ -4,156 +4,178 @@ import "../App.css";
 import "../fontello/css/fontello.css";
 import logito from "../assets/logito.png";
 import Chatbot from "./Chatbot";
+import MenuNavEstudiante from "./Menu_nav_estudiante";
 
-export default function Inicio({ posts: initialPosts = null }) {
+export default function Inicio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Todas");
+
   const [expandedComments, setExpandedComments] = useState({});
   const [expandedCaptions, setExpandedCaptions] = useState({});
 
+  const [localPosts, setLocalPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [commentTexts, setCommentTexts] = useState({});
+
   const searchInputRef = useRef(null);
+
+  const API_URL = "http://localhost/vestra/backend/api";
   const FALLBACK_IMAGE = logito;
-  const COMMENT_STORAGE_KEY = "vestra_comment_likes_v1";
 
-  const samplePosts = [
-    {
-      id: 1,
-      category: "Música",
-      image_url: logito,
-      caption:
-        "La Banda CEDES Don Bosco se presentó ayer en Paraíso de Cartago. Fue una actividad llena de música, entusiasmo y participación de toda la comunidad estudiantil.",
-      likes: 124,
-      created_at: "2026-07-28T18:30:00Z",
-      author: { name: "Luis Fernando", avatar: logito },
-      comments_list: [
-        {
-          id: "1-c1",
-          author: "María Pérez",
-          avatar: logito,
-          time: "2h",
-          text: "Buen post — esto me ayudó mucho, gracias.",
-          likes: 3,
-        },
-        {
-          id: "1-c2",
-          author: "Carlos Ruiz",
-          avatar: logito,
-          time: "1d",
-          text: "Excelente contenido, muy claro.",
-          likes: 1,
-        },
-        {
-          id: "1-c3",
-          author: "Sofía",
-          avatar: logito,
-          time: "3d",
-          text: "Me encantó la presentación.",
-          likes: 2,
-        },
-      ],
-    },
-    {
-      id: 2,
-      category: "Inscripciones abiertas",
-      image_url: logito,
-      caption:
-        "Feria cultural del colegio — fotos, actividades e inscripciones abiertas para estudiantes que deseen participar.",
-      likes: 42,
-      created_at: "2026-07-27T11:15:00Z",
-      author: { name: "María", avatar: logito },
-      comments_list: [
-        {
-          id: "2-c1",
-          author: "Ana López",
-          avatar: logito,
-          time: "3h",
-          text: "Qué bien quedó todo :)",
-          likes: 2,
-        },
-      ],
-    },
-    {
-      id: 3,
-      category: "Tecnología",
-      image_url: logito,
-      caption:
-        "Taller de robótica: los estudiantes mostraron sus prototipos y explicaron el proceso que siguieron para construirlos durante las clases.",
-      likes: 36,
-      created_at: "2026-07-26T09:00:00Z",
-      author: { name: "Joaquín", avatar: logito },
-      comments_list: [
-        {
-          id: "3-c1",
-          author: "Laura",
-          avatar: logito,
-          time: "5h",
-          text: "Increíble trabajo de los chicos.",
-          likes: 0,
-        },
-      ],
-    },
-  ];
+  // =========================================================
+  // CARGAR PUBLICACIONES
+  // =========================================================
 
-  const [posts] = useState(initialPosts ?? samplePosts);
-  const [localPosts, setLocalPosts] = useState(
-    posts.map((post) => ({
-      ...post,
-      comments_list: (post.comments_list || []).map((comment) => ({
-        ...comment,
-      })),
-    }))
-  );
+  const cargarPublicaciones = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `${API_URL}/publicaciones/listar.php`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setError(
+          data.mensaje ||
+            "No se pudieron cargar las publicaciones."
+        );
+        return;
+      }
+
+      const publicaciones = await Promise.all(
+        data.publicaciones.map(async (post) => {
+          const comentarios = await cargarComentarios(post.id);
+
+          return {
+            id: Number(post.id),
+            caption: post.texto,
+
+            image_url: post.imagen
+              ? `http://localhost/vestra/${post.imagen}`
+              : null,
+
+            likes: Number(post.likes || 0),
+            _liked: Number(post.liked) === 1,
+
+            created_at: post.fecha,
+
+            category: post.club,
+
+            author: {
+              name: post.usuario,
+              avatar: post.foto_usuario
+                ? `http://localhost/vestra/${post.foto_usuario}`
+                : null,
+            },
+
+            comments_list: comentarios,
+          };
+        })
+      );
+
+      setLocalPosts(publicaciones);
+    } catch (error) {
+      console.error(
+        "Error cargando publicaciones:",
+        error
+      );
+
+      setError(
+        "No se pudieron cargar las publicaciones."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarPublicaciones();
+  }, []);
+
+  // =========================================================
+  // CARGAR COMENTARIOS
+  // =========================================================
+
+  const cargarComentarios = async (idPublicacion) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/comentarios/listar.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id_publicacion: idPublicacion,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(
+        `COMENTARIOS PUBLICACIÓN ${idPublicacion}:`,
+        data
+      );
+
+      if (!Array.isArray(data)) {
+        console.error(
+          "Respuesta inesperada:",
+          data
+        );
+        return [];
+      }
+
+      return data.map((comment) => ({
+        id: Number(comment.id_comentario),
+        text: comment.texto,
+        author: comment.usuario,
+
+        avatar: comment.foto_usuario
+          ? `http://localhost/vestra/${comment.foto_usuario}`
+          : null,
+
+        time: comment.fecha,
+
+        likes: Number(comment.likes || 0),
+
+        _liked: Number(comment.liked) === 1,
+      }));
+    } catch (error) {
+      console.error(
+        `Error cargando comentarios de publicación ${idPublicacion}:`,
+        error
+      );
+
+      return [];
+    }
+  };
+
+  // =========================================================
+  // BUSCADOR
+  // =========================================================
 
   useEffect(() => {
     if (!searchOpen) return;
 
-    const id = setTimeout(() => searchInputRef.current?.focus(), 120);
+    const id = setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 120);
+
     return () => clearTimeout(id);
   }, [searchOpen]);
-
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem(COMMENT_STORAGE_KEY) || "{}"
-      );
-
-      setLocalPosts((previous) =>
-        previous.map((post) => ({
-          ...post,
-          comments_list: (post.comments_list || []).map((comment) => {
-            const savedComment = saved[comment.id];
-
-            return savedComment
-              ? {
-                  ...comment,
-                  likes: savedComment.count ?? comment.likes,
-                  _liked: Boolean(savedComment.liked),
-                }
-              : comment;
-          }),
-        }))
-      );
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      const store = {};
-
-      localPosts.forEach((post) => {
-        (post.comments_list || []).forEach((comment) => {
-          store[comment.id] = {
-            liked: Boolean(comment._liked),
-            count: Number(comment.likes || 0),
-          };
-        });
-      });
-
-      localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(store));
-    } catch {}
-  }, [localPosts]);
 
   const filtered = useMemo(() => {
     const normalize = (value = "") =>
@@ -162,7 +184,9 @@ export default function Inicio({ posts: initialPosts = null }) {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
-    const words = normalize(query).split(/\s+/).filter(Boolean);
+    const words = normalize(query)
+      .split(/\s+/)
+      .filter(Boolean);
 
     return localPosts.filter((post) => {
       const belongsToCategory =
@@ -170,62 +194,251 @@ export default function Inicio({ posts: initialPosts = null }) {
         post.category === selectedCategory;
 
       const text = normalize(
-        `${post.caption || ""} ${post.author?.name || ""} ${
-          post.category || ""
-        } ${(post.comments_list || [])
+        `${post.caption || ""} ${
+          post.author?.name || ""
+        } ${post.category || ""} ${(post.comments_list || [])
           .map((comment) => comment.text)
           .join(" ")}`
       );
 
-      return belongsToCategory && words.every((word) => text.includes(word));
+      return (
+        belongsToCategory &&
+        words.every((word) =>
+          text.includes(word)
+        )
+      );
     });
-  }, [query, localPosts, selectedCategory]);
+  }, [
+    query,
+    localPosts,
+    selectedCategory,
+  ]);
 
   function selectCategory(category) {
     setSelectedCategory(category);
     setMenuOpen(false);
   }
 
-  function toggleLike(postId) {
-    setLocalPosts((previous) =>
-      previous.map((post) => {
-        if (post.id !== postId) return post;
+  // =========================================================
+  // CREAR COMENTARIO
+  // =========================================================
 
-        const liked = Boolean(post._liked);
+  const crearComentario = async (postId) => {
+    const texto = (
+      commentTexts[postId] || ""
+    ).trim();
 
-        return {
-          ...post,
-          _liked: !liked,
-          likes: liked ? post.likes - 1 : post.likes + 1,
-        };
-      })
-    );
-  }
+    if (!texto) {
+      return;
+    }
 
-  function toggleCommentLike(postId, commentId) {
-    setLocalPosts((previous) =>
-      previous.map((post) => {
-        if (post.id !== postId) return post;
+    try {
+      const response = await fetch(
+        `${API_URL}/comentarios/crear.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-        return {
-          ...post,
-          comments_list: post.comments_list.map((comment) => {
-            if (comment.id !== commentId) return comment;
-
-            const liked = Boolean(comment._liked);
-
-            return {
-              ...comment,
-              _liked: !liked,
-              likes: liked
-                ? Math.max(Number(comment.likes || 0) - 1, 0)
-                : Number(comment.likes || 0) + 1,
-            };
+          body: JSON.stringify({
+            id_publicacion: postId,
+            texto: texto,
           }),
-        };
-      })
-    );
-  }
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(
+        "RESPUESTA CREAR COMENTARIO:",
+        data
+      );
+
+      if (!data.success) {
+        console.error(data.mensaje);
+        return;
+      }
+
+      // Limpiar input
+      setCommentTexts((previous) => ({
+        ...previous,
+        [postId]: "",
+      }));
+
+      // Volver a cargar comentarios
+      const comentariosActualizados =
+        await cargarComentarios(postId);
+
+      setLocalPosts((previous) =>
+        previous.map((post) => {
+          if (post.id !== postId) {
+            return post;
+          }
+
+          return {
+            ...post,
+            comments_list:
+              comentariosActualizados,
+          };
+        })
+      );
+    } catch (error) {
+      console.error(
+        "Error creando comentario:",
+        error
+      );
+    }
+  };
+
+  // =========================================================
+  // LIKE PUBLICACIÓN
+  // =========================================================
+
+  const toggleLike = async (postId) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/likes/toggle.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            id_publicacion: postId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(
+        "RESPUESTA LIKE:",
+        data
+      );
+
+      if (!data.success) {
+        console.error(data.mensaje);
+        return;
+      }
+
+      setLocalPosts((previous) =>
+        previous.map((post) => {
+          if (post.id !== postId) {
+            return post;
+          }
+
+          return {
+            ...post,
+
+            _liked: data.liked,
+
+            likes: data.liked
+              ? post.likes + 1
+              : Math.max(
+                  post.likes - 1,
+                  0
+                ),
+          };
+        })
+      );
+    } catch (error) {
+      console.error(
+        "Error dando like:",
+        error
+      );
+    }
+  };
+
+  // =========================================================
+  // LIKE COMENTARIO
+  // =========================================================
+
+  const toggleCommentLike = async (
+    postId,
+    commentId
+  ) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/comentarios/toggle.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            id_comentario: commentId,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(
+        "RESPUESTA LIKE COMENTARIO:",
+        data
+      );
+
+      if (!data.success) {
+        console.error(data.mensaje);
+        return;
+      }
+
+      setLocalPosts((previous) =>
+        previous.map((post) => {
+          if (post.id !== postId) {
+            return post;
+          }
+
+          return {
+            ...post,
+
+            comments_list:
+              post.comments_list.map(
+                (comment) => {
+                  if (
+                    comment.id !== commentId
+                  ) {
+                    return comment;
+                  }
+
+                  return {
+                    ...comment,
+
+                    _liked: data.liked,
+
+                    likes: data.liked
+                      ? Number(
+                          comment.likes || 0
+                        ) + 1
+                      : Math.max(
+                          Number(
+                            comment.likes || 0
+                          ) - 1,
+                          0
+                        ),
+                  };
+                }
+              ),
+          };
+        })
+      );
+    } catch (error) {
+      console.error(
+        "Error dando like al comentario:",
+        error
+      );
+    }
+  };
+
+  // =========================================================
+  // MODAL COMENTARIOS
+  // =========================================================
 
   function toggleExpandComments(postId) {
     setExpandedComments((previous) => ({
@@ -241,221 +454,582 @@ export default function Inicio({ posts: initialPosts = null }) {
     }));
   }
 
+  function cerrarComentarios(postId) {
+    setExpandedComments((previous) => ({
+      ...previous,
+      [postId]: false,
+    }));
+  }
+
+  // =========================================================
+  // IMÁGENES
+  // =========================================================
+
   function handleImgError(event) {
-    if (!event.currentTarget.dataset.fallbackApplied) {
-      event.currentTarget.src = FALLBACK_IMAGE;
-      event.currentTarget.dataset.fallbackApplied = "true";
+    if (
+      !event.currentTarget.dataset
+        .fallbackApplied
+    ) {
+      event.currentTarget.src =
+        FALLBACK_IMAGE;
+
+      event.currentTarget.dataset.fallbackApplied =
+        "true";
     }
   }
 
+  // =========================================================
+  // RETURN
+  // =========================================================
+
   return (
-    <div className="cedes-root">
-      <div className="cedes-main">
-        <header className="topbar">
+    <div className="inicio-page">
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
+      <header className="topbar">
+
+        <button
+          className="hamburger-btn"
+          onClick={() =>
+            setMenuOpen(
+              (open) => !open
+            )
+          }
+          aria-label="Abrir menú"
+        >
+          <i
+            className="icon-menu"
+            aria-hidden="true"
+          />
+        </button>
+
+        {menuOpen && (
+          <div className="hamburger-menu">
+
+            <button
+              onClick={() =>
+                selectCategory("Todas")
+              }
+            >
+              <i
+                className="icon-home"
+                aria-hidden="true"
+              />
+              Todas las publicaciones
+            </button>
+
+            <button
+              onClick={() =>
+                selectCategory("Deporte")
+              }
+            >
+              <i
+                className="icon-football"
+                aria-hidden="true"
+              />
+              Deporte
+            </button>
+
+            <button
+              onClick={() =>
+                selectCategory("Música")
+              }
+            >
+              <i
+                className="icon-music"
+                aria-hidden="true"
+              />
+              Música
+            </button>
+
+            <button
+              onClick={() =>
+                selectCategory("Tecnología")
+              }
+            >
+              <i
+                className="icon-usb"
+                aria-hidden="true"
+              />
+              Tecnología
+            </button>
+
+            <button
+              onClick={() =>
+                selectCategory("Religión")
+              }
+            >
+              <i
+                className="icon-religious-christian"
+                aria-hidden="true"
+              />
+              Religión
+            </button>
+
+            <button
+              onClick={() =>
+                selectCategory(
+                  "Inscripciones abiertas"
+                )
+              }
+            >
+              <i
+                className="icon-bell-alt"
+                aria-hidden="true"
+              />
+              Inscripciones abiertas
+            </button>
+
+          </div>
+        )}
+
+        <div className="topbar-inner">
+
+          <div className="topbar-space" />
+
           <button
-            className="hamburger-btn"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label="Abrir menú"
+            className="topbar-search-btn"
+            aria-expanded={searchOpen}
+            aria-label="Buscar"
+            onClick={() =>
+              setSearchOpen(
+                (open) => !open
+              )
+            }
           >
-            <i className="icon-menu" aria-hidden="true" />
+            <i
+              className="icon-search"
+              aria-hidden="true"
+            />
           </button>
 
-          {menuOpen && (
-            <div className="hamburger-menu">
-              <button onClick={() => selectCategory("Todas")}>
-                <i className="icon-home" aria-hidden="true" />
-                Todas las publicaciones
-              </button>
-              <button onClick={() => selectCategory("Deporte")}>
-                <i className="icon-football" aria-hidden="true" />
-                Deporte
-              </button>
-              <button onClick={() => selectCategory("Música")}>
-                <i className="icon-music" aria-hidden="true" />
-                Música
-              </button>
-              <button onClick={() => selectCategory("Tecnología")}>
-                <i className="icon-usb" aria-hidden="true" />
-                Tecnología
-              </button>
-              <button onClick={() => selectCategory("Religión")}>
-                <i className="icon-religious-christian" aria-hidden="true" />
-                Religión
-              </button>
-              <button
-                onClick={() => selectCategory("Inscripciones abiertas")}
-              >
-                <i className="icon-bell-alt" aria-hidden="true" />
-                Inscripciones abiertas
-              </button>
-            </div>
-          )}
+        </div>
 
-          <div className="topbar-inner">
-            <div className="topbar-space" />
+        <div
+          className={`search-panel ${
+            searchOpen ? "open" : ""
+          }`}
+        >
+          <div className="search-panel-inner">
+
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="top-search-input"
+              placeholder="Buscar palabras..."
+              value={query}
+              onChange={(event) =>
+                setQuery(event.target.value)
+              }
+            />
+
             <button
-              className="topbar-search-btn"
-              aria-expanded={searchOpen}
-              aria-label="Buscar"
-              onClick={() => setSearchOpen((open) => !open)}
+              className="search-close"
+              onClick={() =>
+                setSearchOpen(false)
+              }
+              aria-label="Cerrar búsqueda"
             >
-              <i className="icon-search" aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className={`search-panel ${searchOpen ? "open" : ""}`}>
-            <div className="search-panel-inner">
-              <input
-                ref={searchInputRef}
-                type="text"
-                className="top-search-input"
-                placeholder="Buscar palabras..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
+              <i
+                className="icon-cancel"
+                aria-hidden="true"
               />
-              <button
-                className="search-close"
-                onClick={() => setSearchOpen(false)}
-                aria-label="Cerrar búsqueda"
-              >
-                <i className="icon-cancel" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </header>
+            </button>
 
-        <header className="cedes-hero">
-          <div className="cedes-hero-inner">
-            <h1 className="cedes-title">
-              <span className="line1">LO </span>
-              <span className="line2">ULTIMO EN </span>
-              <span className="line3">CEDES</span>
-            </h1>
-            <div className="cedes-deco" />
           </div>
-        </header>
+        </div>
 
-        <main className="cedes-feed">
-          {filtered.map((post) => {
-            const comments = post.comments_list || [];
-            const isExpanded = Boolean(expandedComments[post.id]);
-            const visibleComments = isExpanded
-              ? comments
-              : comments.slice(0, 1);
+      </header>
+
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+
+      <header className="cedes-hero">
+
+        <div className="cedes-hero-inner">
+
+          <h1 className="cedes-title">
+
+            <span className="line1">
+              LO
+            </span>
+
+            <span className="line2">
+              ULTIMO EN
+            </span>
+
+            <span className="line3">
+              CEDES
+            </span>
+
+          </h1>
+
+          <div className="cedes-deco" />
+
+        </div>
+
+      </header>
+
+      {/* =====================================================
+          FEED
+      ===================================================== */}
+
+      <main className="cedes-feed">
+
+        {loading && (
+          <div className="feed-message">
+            Cargando publicaciones...
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="feed-message error">
+            {error}
+          </div>
+        )}
+
+        {!loading &&
+          !error &&
+          filtered.map((post) => {
 
             const maxCaptionLength = 105;
-            const fullCaption = post.caption || "";
-            const isCaptionLong = fullCaption.length > maxCaptionLength;
-            const isCaptionExpanded = Boolean(expandedCaptions[post.id]);
+
+            const fullCaption =
+              post.caption || "";
+
+            const isCaptionLong =
+              fullCaption.length >
+              maxCaptionLength;
+
+            const isCaptionExpanded =
+              Boolean(
+                expandedCaptions[
+                  post.id
+                ]
+              );
 
             const visibleCaption =
-              isCaptionLong && !isCaptionExpanded
-                ? `${fullCaption.slice(0, maxCaptionLength).trim()}...`
+              isCaptionLong &&
+              !isCaptionExpanded
+                ? `${fullCaption
+                    .slice(
+                      0,
+                      maxCaptionLength
+                    )
+                    .trim()}...`
                 : fullCaption;
 
             return (
-              <article key={post.id} className="cedes-card">
+              <article
+                key={post.id}
+                className="cedes-card"
+              >
+
+                {/* HEADER DE PUBLICACIÓN */}
+
                 <div className="card-header">
+
                   <div className="author">
+
                     <img
                       className="author-avatar"
-                      src={post.author?.avatar || FALLBACK_IMAGE}
-                      alt={post.author?.name || "Autor"}
-                      onError={handleImgError}
+                      src={
+                        post.author?.avatar ||
+                        FALLBACK_IMAGE
+                      }
+                      alt={
+                        post.author?.name ||
+                        "Autor"
+                      }
+                      onError={
+                        handleImgError
+                      }
                     />
 
                     <div className="author-name">
+
                       <span className="author-name-text">
                         {post.author?.name}
                       </span>
-                      <span className="category-label">{post.category}</span>
+
+                      <span className="category-label">
+                        {post.category}
+                      </span>
+
                     </div>
+
                   </div>
 
                   <div className="post-time">
-                    <i className="icon-calendar" aria-hidden="true" />
-                    {new Date(post.created_at).toLocaleDateString("es-CR", {
-                      day: "numeric",
-                      month: "short",
-                    })}
+
+                    <i
+                      className="icon-calendar"
+                      aria-hidden="true"
+                    />
+
+                    {new Date(
+                      post.created_at
+                    ).toLocaleDateString(
+                      "es-CR",
+                      {
+                        day: "numeric",
+                        month: "short",
+                      }
+                    )}
+
                   </div>
+
                 </div>
+
+                {/* IMAGEN */}
 
                 <div className="card-image">
+
                   <img
-                    src={post.image_url || FALLBACK_IMAGE}
+                    src={
+                      post.image_url ||
+                      FALLBACK_IMAGE
+                    }
                     alt={post.caption}
-                    onError={handleImgError}
+                    onError={
+                      handleImgError
+                    }
                   />
+
                 </div>
 
+                {/* CUERPO */}
+
                 <div className="card-body">
+
+                  {/* TEXTO */}
+
                   <div className="card-caption">
+
                     {visibleCaption}
+
                     {isCaptionLong && (
                       <button
                         type="button"
                         className="caption-toggle"
-                        onClick={() => toggleExpandCaption(post.id)}
+                        onClick={() =>
+                          toggleExpandCaption(
+                            post.id
+                          )
+                        }
                       >
-                        {isCaptionExpanded ? "Ver menos" : "Ver más"}
+                        {isCaptionExpanded
+                          ? "Ver menos"
+                          : "Ver más"}
                       </button>
                     )}
+
                   </div>
 
+                  {/* ACCIONES */}
+
                   <div className="card-actions">
+
                     <div className="actions-left">
-                      <button className="comment-btn" title="Comentar">
-                        <i className="icon-comment" aria-hidden="true" />
+
+                      {/* COMENTARIOS */}
+
+                      <button
+                        className="comment-btn"
+                        title="Ver comentarios"
+                        onClick={() =>
+                          toggleExpandComments(
+                            post.id
+                          )
+                        }
+                      >
+                        <i
+                          className="icon-comment"
+                          aria-hidden="true"
+                        />
                       </button>
+
+                      {/* LIKES */}
 
                       <button
                         className="like-btn"
-                        onClick={() => toggleLike(post.id)}
-                        aria-pressed={Boolean(post._liked)}
+                        onClick={() =>
+                          toggleLike(
+                            post.id
+                          )
+                        }
+                        aria-pressed={Boolean(
+                          post._liked
+                        )}
                       >
                         <i
                           className={
-                            post._liked ? "icon-heart" : "icon-heart-empty"
+                            post._liked
+                              ? "icon-heart"
+                              : "icon-heart-empty"
                           }
                           aria-hidden="true"
                         />
                       </button>
 
-                      <span className="likes-count">{post.likes}</span>
+                      <span className="likes-count">
+                        {post.likes}
+                      </span>
+
                     </div>
+
                   </div>
 
-                  <div className="card-footer">
-                    {visibleComments.map((comment) => (
-                      <div key={comment.id} className="comment-item">
+                </div>
+
+              </article>
+            );
+          })}
+
+        {!loading &&
+          !error &&
+          filtered.length === 0 && (
+            <div className="feed-message">
+              No encontramos publicaciones.
+            </div>
+          )}
+
+      </main>
+
+      {/* =====================================================
+          MODAL DE COMENTARIOS
+      ===================================================== */}
+
+      {Object.entries(
+        expandedComments
+      ).map(([postId, abierto]) => {
+
+        if (!abierto) return null;
+
+        const post = localPosts.find(
+          (p) =>
+            p.id === Number(postId)
+        );
+
+        if (!post) return null;
+
+        return (
+          <div
+            key={post.id}
+            className="comments-modal-overlay"
+            onClick={() =>
+              cerrarComentarios(
+                post.id
+              )
+            }
+          >
+
+            <div
+              className="comments-modal"
+              onClick={(e) =>
+                e.stopPropagation()
+              }
+            >
+
+              {/* HEADER MODAL */}
+
+              <div className="comments-modal-header">
+
+                <h2>
+                  Comentarios
+                </h2>
+
+                <button
+                  className="comments-close"
+                  onClick={() =>
+                    cerrarComentarios(
+                      post.id
+                    )
+                  }
+                  aria-label="Cerrar comentarios"
+                >
+                  <i
+                    className="icon-cancel"
+                    aria-hidden="true"
+                  />
+                </button>
+
+              </div>
+
+              {/* LISTA */}
+
+              <div className="comments-modal-list">
+
+                {post.comments_list
+                  .length === 0 ? (
+
+                  <p className="no-comments">
+                    Todavía no hay
+                    comentarios.
+                  </p>
+
+                ) : (
+
+                  post.comments_list.map(
+                    (comment) => (
+
+                      <div
+                        key={comment.id}
+                        className="comment-item"
+                      >
+
                         <img
                           className="comment-avatar"
-                          src={comment.avatar || logito}
-                          alt={comment.author}
-                          onError={handleImgError}
+                          src={
+                            comment.avatar ||
+                            logito
+                          }
+                          alt={
+                            comment.author
+                          }
+                          onError={
+                            handleImgError
+                          }
                         />
 
                         <div className="comment-body">
+
                           <div className="comment-meta">
+
                             <span className="comment-author">
                               {comment.author}
                             </span>
+
                             <span className="comment-time">
                               {comment.time}
                             </span>
+
                           </div>
-                          <div className="comment-text">{comment.text}</div>
+
+                          <div className="comment-text">
+                            {comment.text}
+                          </div>
+
                         </div>
 
                         <button
                           className={`comment-like ${
-                            comment._liked ? "liked" : ""
+                            comment._liked
+                              ? "liked"
+                              : ""
                           }`}
                           onClick={() =>
-                            toggleCommentLike(post.id, comment.id)
+                            toggleCommentLike(
+                              post.id,
+                              comment.id
+                            )
                           }
                         >
+
                           <i
                             className={
                               comment._liked
@@ -464,54 +1038,80 @@ export default function Inicio({ posts: initialPosts = null }) {
                             }
                             aria-hidden="true"
                           />
-                          <span className="like-count">{comment.likes}</span>
+
+                          <span className="like-count">
+                            {comment.likes}
+                          </span>
+
                         </button>
+
                       </div>
-                    ))}
 
-                    {comments.length > 1 && (
-                      <button
-                        className="comment-toggle"
-                        onClick={() => toggleExpandComments(post.id)}
-                      >
-                        {isExpanded
-                          ? "Ver menos"
-                          : `Ver ${comments.length - 1} más`}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+                    )
+                  )
 
-          {filtered.length === 0 && (
-            <div className="inicio-empty">
-              <i className="icon-search" aria-hidden="true" />
-              No se encontraron publicaciones.
+                )}
+
+              </div>
+
+              {/* CAMPO PARA ESCRIBIR */}
+
+              <div className="comment-form">
+
+                <input
+                  type="text"
+                  placeholder="Escribe un comentario..."
+                  value={
+                    commentTexts[
+                      post.id
+                    ] || ""
+                  }
+                  onChange={(e) =>
+                    setCommentTexts(
+                      (previous) => ({
+                        ...previous,
+                        [post.id]:
+                          e.target.value,
+                      })
+                    )
+                  }
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter"
+                    ) {
+                      crearComentario(
+                        post.id
+                      );
+                    }
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    crearComentario(
+                      post.id
+                    )
+                  }
+                  aria-label="Enviar comentario"
+                >
+                  <i
+                    className="icon-paper-plane"
+                    aria-hidden="true"
+                  />
+                </button>
+
+              </div>
+
             </div>
-          )}
-                  <nav className="cedes-bottomnav" aria-label="Menú principal">
-          <button className="nav-btn" aria-label="Inicio">
-            <i className="icon-home" aria-hidden="true" />
-            onClick
-          </button>
 
-          <button className="nav-btn" aria-label="Crear publicación">
-            <i className="icon-comment" aria-hidden="true" />
-          </button>
+          </div>
+        );
+      })}
 
-          <button className="nav-btn" aria-label="Crear publicación">
-            <i className="icon-lightbulb" aria-hidden="true" />
-          </button>
 
-          <button className="nav-btn" aria-label="Perfil">
-            <i className="icon-user" aria-hidden="true" />
-          </button>
-        </nav>
-        </main>
-      </div>
       <Chatbot />
+
     </div>
   );
 }
