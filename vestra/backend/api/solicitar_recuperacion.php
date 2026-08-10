@@ -7,6 +7,7 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -64,16 +65,12 @@ if(mysqli_num_rows($resultado) == 0){
 $usuario = mysqli_fetch_assoc($resultado);
 
 
-$codigo = rand(100000,999999);
+$codigo = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
 
-
-// Fecha q se vence
 $expira = date(
     "Y-m-d H:i:s",
     strtotime("+15 minutes")
 );
-
-
 
 $actualizar = mysqli_prepare(
     $conexion,
@@ -83,7 +80,6 @@ $actualizar = mysqli_prepare(
      WHERE id_usuario = ?"
 );
 
-
 mysqli_stmt_bind_param(
     $actualizar,
     "ssi",
@@ -92,6 +88,16 @@ mysqli_stmt_bind_param(
     $usuario['id_usuario']
 );
 
+if (!mysqli_stmt_execute($actualizar)) {
+
+    echo json_encode([
+        "success" => false,
+        "mensaje" => "Error guardando el código.",
+        "error" => mysqli_stmt_error($actualizar)
+    ]);
+
+    exit();
+}
 
 mysqli_stmt_execute($actualizar);
 

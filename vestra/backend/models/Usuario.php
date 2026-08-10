@@ -83,17 +83,20 @@ VALUES (?, ?, ?, ?, ?, ?, 0)");
 }
 
 
-function actualizarPerfil($conexion, $id_usuario, $nombre, $bio, $foto){
+function actualizarPerfil(
+    $conexion,
+    $id_usuario,
+    $nombre,
+    $bio,
+    $foto
+) {
 
-
-    // Actualizar el perfil waza
     $actualizar = mysqli_prepare(
         $conexion,
         "UPDATE usuario
-        SET Nombre = ?, bio = ?, Foto_url = ?
-        WHERE id_usuario = ?"
+         SET Nombre = ?, bio = ?, Foto_url = ?
+         WHERE id_usuario = ?"
     );
-
 
     mysqli_stmt_bind_param(
         $actualizar,
@@ -104,10 +107,11 @@ function actualizarPerfil($conexion, $id_usuario, $nombre, $bio, $foto){
         $id_usuario
     );
 
-
-    if(!mysqli_stmt_execute($actualizar)){
+    if (!mysqli_stmt_execute($actualizar)) {
         return false;
     }
+
+    return true;
 }
 
 

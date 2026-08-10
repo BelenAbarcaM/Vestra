@@ -7,6 +7,7 @@ include '../config/conexion.php';
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 
 header("Content-Type: application/json");
 
@@ -53,6 +54,8 @@ if($verificacion){
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
         $_SESSION['usuario'] = $usuario['Nombre'];
         $_SESSION['tipo'] = $usuario['id_tipo_usuario'];
+        unset($_SESSION['recuperacion_verificada']);
+        unset($_SESSION['id_usuario_recuperacion']);
 
         echo json_encode([
     "success" => true,

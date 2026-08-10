@@ -7,6 +7,7 @@ header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 
 
 $correo = $_SESSION['correo_recuperacion'] ?? '';
@@ -111,7 +112,8 @@ mysqli_stmt_bind_param(
 );
 
 mysqli_stmt_execute($actualizar);
-
+$_SESSION['recuperacion_verificada'] = true;
+$_SESSION['id_usuario_recuperacion'] = $usuario['id_usuario'];
 echo json_encode([
     "success" => true,
     "mensaje" => "Código válido.",

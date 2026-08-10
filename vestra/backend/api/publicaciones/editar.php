@@ -3,6 +3,12 @@
 session_start();
 include '../../config/conexion.php';
 
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
+
 $idPubli = $_POST['id_publicacion'];
 $texto = $_POST['texto'];
 $idClub = $_POST['id_club'];
@@ -21,7 +27,7 @@ if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] == 0) {
                 WHERE id_publicacion = ?";
 
     $stmtFoto = $conexion->prepare($sqlFoto);
-    $stmtFoto->bind_param("i", $idPublicacion);
+    $stmtFoto->bind_param("i", $idPubli);
     $stmtFoto->execute();
 
     $resultado = $stmtFoto->get_result();
