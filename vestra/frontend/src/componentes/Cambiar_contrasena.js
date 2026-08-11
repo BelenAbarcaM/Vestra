@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './Cambiar_contraseña.css';
+import './Cambiar_contrasena.css';
+import logo from '../logito.png';
 
 export default function CambiarContrasena({
   correo = '',
@@ -83,11 +84,19 @@ export default function CambiarContrasena({
 
       <div className="verificar-tarjeta">
 
-        <img
-          src={require('../vestra.png')}
-          className="Isologo"
-          alt="vestra"
-        />
+        <div className="marca-header">
+          <img
+            src={logo}
+            className="App-logo"
+            alt="Mascota vestra"
+          />
+
+          <img
+            src={require('../vestra.png')}
+            className="Isologo"
+            alt="vestra"
+          />
+        </div>
 
         <h1>Nueva contraseña</h1>
 

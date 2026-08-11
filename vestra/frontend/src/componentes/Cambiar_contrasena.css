@@ -192,6 +192,28 @@ body {
   font-weight: 600;
 }
 
+.verificar-input-texto {
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface-soft);
+  box-sizing: border-box;
+}
+
+.verificar-input-texto:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.verificar-input-texto::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
 @media (max-width: 480px) {
   .verificar-contenedor {
     padding: 14px;

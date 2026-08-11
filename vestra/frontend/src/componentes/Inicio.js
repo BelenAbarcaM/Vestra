@@ -6,12 +6,14 @@ import logito from "../assets/logito.png";
 import Chatbot from "./Chatbot";
 import MenuNavEstudiante from "./Menu_nav_estudiante";
 
-export default function Inicio() {
+export default function Inicio({ onVerPerfil }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("Todas");
-
+  
+const [selectedCategory, setSelectedCategory] = useState("Todas");
+const [clubes, setClubes] = useState([]);
+const [selectedClubId, setSelectedClubId] = useState(null);
   const [expandedComments, setExpandedComments] = useState({});
   const [expandedCaptions, setExpandedCaptions] = useState({});
 
@@ -44,6 +46,12 @@ export default function Inicio() {
       );
 
       const data = await response.json();
+      console.log("FOTOS DE USUARIOS:", 
+  data.publicaciones.map(post => ({
+    usuario: post.usuario,
+    foto: post.foto_usuario
+  }))
+);
 
       if (!data.success) {
         setError(
@@ -58,8 +66,9 @@ export default function Inicio() {
           const comentarios = await cargarComentarios(post.id);
 
           return {
-            id: Number(post.id),
-            caption: post.texto,
+  id: Number(post.id),
+  id_usuario: Number(post.id_usuario),
+  caption: post.texto,
 
             image_url: post.imagen
               ? `http://localhost/vestra/${post.imagen}`
@@ -73,11 +82,12 @@ export default function Inicio() {
             category: post.club,
 
             author: {
-              name: post.usuario,
-              avatar: post.foto_usuario
-                ? `http://localhost/vestra/${post.foto_usuario}`
-                : null,
-            },
+  id: Number(post.id_usuario),
+  name: post.usuario,
+  avatar: post.foto_usuario
+    ? `http://localhost/vestra/uploads/perfiles/${post.foto_usuario}`
+    : null,
+},
 
             comments_list: comentarios,
           };
@@ -99,10 +109,112 @@ export default function Inicio() {
     }
   };
 
-  useEffect(() => {
-    cargarPublicaciones();
-  }, []);
+  // =========================================================
+  // CARGAR Clubes
+  // =========================================================
 
+  const cargarClubes = async () => {
+  try {
+    const response = await fetch(
+      `${API_URL}/clubes/listar.php`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error("No se pudieron cargar los clubes.");
+      return;
+    }
+
+    setClubes(data.clubes || []);
+  } catch (error) {
+    console.error("Error cargando clubes:", error);
+  }
+};
+
+  useEffect(() => {
+  cargarPublicaciones();
+  cargarClubes();
+}, []);
+
+const cargarPublicacionesPorClub = async (idClub) => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const formData = new URLSearchParams();
+    formData.append("id_club", idClub);
+
+    const response = await fetch(
+      `${API_URL}/publicaciones/obtener.php`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      setError("No se pudieron cargar las publicaciones.");
+      return;
+    }
+
+    const publicaciones = await Promise.all(
+      data.map(async (post) => {
+        const comentarios = await cargarComentarios(post.id);
+
+        return {
+  id: Number(post.id),
+  id_usuario: Number(post.id_usuario),
+  caption: post.texto,
+
+          image_url: post.imagen
+            ? `http://localhost/vestra/${post.imagen}`
+            : null,
+
+          likes: Number(post.likes || 0),
+          _liked: Number(post.liked) === 1,
+
+          created_at: post.fecha,
+
+          category: post.club,
+
+          author: {
+  id: Number(post.id_usuario),
+  name: post.usuario,
+  avatar: post.foto_usuario
+    ? `http://localhost/vestra/uploads/perfiles/${post.foto_usuario}`
+    : null,
+},
+
+          comments_list: comentarios,
+        };
+      })
+    );
+
+    setLocalPosts(publicaciones);
+  } catch (error) {
+    console.error(
+      "Error cargando publicaciones del club:",
+      error
+    );
+
+    setError(
+      "No se pudieron cargar las publicaciones."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   // =========================================================
   // CARGAR COMENTARIOS
   // =========================================================
@@ -139,20 +251,21 @@ export default function Inicio() {
       }
 
       return data.map((comment) => ({
-        id: Number(comment.id_comentario),
-        text: comment.texto,
-        author: comment.usuario,
+  id: Number(comment.id_comentario),
+  id_usuario: Number(comment.id_usuario),
+  text: comment.texto,
+  author: comment.usuario,
 
-        avatar: comment.foto_usuario
-          ? `http://localhost/vestra/${comment.foto_usuario}`
-          : null,
+  avatar: comment.foto_usuario
+    ? `http://localhost/vestra/uploads/perfiles/${comment.foto_usuario}`
+    : null,
 
-        time: comment.fecha,
+  time: comment.fecha,
 
-        likes: Number(comment.likes || 0),
+  likes: Number(comment.likes || 0),
 
-        _liked: Number(comment.liked) === 1,
-      }));
+  _liked: Number(comment.liked) === 1,
+}));
     } catch (error) {
       console.error(
         `Error cargando comentarios de publicación ${idPublicacion}:`,
@@ -178,46 +291,42 @@ export default function Inicio() {
   }, [searchOpen]);
 
   const filtered = useMemo(() => {
-    const normalize = (value = "") =>
-      value
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+  const normalize = (value = "") =>
+    value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-    const words = normalize(query)
-      .split(/\s+/)
-      .filter(Boolean);
+  const words = normalize(query)
+    .split(/\s+/)
+    .filter(Boolean);
 
-    return localPosts.filter((post) => {
-      const belongsToCategory =
-        selectedCategory === "Todas" ||
-        post.category === selectedCategory;
+  return localPosts.filter((post) => {
+    const text = normalize(
+      `${post.caption || ""} ${
+        post.author?.name || ""
+      } ${post.category || ""} ${(post.comments_list || [])
+        .map((comment) => comment.text)
+        .join(" ")}`
+    );
 
-      const text = normalize(
-        `${post.caption || ""} ${
-          post.author?.name || ""
-        } ${post.category || ""} ${(post.comments_list || [])
-          .map((comment) => comment.text)
-          .join(" ")}`
-      );
+    return words.every((word) =>
+      text.includes(word)
+    );
+  });
+}, [query, localPosts]);
 
-      return (
-        belongsToCategory &&
-        words.every((word) =>
-          text.includes(word)
-        )
-      );
-    });
-  }, [
-    query,
-    localPosts,
-    selectedCategory,
-  ]);
+  function selectCategory(category, idClub = null) {
+  setSelectedCategory(category);
+  setSelectedClubId(idClub);
+  setMenuOpen(false);
 
-  function selectCategory(category) {
-    setSelectedCategory(category);
-    setMenuOpen(false);
+  if (idClub === null) {
+    cargarPublicaciones();
+  } else {
+    cargarPublicacionesPorClub(idClub);
   }
+}
 
   // =========================================================
   // CREAR COMENTARIO
@@ -507,84 +616,39 @@ export default function Inicio() {
         </button>
 
         {menuOpen && (
-          <div className="hamburger-menu">
+  <div className="hamburger-menu">
 
-            <button
-              onClick={() =>
-                selectCategory("Todas")
-              }
-            >
-              <i
-                className="icon-home"
-                aria-hidden="true"
-              />
-              Todas las publicaciones
-            </button>
+    <button
+      onClick={() => selectCategory("Todas")}
+    >
+      <i
+        className="icon-home"
+        aria-hidden="true"
+      />
+      Todas las publicaciones
+    </button>
 
-            <button
-              onClick={() =>
-                selectCategory("Deporte")
-              }
-            >
-              <i
-                className="icon-football"
-                aria-hidden="true"
-              />
-              Deporte
-            </button>
+    {clubes.map((club) => (
+      <button
+        key={club.id_club}
+        onClick={() =>
+          selectCategory(
+            club.nombre,
+            club.id_club
+          )
+        }
+      >
+        <i
+          className="icon-users"
+          aria-hidden="true"
+        />
 
-            <button
-              onClick={() =>
-                selectCategory("Música")
-              }
-            >
-              <i
-                className="icon-music"
-                aria-hidden="true"
-              />
-              Música
-            </button>
+        {club.nombre}
+      </button>
+    ))}
 
-            <button
-              onClick={() =>
-                selectCategory("Tecnología")
-              }
-            >
-              <i
-                className="icon-usb"
-                aria-hidden="true"
-              />
-              Tecnología
-            </button>
-
-            <button
-              onClick={() =>
-                selectCategory("Religión")
-              }
-            >
-              <i
-                className="icon-religious-christian"
-                aria-hidden="true"
-              />
-              Religión
-            </button>
-
-            <button
-              onClick={() =>
-                selectCategory(
-                  "Inscripciones abiertas"
-                )
-              }
-            >
-              <i
-                className="icon-bell-alt"
-                aria-hidden="true"
-              />
-              Inscripciones abiertas
-            </button>
-
-          </div>
-        )}
+  </div>
+)}
 
         <div className="topbar-inner">
 
@@ -752,10 +816,21 @@ export default function Inicio() {
 
                     <div className="author-name">
 
-                      <span className="author-name-text">
-                        {post.author?.name}
-                      </span>
+                      <button
+  type="button"
+  className="author-name-button"
+  onClick={() => {
+    console.log("CLICK AUTOR:", post.author?.id);
 
+    if (post.author?.id) {
+      onVerPerfil(post.author.id);
+    } else {
+      console.error("La publicación no tiene id_usuario:", post);
+    }
+  }}
+>
+  {post.author?.name}
+</button>
                       <span className="category-label">
                         {post.category}
                       </span>
@@ -1000,9 +1075,19 @@ export default function Inicio() {
 
                           <div className="comment-meta">
 
-                            <span className="comment-author">
-                              {comment.author}
-                            </span>
+                            <button
+  type="button"
+  className="comment-author-button"
+  onClick={() => {
+    console.log("CLICK COMENTARIO:", comment.id_usuario);
+
+    if (comment.id_usuario) {
+      onVerPerfil(comment.id_usuario);
+    }
+  }}
+>
+  {comment.author}
+</button>
 
                             <span className="comment-time">
                               {comment.time}

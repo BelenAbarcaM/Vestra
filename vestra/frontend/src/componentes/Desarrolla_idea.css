@@ -1,15 +1,56 @@
+@import '../theme.css';
 
+.idea-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 14px 140px;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+}
 
 .idea-card {
+  position: relative;
   width: 100%;
-  max-width: 390px;
-  background: #ffffff;
-  border: 1px solid rgba(27, 121, 171, 0.12);
-  border-radius: 28px;
-  padding: 24px 18px;
-  box-shadow: 0 16px 34px rgba(73, 88, 110, 0.12);
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 30px 22px 26px;
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
-  margin-top: 50px;
+  margin-top: 40px;
+  overflow: hidden;
+}
+
+.idea-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--gradient-primary);
+  z-index: 2;
+}
+
+.idea-card::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: -60px;
+  right: -40px;
+  border-radius: 50%;
+  background: var(--blob-yellow);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.idea-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .idea-topbar {
@@ -18,32 +59,26 @@
 
 .idea-heading {
   margin: 0;
-  color: #18a9c5;
-  font-size: 1.9rem;
-  font-weight: 800;
-  line-height: 1.1;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.15;
   text-transform: uppercase;
 }
 
 .idea-subtitulo {
   margin: 8px 0 0;
-  color: #76808c;
-  font-size: 0.92rem;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
 }
 
 .idea-linea {
   width: 100%;
   height: 3px;
   margin: 18px 0 22px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #2a96c6 0%,
-    #2a96c6 18%,
-    #58b5d8 50%,
-    #2a96c6 82%,
-    #2a96c6 100%
-  );
+  border-radius: var(--radius-pill);
+  background: var(--gradient-accent);
   position: relative;
 }
 
@@ -53,7 +88,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-52%);
-  color: #2a96c6;
+  color: var(--color-accent-dark);
   font-size: 12px;
 }
 
@@ -76,35 +111,37 @@
 }
 
 .idea-field label {
-  color: #7a8088;
-  font-size: 0.92rem;
-  font-weight: 700;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .idea-field input,
 .idea-field textarea {
   width: 100%;
-  border: 1px solid #e5d8ba;
-  border-radius: 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 12px 14px;
   font-size: 0.95rem;
-  font-family: inherit;
-  color: #4f5b66;
-  background: #f5efe0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface-soft);
   box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .idea-field input::placeholder,
 .idea-field textarea::placeholder {
-  color: #9a927f;
+  color: var(--color-text-muted);
 }
 
 .idea-field input:focus,
 .idea-field textarea:focus {
   outline: none;
-  border-color: #2aaed0;
-  box-shadow: 0 0 0 3px rgba(42, 174, 208, 0.14);
-  background: #f4ead1;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(13, 173, 197, 0.14);
 }
 
 .idea-field textarea {
@@ -115,14 +152,15 @@
 .idea-btn {
   margin-top: 6px;
   border: none;
-  background:  #2aaed0;
+  background: var(--gradient-primary);
   color: #ffffff;
-  border-radius: 999px;
-  padding: 12px 16px;
-  font-size: 0.95rem;
+  border-radius: var(--radius-pill);
+  padding: 13px 16px;
+  font-family: var(--font-heading);
+  font-size: 0.98rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(23, 141, 179, 0.22);
+  box-shadow: var(--shadow-primary);
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -133,15 +171,16 @@
 
 @media (max-width: 480px) {
   .idea-page {
-    padding: 16px 10px 100px;
+    padding: 0 10px 140px;
   }
 
   .idea-card {
-    padding: 20px 14px;
-    border-radius: 24px;
+    padding: 26px 16px 22px;
+    border-radius: var(--radius-lg);
+    margin-top: 24px;
   }
 
   .idea-heading {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 }

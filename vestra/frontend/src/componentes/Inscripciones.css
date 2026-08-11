@@ -1,54 +1,109 @@
+@import '../theme.css';
+
 .insc-root {
   min-height: 100vh;
-  background: #f7ead6;
-  padding: 12px 10px 92px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
+  background: var(--color-bg);
+  padding: 16px 14px 140px;
+  font-family: var(--font-body);
 }
 
 .insc-top {
-  max-width: 440px;
-  margin: 0 auto 10px;
-  background: #fffaf1;
-  border-radius: 14px;
-  padding: 14px 12px;
-  box-shadow: 0 6px 14px rgba(6, 30, 40, 0.08);
+  position: relative;
+  overflow: hidden;
+  max-width: 460px;
+  margin: 0 auto 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  box-shadow: var(--shadow-cute);
+}
+
+.insc-top::before,
+.insc-top::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.insc-top::before {
+  width: 100px;
+  height: 100px;
+  top: -55px;
+  right: -30px;
+  background: var(--blob-turquoise);
+}
+
+.insc-top::after {
+  width: 60px;
+  height: 60px;
+  bottom: -30px;
+  left: -20px;
+  background: var(--blob-yellow);
+}
+
+.insc-top > * {
+  position: relative;
+  z-index: 1;
 }
 
 .insc-title {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   text-align: center;
-  color: #0b6b8f;
-  font-weight: 800;
-  letter-spacing: 1px;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
 .insc-search {
   width: 100%;
-  border: 1px solid rgba(11, 107, 143, 0.12);
-  border-radius: 999px;
-  padding: 10px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 11px 16px;
   outline: none;
-  color: #0b3550;
+  color: var(--color-text);
+  background: var(--color-surface-soft);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.insc-search:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(13, 173, 197, 0.14);
 }
 
 .insc-search::placeholder {
-  color: #0b3550;
-  opacity: 0.65;
+  color: var(--color-text-muted);
+  opacity: 1;
 }
 
 .insc-feed {
-  max-width: 440px;
+  max-width: 460px;
   margin: 0 auto;
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .insc-card {
-  background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid rgba(11, 107, 143, 0.08);
-  box-shadow: 0 8px 20px rgba(6, 30, 40, 0.1);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-cute);
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.insc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .insc-card-image img {
@@ -56,49 +111,64 @@
   height: 170px;
   object-fit: cover;
   display: block;
+  background: var(--color-surface-soft);
 }
 
 .insc-card-body {
-  padding: 12px;
+  padding: 14px;
 }
 
 .insc-card-title {
   margin: 0 0 6px;
-  color: #0b3550;
-  font-size: 1rem;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
 }
 
 .insc-card-desc {
-  margin: 0 0 10px;
-  color: #455564;
-  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 12px;
+  padding: 4px 11px;
+  color: var(--tile-turquoise-fg);
+  background: var(--tile-turquoise-bg);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .insc-meta {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  color: #0b6b8f;
-  font-size: 0.84rem;
+  color: var(--color-primary-dark);
+  font-size: 0.82rem;
   font-weight: 700;
   margin-bottom: 10px;
 }
 
 .insc-btn {
   border: none;
-  background: #23c9e9;
+  background: var(--gradient-primary);
   color: #fff;
+  font-family: var(--font-heading);
   font-weight: 700;
-  padding: 9px 12px;
-  border-radius: 14px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
 .insc-btn:hover {
-  background: #12b8d8;
+  transform: translateY(-1px);
+  opacity: 0.95;
 }
 
 .insc-empty {
   text-align: center;
-  color: #6b7280;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  padding: 20px 10px;
 }

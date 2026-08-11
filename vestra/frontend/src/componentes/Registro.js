@@ -68,8 +68,10 @@ export default function Registro({ onIniciarSesion }) {
 	return (
 		<section className="login-contenedor">
 			<div className="login-tarjeta">
-                <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
-				 <img src={logo} className="App-logo" alt="logo" /> 
+                <div className="marca-header">
+					<img src={logo} className="App-logo" alt="Mascota vestra" />
+					<img src={require('../vestra.png')} className="Isologo" alt="vestra" />
+				</div>
 				<h1>Crear cuenta</h1>
 				<p className="login-subtitulo">Complete el formulario para registrarse</p>
 

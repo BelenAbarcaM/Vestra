@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&display=swap');
+
+:root {
+  /* ---------- Paleta base de marca (7 colores, intactos) ---------- */
+  --color-blue: #456597;
+  --color-blue-dark: #334c72;
+  --color-blue-pastel: #e4ebf6;
+  --color-blue-pastel-deep: #d3ddef;
+
+  --color-turquoise: #0dadc5;
+  --color-turquoise-dark: #0a8a9e;
+  --color-turquoise-pastel: #e0f6f8;
+  --color-turquoise-pastel-deep: #c9eef2;
+
+  --color-blue-gray: #bdd9d6;
+  --color-blue-gray-dark: #7fa39e;
+  --color-blue-gray-pastel: #eef7f5;
+
+  --color-yellow: #ffc92b;
+  --color-yellow-dark: #dba300;
+  --color-yellow-pastel: #fff3cf;
+  --color-yellow-pastel-deep: #ffe9a8;
+
+  --color-brown: #5b442c;
+  --color-brown-pastel: #f0e6dc;
+
+  --color-tan: #c3a186;
+  --color-tan-pastel: #f6eee5;
+
+  --color-cream: #fff8ec;
+  --color-cream-deep: #fdecc6;
+
+  /* ---------- Roles semánticos ---------- */
+  --color-primary: var(--color-turquoise);
+  --color-primary-dark: var(--color-turquoise-dark);
+  --color-primary-light: var(--color-turquoise-pastel);
+  --color-primary-deep: var(--color-blue);
+  --color-primary-deep-dark: var(--color-blue-dark);
+
+  --color-accent: var(--color-yellow);
+  --color-accent-dark: var(--color-yellow-dark);
+  --color-accent-soft: var(--color-yellow-pastel);
+
+  --color-bg: var(--color-cream);
+  --color-surface: #ffffff;
+  --color-surface-soft: var(--color-blue-gray-pastel);
+
+  --color-text: #2c3a4d;
+  --color-text-soft: #5a6b7a;
+  --color-text-muted: #96a3b0;
+  --color-text-on-primary: #ffffff;
+
+  --color-border: #f0e6d3;
+  --color-border-strong: var(--color-blue-gray);
+
+  --color-danger: #e0637a;
+  --color-danger-bg: #fdedf0;
+  --color-danger-border: #f6ccd6;
+
+  --color-success: #35a97b;
+  --color-success-bg: #e9f7f0;
+  --color-success-border: #c3e9d7;
+
+  /* ---------- Colores planos de marca (antes degradados) ----------
+     Se conservan estos nombres de variable por compatibilidad con
+     los demás archivos CSS, pero ahora apuntan a colores SÓLIDOS,
+     nunca a un linear-gradient/radial-gradient. */
+  --gradient-primary: var(--color-turquoise);
+  --gradient-primary-soft: var(--color-turquoise-pastel);
+  --gradient-accent: var(--color-yellow);
+
+  /* ---------- Tarjetas tipo dashboard (inspiradas en las referencias) ----------
+     Pares fondo pastel + color fuerte, todos derivados de la misma
+     paleta de marca, para chips, íconos, anillos de progreso y
+     tarjetas de estadísticas tipo "cute dashboard". */
+  --tile-blue-bg: var(--color-blue-pastel);
+  --tile-blue-fg: var(--color-blue-dark);
+
+  --tile-turquoise-bg: var(--color-turquoise-pastel);
+  --tile-turquoise-fg: var(--color-turquoise-dark);
+
+  --tile-yellow-bg: var(--color-yellow-pastel);
+  --tile-yellow-fg: #96700a;
+
+  --tile-brown-bg: var(--color-tan-pastel);
+  --tile-brown-fg: var(--color-brown);
+
+  --tile-mint-bg: var(--color-blue-gray-pastel);
+  --tile-mint-fg: var(--color-blue-gray-dark);
+
+  /* ---------- Manchas decorativas "cute" (blobs translúcidos) ----------
+     Pensadas para usarse como pseudo-elementos redondos y difuminados
+     detrás de encabezados/tarjetas, sin generar degradados entre
+     colores: cada blob es un único color con transparencia. */
+  --blob-turquoise: rgba(13, 173, 197, 0.16);
+  --blob-yellow: rgba(255, 201, 43, 0.22);
+  --blob-blue: rgba(69, 101, 151, 0.14);
+  --blob-white: rgba(255, 255, 255, 0.35);
+
+  /* ---------- Sombras (suaves, sin degradado, estilo "sticker") ---------- */
+  --shadow-sm: 0 3px 10px rgba(91, 68, 44, 0.07);
+  --shadow-md: 0 10px 22px rgba(91, 68, 44, 0.10);
+  --shadow-lg: 0 16px 34px rgba(51, 76, 114, 0.14);
+  --shadow-primary: 0 10px 20px rgba(10, 138, 158, 0.22);
+  --shadow-cute: 0 2px 0 rgba(91, 68, 44, 0.05), 0 12px 26px rgba(91, 68, 44, 0.12);
+
+  /* ---------- Bordes muy redondeados (estilo app móvil "cute") ---------- */
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --radius-pill: 999px;
+
+  /* ---------- Tipografía ---------- */
+  --font-heading: "Baloo 2", "Quicksand", "Segoe UI", sans-serif;
+  --font-body: "Nunito", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+}
+
+
+.chip-cute {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.chip-cute.chip-turquoise { color: var(--tile-turquoise-fg); background: var(--tile-turquoise-bg); }
+.chip-cute.chip-blue      { color: var(--tile-blue-fg); background: var(--tile-blue-bg); }
+.chip-cute.chip-yellow    { color: var(--tile-yellow-fg); background: var(--tile-yellow-bg); }
+.chip-cute.chip-brown     { color: var(--tile-brown-fg); background: var(--tile-brown-bg); }
+.chip-cute.chip-mint      { color: var(--tile-mint-fg); background: var(--tile-mint-bg); }
+
+
+.cute-blobs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cute-blobs::before,
+.cute-blobs::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.cute-blobs::before {
+  width: 140px;
+  height: 140px;
+  top: -50px;
+  right: -40px;
+  background: var(--blob-white);
+}
+
+.cute-blobs::after {
+  width: 90px;
+  height: 90px;
+  bottom: -35px;
+  left: -25px;
+  background: var(--blob-yellow);
+}
+

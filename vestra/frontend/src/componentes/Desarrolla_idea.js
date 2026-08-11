@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Desarrolla_idea.css';
+import Mensaje from './Mensaje';
 
 export default function DesarrollaIdea({ onCrear }) {
   const [formulario, setFormulario] = useState({
@@ -12,6 +13,8 @@ export default function DesarrollaIdea({ onCrear }) {
     requisitos: '',
   });
 
+  const [aviso, setAviso] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormulario((prev) => ({
@@ -20,19 +23,66 @@ export default function DesarrollaIdea({ onCrear }) {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (typeof onCrear === 'function') {
-      onCrear(formulario);
+  try {
+    const respuesta = await fetch(
+      "http://localhost/vestra/backend/api/club/proponer.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formulario),
+      }
+    );
+
+    const data = await respuesta.json();
+
+    console.log("RESPUESTA PROPUESTA CLUB:", data);
+
+    if (!data.success) {
+      setAviso({
+        texto: data.mensaje || "No se pudo enviar la propuesta.",
+        tipo: "error",
+      });
       return;
     }
 
-    alert('Idea creada solo en frontend');
-  };
+    setAviso({
+      texto: "¡Propuesta enviada correctamente!",
+      tipo: "exito",
+    });
+
+    setFormulario({
+      nombreEncargado: "",
+      correo: "",
+      nombreCurso: "",
+      descripcion: "",
+      horario: "",
+      cuota: "",
+      requisitos: "",
+    });
+
+    if (typeof onCrear === "function") {
+      onCrear(data);
+    }
+
+  } catch (error) {
+    console.error("Error enviando propuesta:", error);
+    setAviso({
+      texto: "No se pudo conectar con el servidor.",
+      tipo: "error",
+    });
+  }
+};
 
   return (
     <section className="idea-page">
+      <Mensaje aviso={aviso} onCerrar={() => setAviso(null)} />
+
       <div className="idea-card">
         <div className="idea-topbar">
           <h1 className="idea-heading">DESARROLLA TU IDEA</h1>

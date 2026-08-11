@@ -1,17 +1,16 @@
-.perfil-page {
+@import '../theme.css';
+
+.perfil-page,
+.perfil-contenedor {
   min-height: 100vh;
   width: 100%;
   margin: 0 auto;
-  padding: 16px 16px 100px;
-
+  padding: 16px 16px 140px;
   box-sizing: border-box;
-
-  background: #fff3e4;
-  color: #173447;
-
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
 }
-
 
 /* =========================
    TARJETA PRINCIPAL
@@ -19,23 +18,48 @@
 
 .perfil-card {
   position: relative;
-
   width: 100%;
   max-width: 500px;
-
   min-height: calc(100vh - 132px);
-
   margin: 0 auto;
-
-  background: #ffffff;
-  border: 1px solid rgba(220, 232, 237, 0.9);
-  border-radius: 20px;
-
-  padding: 76px 100px 30px;
-
-  box-shadow: 0 12px 30px rgba(12, 48, 65, 0.13);
-
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 78px 32px 30px;
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.perfil-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 156px;
+  background: var(--gradient-primary);
+  z-index: 0;
+}
+
+.perfil-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 156px;
+  overflow: hidden;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 88% -10%, var(--blob-white) 0 70px, transparent 71px),
+    radial-gradient(circle at 8% 60%, var(--blob-white) 0 46px, transparent 47px);
+  pointer-events: none;
+}
+
+.perfil-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================
@@ -57,64 +81,42 @@
 
 .perfil-heading {
   margin: 0;
-
-  color: #f0bb32;
-
-  font-size: 2rem;
-  font-weight: 800;
-
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .perfil-subtitulo {
   margin: 6px 0 0;
-
-  color: #76808c;
-
-  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
   text-align: center;
 }
 
-
 /* =========================
-   BOTÓN EDITAR
+   BOTON EDITAR
 ========================= */
 
 .perfil-btn-editar {
   position: absolute;
-
   top: 22px;
   left: 18px;
-
   width: 40px;
   height: 40px;
-
   padding: 0;
-
   border: none;
-
-  background: linear-gradient(
-    180deg,
-    #2aaed0 0%,
-    #178db3 100%
-  );
-
+  background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
-
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
-
-  box-shadow: 0 8px 18px rgba(23, 141, 179, 0.22);
-
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
+  box-shadow: 0 6px 14px rgba(51, 76, 114, 0.18);
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .perfil-btn-editar i {
@@ -123,85 +125,55 @@
 
 .perfil-btn-editar:hover {
   transform: translateY(-1px);
-  opacity: 0.95;
+  background: rgba(255, 255, 255, 0.32);
 }
 
-
 /* =========================
-   BOTÓN SALIR
+   BOTON SALIR
 ========================= */
 
 .perfil-btn-salir {
   position: absolute;
-
   top: 22px;
   right: 18px;
-
   min-width: 80px;
   height: 40px;
-
   padding: 0 16px;
-
-  border: 1px solid #b8d7e2;
-
-  background: #ffffff;
-
-  color: #178db3;
-
-  border-radius: 999px;
-
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-radius: var(--radius-pill);
   font-size: 0.82rem;
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .perfil-btn-salir:hover {
   transform: translateY(-1px);
-  background: #f3fbfe;
+  background: rgba(255, 255, 255, 0.22);
 }
 
-
 /* =========================
-   LÍNEA DECORATIVA
+   LINEA DECORATIVA
 ========================= */
 
 .perfil-linea {
   width: 100%;
   height: 3px;
-
   margin: 18px 0 22px;
-
-  border-radius: 999px;
-
-  background: linear-gradient(
-    90deg,
-    #2a96c6 0%,
-    #2a96c6 18%,
-    #58b5d8 50%,
-    #2a96c6 82%,
-    #2a96c6 100%
-  );
-
+  border-radius: var(--radius-pill);
+  background: var(--gradient-accent);
   position: relative;
 }
 
 .perfil-linea::before,
 .perfil-linea::after {
-  content: '◆';
-
+  content: '\25C6';
   position: absolute;
-
   top: 50%;
-
   transform: translateY(-52%);
-
-  color: #2a96c6;
-
+  color: var(--color-accent-dark);
   font-size: 12px;
 }
 
@@ -213,62 +185,49 @@
   right: 10px;
 }
 
-
 /* =========================
    HERO / PERFIL
 ========================= */
 
 .perfil-hero {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   text-align: center;
 }
-
 
 /* =========================
    FOTO DE PERFIL
 ========================= */
 
 .perfil-avatar {
-  width: 142px;
-  height: 142px;
-
+  width: 132px;
+  height: 132px;
   border-radius: 50%;
-
-  border: 6px solid #1cb0ca;
-
+  border: 5px solid var(--color-surface);
+  outline: 3px solid var(--color-primary);
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  margin-bottom: 12px;
-
-  background: #fffdf8;
-
+  margin-bottom: 14px;
+  background: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
 .perfil-avatar-img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
   border-radius: 50%;
-
   display: block;
 }
 
 .perfil-avatar-icon {
-  font-size: 2.6rem;
+  font-size: 2.4rem;
   line-height: 1;
+  color: var(--color-primary-dark);
 }
-
 
 /* =========================
    NOMBRE Y BIO
@@ -276,146 +235,112 @@
 
 .perfil-nombre {
   margin: 0;
-
-  color: #18a9c5;
-
-  font-size: 1.55rem;
-  font-weight: 800;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .perfil-bio {
   margin: 6px 0 18px;
-
-  color: #717987;
-
-  font-size: 0.98rem;
-  font-weight: 700;
-
-  max-width: 280px;
+  color: var(--color-text-soft);
+  font-size: 0.96rem;
+  font-weight: 600;
+  max-width: 300px;
 }
 
-
 /* =========================
-   BOTÓN CAMBIAR FOTO
+   BOTON CAMBIAR FOTO
 ========================= */
 
 .perfil-btn-foto {
   margin: 4px 0 14px;
-
-  border: 1px solid #b8d7e2;
-
-  background: #ffffff;
-
-  color: #178db3;
-
-  border-radius: 999px;
-
-  padding: 8px 14px;
-
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
   font-size: 0.82rem;
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .perfil-btn-foto:hover {
   transform: translateY(-1px);
-  background: #f3fbfe;
+  background: var(--color-primary-light);
 }
 
 .perfil-input-file {
   display: none;
 }
 
-
 /* =========================
-   FORMULARIO DE EDICIÓN
+   FORMULARIO DE EDICION
 ========================= */
 
 .perfil-formulario-edicion {
   width: 100%;
-  max-width: 280px;
-
+  max-width: 300px;
   display: grid;
-
   gap: 10px;
-
   margin-bottom: 18px;
 }
 
 .perfil-input,
 .perfil-textarea {
   width: 100%;
-
-  border: 1px solid #cfe1e8;
-
-  border-radius: 14px;
-
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 12px 14px;
-
   font-size: 0.95rem;
-
-  font-family: inherit;
-
-  color: #4f5b66;
-
-  background: #ffffff;
-
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface-soft);
   box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .perfil-input:focus,
 .perfil-textarea:focus {
   outline: none;
-
-  border-color: #2aaed0;
-
-  box-shadow:
-    0 0 0 3px rgba(42, 174, 208, 0.14);
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px rgba(13, 173, 197, 0.14);
 }
 
 .perfil-textarea {
   resize: none;
-
   min-height: 92px;
 }
-
 
 /* =========================
    INSIGNIAS
 ========================= */
 
 .perfil-seccion {
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .perfil-seccion-suave {
-  background: #d9e8f1;
-
-  border-radius: 18px;
-
-  padding: 14px 12px 16px;
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-lg);
+  padding: 16px 14px 18px;
 }
 
 .perfil-titulo-seccion,
 .perfil-titulo-likes {
   margin: 0 0 12px;
-
-  color: #146aa4;
-
-  font-size: 1.08rem;
-
-  font-weight: 800;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .perfil-titulo-seccion {
   text-align: center;
-
   text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .perfil-titulo-likes {
@@ -424,101 +349,134 @@
 
 .perfil-insignias {
   display: flex;
-
   justify-content: space-around;
-
   gap: 12px;
 }
 
 .perfil-insignia-vacia {
-  width: 64px;
-  height: 64px;
-
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
-
-  border: 2px dashed #1cb0ca;
-
-  background: #e8effd;
-
+  border: 2px dashed var(--color-primary);
+  background: var(--color-primary-light);
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  color: #1cb0ca;
-
-  font-size: 1.5rem;
-
+  color: var(--color-primary-dark);
+  font-size: 1.4rem;
   font-weight: 700;
 }
-
 
 /* =========================
    LIKES GUARDADOS
 ========================= */
 
 .perfil-likes-lista {
-  display: grid;
-
+  display: flex;
+  flex-direction: column;
   gap: 14px;
+  margin-top: 14px;
 }
 
 .perfil-like-vacio {
-  background: #c7dedd;
-
-  border-radius: 22px;
-
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-lg);
   padding: 14px;
+}
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+.perfil-like-card {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .perfil-like-header {
   display: flex;
-
   align-items: center;
-
+  justify-content: space-between;
   gap: 10px;
-
-  margin-bottom: 12px;
+  padding: 13px 14px;
 }
 
-.perfil-mini-avatar {
-  width: 32px;
-  height: 32px;
+.perfil-like-autor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  border-radius: 50%;
-
-  background: #2e61b8;
-
+.perfil-like-autor img,
+.perfil-like-avatar,
+.perfil-like-avatar-img {
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.perfil-like-lineas,
-.perfil-like-footer {
-  display: grid;
+.perfil-like-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: var(--color-primary);
+}
 
-  gap: 7px;
+.perfil-like-autor strong {
+  display: block;
+  color: var(--color-text);
+  font-size: 14px;
+}
 
-  width: 100%;
+.perfil-like-autor span {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.perfil-like-corazon {
+  color: var(--color-danger);
+  font-size: 18px;
 }
 
 .perfil-like-imagen {
   width: 100%;
-  height: 162px;
-
-  border-radius: 12px;
-
-  background: linear-gradient(
-    135deg,
-    #edf4f4 0%,
-    #bdd2d2 100%
-  );
-
-  margin-bottom: 12px;
+  height: 190px;
+  display: block;
+  object-fit: cover;
+  background: var(--tile-mint-bg);
 }
 
+.perfil-like-contenido {
+  padding: 12px 14px 15px;
+}
+
+.perfil-like-contenido p {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.perfil-likes-mensaje {
+  padding: 30px 15px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.perfil-likes-mensaje i {
+  margin-bottom: 10px;
+  color: var(--color-danger);
+  font-size: 28px;
+}
+
+.perfil-likes-mensaje p {
+  margin: 0;
+  font-size: 13px;
+}
 
 /* =========================
    BOTONES GUARDAR / CANCELAR
@@ -526,96 +484,60 @@
 
 .perfil-acciones-edicion {
   display: flex;
-
   justify-content: center;
   align-items: center;
-
   gap: 12px;
-
   width: 100%;
-
   margin-top: 28px;
-
   padding-top: 18px;
-
-  border-top: 1px solid #e4edf1;
+  border-top: 1px solid var(--color-border);
 }
 
 .perfil-btn-guardar,
 .perfil-btn-cancelar {
-  height: 42px;
-
-  padding: 0 22px;
-
-  border-radius: 999px;
-
-  font-size: 0.88rem;
-
+  height: 44px;
+  padding: 0 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
-
-
-/* GUARDAR */
 
 .perfil-btn-guardar {
   border: none;
-
-  background: linear-gradient(
-    180deg,
-    #2aaed0 0%,
-    #178db3 100%
-  );
-
+  background: var(--gradient-primary);
   color: #ffffff;
-
-  box-shadow:
-    0 6px 14px rgba(23, 141, 179, 0.20);
+  box-shadow: var(--shadow-primary);
 }
 
 .perfil-btn-guardar:hover {
   transform: translateY(-1px);
-
-  box-shadow:
-    0 8px 18px rgba(23, 141, 179, 0.25);
+  opacity: 0.95;
 }
 
-
-/* CANCELAR */
-
 .perfil-btn-cancelar {
-  border: 1px solid #b8d7e2;
-
-  background: #ffffff;
-
-  color: #178db3;
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
 }
 
 .perfil-btn-cancelar:hover {
   transform: translateY(-1px);
-
-  background: #f3fbfe;
+  background: var(--color-surface-soft);
 }
 
-
 /* =========================
-   LÍNEAS DE PLACEHOLDER
+   LINEAS DE PLACEHOLDER
 ========================= */
 
 .linea {
   display: block;
-
   height: 10px;
-
-  border-radius: 999px;
-
-  background: rgba(82, 90, 102, 0.22);
+  border-radius: var(--radius-pill);
+  background: var(--color-border-strong);
+  opacity: 0.5;
 }
 
 .linea.corta {
@@ -630,57 +552,44 @@
   width: 76%;
 }
 
-
 /* =========================
-   BOTÓN SECUNDARIO
+   BOTON SECUNDARIO
 ========================= */
 
 .perfil-btn-secundario {
-  border: 1px solid #b8d7e2;
-
-  background: #ffffff;
-
-  color: #178db3;
-
-  border-radius: 999px;
-
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: var(--radius-pill);
   padding: 10px 16px;
-
   font-size: 0.9rem;
-
   font-weight: 700;
-
   cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .perfil-btn-secundario:hover {
   transform: translateY(-1px);
-
-  background: #f3fbfe;
+  background: var(--color-surface-soft);
 }
-
 
 /* =========================
    RESPONSIVE
 ========================= */
 
 @media (max-width: 480px) {
-
-  .perfil-page {
-    padding: 16px 10px 100px;
+  .perfil-page,
+  .perfil-contenedor {
+    padding: 16px 10px 140px;
   }
 
   .perfil-card {
-    padding: 70px 14px 20px;
-    border-radius: 24px;
+    padding: 70px 16px 20px;
+    border-radius: var(--radius-lg);
   }
 
   .perfil-heading {
-    font-size: 1.75rem;
+    font-size: 1.45rem;
   }
 
   .perfil-btn-editar {
@@ -699,7 +608,7 @@
   }
 
   .perfil-nombre {
-    font-size: 1.35rem;
+    font-size: 1.3rem;
   }
 
   .perfil-like-imagen {
@@ -707,8 +616,8 @@
   }
 
   .perfil-insignia-vacia {
-    width: 58px;
-    height: 58px;
+    width: 56px;
+    height: 56px;
   }
 
   .perfil-btn-guardar,

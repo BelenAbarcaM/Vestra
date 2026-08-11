@@ -1,81 +1,143 @@
+@import '../theme.css';
+
 .login-contenedor {
   width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 24px;
+  background: var(--color-bg);
+  font-family: var(--font-body);
 }
-.App-logo {
-  height: 20vmin;
-  pointer-events: none;
-  border-radius: 50%;
-  margin-left: 28%;
-}
+
 .login-tarjeta {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  max-width: 430px;
-  background: #ffffff;
-  border: 1px solid #e7e7e7;
-  border-radius: 14px;
-  padding: 28px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 30px 28px 28px;
+  box-shadow: var(--shadow-lg);
   text-align: left;
+}
+
+.login-tarjeta::before,
+.login-tarjeta::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-tarjeta::before {
+  width: 130px;
+  height: 130px;
+  top: -70px;
+  right: -50px;
+  background: var(--blob-turquoise);
+}
+
+.login-tarjeta::after {
+  width: 80px;
+  height: 80px;
+  bottom: -40px;
+  left: -30px;
+  background: var(--blob-yellow);
+}
+
+.login-tarjeta > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Encabezado de marca: mascota + isologo juntos ---------- */
+
+.marca-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.App-logo {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--tile-turquoise-bg);
+  padding: 6px;
+}
+
+.Isologo {
+  display: block;
+  width: 190px;
+  height: auto;
+  margin: 0 auto;
 }
 
 .login-tarjeta h1 {
   margin: 0;
-  font-size: 1.9rem;
-  color: #1f2a37;
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--color-primary-deep);
   text-align: center;
 }
 
 .login-subtitulo {
-  margin: 8px 0 22px;
-  color: #556070;
-  font-size: 0.9rem;
+  margin: 6px 0 24px;
+  color: var(--color-text-soft);
+  font-size: 0.92rem;
   text-align: center;
 }
 
 .login-formulario {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .login-formulario label {
-  font-weight: 600;
-  color: #243447;
-  font-size: 1.4rem;
-  text-align: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-primary-deep);
+  font-size: 0.9rem;
 }
-.Isologo {
-  width: 432px;
-  height: auto;
-  margin-bottom: 20px;
-}
+
 .login-formulario input[type='text'],
 .login-formulario input[type='email'],
 .login-formulario input[type='password'] {
-  border: 1px solid #c9d4e2;
-  border-radius: 8px;
-  padding: 10px 12px;
+  width: 100%;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 13px 14px;
   font-size: 0.95rem;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-surface-soft);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .login-formulario input:focus {
-  outline: 2px solid #9ac0ff;
-  border-color: #4a90e2;
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
 }
 
 .login-formulario input::placeholder,
 .login-formulario textarea::placeholder {
-  color: #0b3550; /* azul oscuro */
-  opacity: 50%;     /* evita que se vea deslavado */
+  color: var(--color-text-muted);
+  opacity: 1;
 }
 
 .login-opciones {
-  margin-top: 6px;
+  margin-top: 2px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
 }
@@ -84,71 +146,102 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.92rem;
-  color: #374b63;
+  font-size: 0.9rem;
+  color: var(--color-text-soft);
 }
 
 .login-enlace {
   border: none;
   background: transparent;
-  color: #2f6bb3;
-  font-size: 0.9rem;
+  color: var(--color-primary-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
   padding: 0;
 }
 
+.login-enlace:hover {
+  text-decoration: underline;
+}
+
 .login-boton {
-  margin-top: 6px;
+  margin-top: 8px;
   border: none;
-  border-radius: 10px;
-  padding: 12px;
-  background: #6bc5e6;
+  border-radius: var(--radius-pill);
+  padding: 14px;
+  background: var(--color-primary);
   color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 1rem;
   font-weight: 700;
+  letter-spacing: 0.2px;
   cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
 }
 
 .login-boton:hover {
-  background: #4a90e2;
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.login-boton:active {
+  transform: translateY(0);
 }
 
 .login-mensaje {
-  margin: 14px 0 0;
-  color: #0f5f36;
-  background: #e9f8ef;
-  border: 1px solid #bcf0d0;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 0.92rem;
+  margin: 16px 0 0;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
+  padding: 11px 12px;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 600;
 }
 
 .login-registro {
-  margin: 16px 0 0;
-  font-size: 0.92rem;
-  color: #4a5568;
+  margin: 20px 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-soft);
+  text-align: center;
 }
 
 .login-registro a {
-  color: #2f6bb3;
-  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-weight: 700;
 }
 
 .login-link-texto {
   border: none;
   background: transparent;
-  color: #2f6bb3;
-  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-weight: 800;
   cursor: pointer;
   padding: 0;
   font: inherit;
 }
 
+.login-link-texto:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .login-contenedor {
-    padding: 12px;
+    padding: 14px;
   }
 
   .login-tarjeta {
-    padding: 20px;
+    padding: 26px 20px 22px;
+    border-radius: var(--radius-lg);
+  }
+
+  .App-logo {
+    width: 74px;
+    height: 74px;
+  }
+
+  .Isologo {
+    width: 160px;
   }
 }

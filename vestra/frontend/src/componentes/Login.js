@@ -74,8 +74,10 @@ export default function Login({
     <section className="login-contenedor">
 
       <div className="login-tarjeta">
-        <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
-        <img src={logo} className="App-logo" alt="logo" />
+        <div className="marca-header">
+          <img src={logo} className="App-logo" alt="Mascota vestra" />
+          <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
+        </div>
 
         <h1>Iniciar sesion</h1>
 

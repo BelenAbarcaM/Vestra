@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import './Verificar_datos.css';
 import logo from '../logito.png';
+import Mensaje from './Mensaje';
 
 export default function VerificarDatos({
   modo = 'registro',
@@ -12,6 +13,7 @@ export default function VerificarDatos({
 
   const [codigo, setCodigo] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState(null);
 
   const titulo =
     modo === 'recuperacion'
@@ -202,7 +204,10 @@ const handleReenviar = async () => {
       setError('');
       inputsRef.current[0]?.focus();
 
-      alert('Se envió un nuevo código a tu correo.');
+      setAviso({
+        texto: 'Se envió un nuevo código a tu correo.',
+        tipo: 'exito',
+      });
     } else {
       setError(resultado.mensaje || 'No se pudo reenviar el código.');
     }
@@ -218,19 +223,23 @@ const handleReenviar = async () => {
 
     <div className="verificar-contenedor">
 
+      <Mensaje aviso={aviso} onCerrar={() => setAviso(null)} />
+
       <div className="verificar-tarjeta">
 
-        <img
-          src={require('../vestra.png')}
-          className="Isologo"
-          alt="vestra"
-        />
+        <div className="marca-header">
+          <img
+            src={logo}
+            className="App-logo"
+            alt="Mascota vestra"
+          />
 
-        <img
-          src={logo}
-          className="App-logo"
-          alt="logo"
-        />
+          <img
+            src={require('../vestra.png')}
+            className="Isologo"
+            alt="vestra"
+          />
+        </div>
 
         <h1>{titulo}</h1>
 
