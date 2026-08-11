@@ -141,3 +141,45 @@ function actualizarPerfil(
 
     return mysqli_fetch_assoc($resultado);
 }
+
+
+function obtenerPublicacionesLikeadas($conexion, $id_usuario)
+{
+    $sql = "
+        SELECT 
+            p.*,
+            u.Nombre AS nombre_usuario,
+            u.Foto_url AS foto_usuario,
+            c.Nombre AS nombre_club
+        FROM likepublicacion lp
+        INNER JOIN publicacion p 
+            ON lp.id_publicacion = p.id_publicacion
+        INNER JOIN usuario u 
+            ON p.id_usuario = u.id_usuario
+        LEFT JOIN club c 
+            ON p.id_club = c.id_club
+        WHERE lp.id_usuario = ?
+        ORDER BY lp.id_likes DESC
+    ";
+
+    $stmt = mysqli_prepare($conexion, $sql);
+
+    if (!$stmt) {
+        return false;
+    }
+
+    mysqli_stmt_bind_param($stmt, "i", $id_usuario);
+    mysqli_stmt_execute($stmt);
+
+    $resultado = mysqli_stmt_get_result($stmt);
+
+    $publicaciones = [];
+
+    while ($fila = mysqli_fetch_assoc($resultado)) {
+        $publicaciones[] = $fila;
+    }
+
+    mysqli_stmt_close($stmt);
+
+    return $publicaciones;
+}

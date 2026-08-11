@@ -27,6 +27,7 @@ $id_usuario = $_SESSION['id_usuario'];
 
 $listar = "SELECT
                 p.id_publicacion AS id,
+                p.id_usuario,
                 p.Texto AS texto,
                 p.Fecha AS fecha,
                 CONCAT('uploads/publicaciones/', p.Imagen_url) AS imagen,

@@ -35,6 +35,7 @@ $id_publicacion = $data['id_publicacion'];
 
 $sql = "SELECT
             c.id_comentario,
+            c.id_usuario,
             c.texto,
             c.fecha,
             u.Nombre AS usuario,
@@ -62,6 +63,7 @@ $sql = "SELECT
 
         GROUP BY
             c.id_comentario,
+            c.id_usuario,
             c.texto,
             c.fecha,
             u.Nombre,
