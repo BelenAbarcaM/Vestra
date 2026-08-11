@@ -447,20 +447,8 @@
     border-radius: 0;
   }
 
-  .chatbot.open .chatbot-toggle {
-    position: fixed;
-    right: 14px;
-    top: 12px;
-    width: 42px;
-    height: 42px;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.16);
-    box-shadow: none;
-  }
-
   .chatbot.open .chatbot-header {
     min-height: 70px;
-    padding-right: 68px;
   }
 
   .chatbot:not(.open) {

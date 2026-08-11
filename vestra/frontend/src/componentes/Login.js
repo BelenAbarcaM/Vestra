@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
+import { extraerTipoUsuario } from './utilTipoUsuario';
 
 export default function Login({
   onCrearCuenta,
@@ -48,6 +49,12 @@ export default function Login({
       if (resultado.success) {
 
         localStorage.setItem("id_usuario", resultado.id_usuario);
+
+        const tipo = extraerTipoUsuario(resultado);
+
+        if (tipo !== null) {
+          localStorage.setItem("tipo_usuario", tipo);
+        }
 
         setMensaje("Bienvenido " + resultado.usuario);
 

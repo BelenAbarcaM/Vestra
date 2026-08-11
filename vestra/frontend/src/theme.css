@@ -1,3 +1,19 @@
+/* =====================================================================
+   VESTRA — TEMA VISUAL COMPARTIDO ("cute" edition)
+   Este archivo define la identidad visual de toda la app: colores,
+   tipografías, sombras y bordes. Se importa una sola vez desde
+   App.css y queda disponible (como variables CSS) para todas las
+   demás hojas de estilo, sin importar el orden en que carguen.
+
+   Sigue basado en los 7 colores de marca originales (no se tocan sus
+   valores HEX), pero se afinan las variantes pastel para que se vean
+   más suaves y "cute" (tipo app de colegio), inspirado en las
+   referencias visuales: tarjetas blancas flotando sobre fondos
+   pastel, esquinas muy redondeadas, chips y anillos de color,
+   sombras suaves tipo "sticker". Paleta 100% plana: nunca se usan
+   linear-gradient/radial-gradient entre colores distintos.
+   ===================================================================== */
+
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&display=swap');
 
 :root {
@@ -137,6 +153,12 @@ h4 {
   font-family: var(--font-heading);
 }
 
+/* =====================================================================
+   UTILIDADES "CUTE" REUTILIZABLES
+   Clases opcionales que cualquier componente puede usar sin romper la
+   estructura existente: chips redondeados con color e ícono, y blobs
+   decorativos redondos para fondos de encabezados/tarjetas.
+   ===================================================================== */
 
 .chip-cute {
   display: inline-flex;
@@ -156,7 +178,8 @@ h4 {
 .chip-cute.chip-brown     { color: var(--tile-brown-fg); background: var(--tile-brown-bg); }
 .chip-cute.chip-mint      { color: var(--tile-mint-fg); background: var(--tile-mint-bg); }
 
-
+/* Blobs decorativos: van dentro de un contenedor con position:relative
+   y overflow:hidden. Un solo color translúcido cada uno, nunca degradado. */
 .cute-blobs {
   position: absolute;
   inset: 0;
@@ -187,4 +210,3 @@ h4 {
   left: -25px;
   background: var(--blob-yellow);
 }
-

@@ -264,19 +264,17 @@ export default function Chatbot() {
         </div>
       )}
 
-      <button
-        type="button"
-        className="chatbot-toggle"
-        aria-label={open ? "Cerrar chatbot" : "Abrir chatbot"}
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-      >
-        {open ? (
-          <i className="icon-cancel" aria-hidden="true" />
-        ) : (
+      {!open && (
+        <button
+          type="button"
+          className="chatbot-toggle"
+          aria-label="Abrir chatbot"
+          aria-expanded={open}
+          onClick={() => setOpen(true)}
+        >
           <img src={botPhoto} alt="" className="chatbot-toggle-photo" />
-        )}
-      </button>
+        </button>
+      )}
     </div>
   );
 }

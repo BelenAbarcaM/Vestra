@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './Inscripciones.css';
 import logito from '../assets/logito.png';
 
-export default function Inscripciones({ onAbrirClub }) {
+export default function Inscripciones({ onAbrirClub, soloLectura = false }) {
 
   const [query, setQuery] = useState('');
   const [clubes, setClubes] = useState([]);
@@ -247,15 +247,17 @@ export default function Inscripciones({ onAbrirClub }) {
                   Club estudiantil
                 </p>
 
-                <button
-                  type="button"
-                  className="insc-btn"
-                  onClick={() =>
-                    handleAbrirClub(club)
-                  }
-                >
-                  Ir al club
-                </button>
+                {!soloLectura && (
+                  <button
+                    type="button"
+                    className="insc-btn"
+                    onClick={() =>
+                      handleAbrirClub(club)
+                    }
+                  >
+                    Ir al club
+                  </button>
+                )}
 
               </div>
 

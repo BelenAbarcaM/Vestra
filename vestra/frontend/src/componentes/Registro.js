@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
 
-export default function Registro({ onIniciarSesion }) {
+export default function Registro({ onIniciarSesion, onRegistroExitoso }) {
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -35,7 +35,8 @@ export default function Registro({ onIniciarSesion }) {
             "http://localhost/vestra/backend/api/registro.php",
             {
                 method: "POST",
-                body: datos
+                body: datos,
+                credentials: "include"
             }
         );
 
@@ -48,7 +49,11 @@ export default function Registro({ onIniciarSesion }) {
             setMensaje(resultado.mensaje);
 
             setTimeout(() => {
-                onIniciarSesion();
+                if (typeof onRegistroExitoso === "function") {
+                    onRegistroExitoso(email.trim());
+                } else {
+                    onIniciarSesion();
+                }
             }, 1500);
 
         } else {

@@ -10,6 +10,8 @@ import Inicio from './componentes/Inicio';
 import DesarrollaIdea from './componentes/Desarrolla_idea';
 import Inscripciones from './componentes/Inscripciones';
 import MenuNavEstudiante from './componentes/Menu_nav_estudiante';
+import MenuNavVisitante from './componentes/Menu_nav_visitante';
+import { esVisitante } from './componentes/utilTipoUsuario';
 
 function App() {
 
@@ -20,16 +22,24 @@ function App() {
   );
 
   const [correoRecuperacion, setCorreoRecuperacion] = useState('');
+  const [correoRegistro, setCorreoRegistro] = useState('');
 
   const [usuarioPerfil, setUsuarioPerfil] = useState(
     localStorage.getItem("id_usuario")
   );
+
+  const [tipoUsuario, setTipoUsuario] = useState(
+    localStorage.getItem("tipo_usuario")
+  );
+
+  const esVisitanteActual = esVisitante(tipoUsuario);
 
   // =========================
   // LOGIN CORRECTO
   // =========================
 
   const manejarLoginCorrecto = () => {
+    setTipoUsuario(localStorage.getItem("tipo_usuario"));
     setPantalla("inicio");
   };
 
@@ -57,6 +67,8 @@ function App() {
 
   const manejarCerrarSesion = () => {
     localStorage.removeItem("id_usuario");
+    localStorage.removeItem("tipo_usuario");
+    setTipoUsuario(null);
     setPantalla("login");
   };
 
@@ -185,6 +197,15 @@ function App() {
   };
 
   // =========================
+  // REGISTRO EXITOSO
+  // =========================
+
+  const manejarRegistroExitoso = (correo) => {
+    setCorreoRegistro(correo);
+    setPantalla("verificar-registro");
+  };
+
+  // =========================
   // REGISTRO VERIFICADO
   // =========================
 
@@ -212,7 +233,7 @@ function App() {
     setPantalla("clubes");
   }
 
-  if (vista === "buzon") {
+  if (vista === "buzon" && !esVisitanteActual) {
     setPantalla("buzon");
   }
 
@@ -252,6 +273,17 @@ function App() {
           onIniciarSesion={() =>
             setPantalla("login")
           }
+          onRegistroExitoso={manejarRegistroExitoso}
+        />
+      )}
+
+      {/* VERIFICAR CÓDIGO DE REGISTRO */}
+
+      {pantalla === "verificar-registro" && (
+        <VerificarDatos
+          modo="registro"
+          correo={correoRegistro}
+          onSuccess={manejarRegistroCorrecto}
         />
       )}
 
@@ -266,12 +298,12 @@ function App() {
       {/* CLUBES */}
 
       {pantalla === "clubes" && (
-        <Inscripciones />
+        <Inscripciones soloLectura={esVisitanteActual} />
       )}
 
       {/* BUZÓN */}
 
-{pantalla === "buzon" && (
+{pantalla === "buzon" && !esVisitanteActual && (
   <DesarrollaIdea />
 )}
 
@@ -292,10 +324,17 @@ function App() {
   pantalla === "buzon" ||
   pantalla === "perfil"
 ) && (
-  <MenuNavEstudiante
-    vistaActiva={pantalla}
-    onCambiarVista={manejarCambioVista}
-  />
+  esVisitanteActual ? (
+    <MenuNavVisitante
+      vistaActiva={pantalla}
+      onCambiarVista={manejarCambioVista}
+    />
+  ) : (
+    <MenuNavEstudiante
+      vistaActiva={pantalla}
+      onCambiarVista={manejarCambioVista}
+    />
+  )
 )}
 
       {/* RECUPERACIÓN */}

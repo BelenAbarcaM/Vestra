@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Perfil.css';
 import Mensaje from './Mensaje';
+import { extraerTipoUsuario, esVisitante } from './utilTipoUsuario';
 
 export default function Perfil({
   idUsuarioPerfil,
@@ -28,6 +29,17 @@ export default function Perfil({
   const [cargandoLikes, setCargandoLikes] = useState(true);
 
   const [aviso, setAviso] = useState(null);
+
+  const [tipoUsuarioPerfil, setTipoUsuarioPerfil] = useState(null);
+
+  // Si es tu propio perfil, usamos el tipo guardado en localStorage
+  // al iniciar sesión (ya confiable), en vez de depender únicamente
+  // de la clave que devuelva perfil/obtener.php.
+  const tipoUsuarioEfectivo = esMiPerfil
+    ? localStorage.getItem("tipo_usuario")
+    : tipoUsuarioPerfil;
+
+  const perfilEsVisitante = esVisitante(tipoUsuarioEfectivo);
 
 
   // =====================================================
@@ -58,6 +70,10 @@ export default function Perfil({
           setBio(
             resultado.usuario.bio ||
             "Descripción del perfil."
+          );
+
+          setTipoUsuarioPerfil(
+            extraerTipoUsuario(resultado.usuario)
           );
 
 
@@ -693,38 +709,43 @@ export default function Perfil({
 
         {/* ==========================================
             INSIGNIAS
+            NO APLICA PARA VISITANTES
         ========================================== */}
 
-        <section className="perfil-seccion perfil-seccion-suave">
+        {!perfilEsVisitante && (
 
-          <h3 className="perfil-titulo-seccion">
-            Insignias
-          </h3>
+          <section className="perfil-seccion perfil-seccion-suave">
+
+            <h3 className="perfil-titulo-seccion">
+              Insignias
+            </h3>
 
 
-          <div className="perfil-insignias">
+            <div className="perfil-insignias">
 
-            {espaciosInsignias.map(
-              (_, index) => (
+              {espaciosInsignias.map(
+                (_, index) => (
 
-                <div
-                  key={index}
-                  className="perfil-insignia-vacia"
-                  aria-hidden="true"
-                >
+                  <div
+                    key={index}
+                    className="perfil-insignia-vacia"
+                    aria-hidden="true"
+                  >
 
-                  <span>
-                    +
-                  </span>
+                    <span>
+                      +
+                    </span>
 
-                </div>
+                  </div>
 
-              )
-            )}
+                )
+              )}
 
-          </div>
+            </div>
 
-        </section>
+          </section>
+
+        )}
 
 
         {/* ==========================================
