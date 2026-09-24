@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './SolicitudInscripcion.css';
 
 export default function SolicitudInscripcion({ club, onVolver }) {
-  const [formulario, setFormulario] = useState({ nombre: '', correo: '', curso: '', motivo: '' });
+  const [formulario, setFormulario] = useState({ nombre: '', correo: '', seccion: '', motivo: '' });
   const [enviada, setEnviada] = useState(false);
   const actualizar = (e) => setFormulario({ ...formulario, [e.target.name]: e.target.value });
   const enviar = (e) => { e.preventDefault(); setEnviada(true); };
@@ -21,7 +21,7 @@ export default function SolicitudInscripcion({ club, onVolver }) {
         </div> : <form className="solicitud-form" onSubmit={enviar}>
             <label>Nombre completo<input name="nombre" required value={formulario.nombre} onChange={actualizar} placeholder="Ingresa tu nombre" /></label>
             <label>Correo electrónico<input name="correo" type="email" required value={formulario.correo} onChange={actualizar} placeholder="Ingresa tu correo" /></label>
-            <label>Sección<input name="curso" required value={formulario.curso} onChange={actualizar} placeholder="Ej: 10-2" /></label>
+            <label>Sección<input name="seccion" required value={formulario.seccion} onChange={actualizar} placeholder="Ingrese su seccion" /></label>
             <label>¿Por qué te interesa este club?<textarea name="motivo" required rows="4" value={formulario.motivo} onChange={actualizar} placeholder="Cuéntanos brevemente" /></label>
         <button className="solicitud-submit" type="submit">Enviar solicitud</button>
       </form>
