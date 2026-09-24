@@ -61,6 +61,18 @@
   text-transform: uppercase;
 }
 
+.insc-admin-btn {
+  display: block;
+  margin: 0 auto 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  color: var(--tile-turquoise-fg);
+  background: var(--tile-turquoise-bg);
+  font: 800 0.84rem var(--font-body);
+  cursor: pointer;
+}
+
 .insc-search {
   width: 100%;
   border: 1.5px solid var(--color-border);
