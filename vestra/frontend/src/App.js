@@ -9,6 +9,8 @@ import CambiarContrasena from './componentes/Cambiar_contrasena';
 import Inicio from './componentes/Inicio';
 import DesarrollaIdea from './componentes/Desarrolla_idea';
 import Inscripciones from './componentes/Inscripciones';
+import CrudClubes from './componentes/CrudClubes';
+import SolicitudInscripcion from './componentes/SolicitudInscripcion';
 import MenuNavEstudiante from './componentes/Menu_nav_estudiante';
 import MenuNavVisitante from './componentes/Menu_nav_visitante';
 import { esVisitante } from './componentes/utilTipoUsuario';
@@ -23,6 +25,7 @@ function App() {
 
   const [correoRecuperacion, setCorreoRecuperacion] = useState('');
   const [correoRegistro, setCorreoRegistro] = useState('');
+  const [clubSeleccionado, setClubSeleccionado] = useState(null);
 
   const [usuarioPerfil, setUsuarioPerfil] = useState(
     localStorage.getItem("id_usuario")
@@ -233,6 +236,10 @@ function App() {
     setPantalla("clubes");
   }
 
+  if (vista === "crud-clubes") {
+    setPantalla("crud-clubes");
+  }
+
   if (vista === "buzon" && !esVisitanteActual) {
     setPantalla("buzon");
   }
@@ -298,7 +305,21 @@ function App() {
       {/* CLUBES */}
 
       {pantalla === "clubes" && (
-        <Inscripciones soloLectura={esVisitanteActual} />
+        <Inscripciones
+          soloLectura={esVisitanteActual}
+          onAbrirClub={(club) => { setClubSeleccionado(club); setPantalla("solicitud-inscripcion"); }}
+          onAdministrar={() => setPantalla("crud-clubes")}
+        />
+      )}
+
+      {pantalla === "solicitud-inscripcion" && (
+        <SolicitudInscripcion club={clubSeleccionado} onVolver={() => setPantalla("clubes")} />
+      )}
+
+      {pantalla === "crud-clubes" && (
+        <CrudClubes
+          onVolver={() => setPantalla("clubes")}
+        />
       )}
 
       {/* BUZÓN */}
@@ -321,6 +342,7 @@ function App() {
       {(
   pantalla === "inicio" ||
   pantalla === "clubes" ||
+  pantalla === "crud-clubes" ||
   pantalla === "buzon" ||
   pantalla === "perfil"
 ) && (
