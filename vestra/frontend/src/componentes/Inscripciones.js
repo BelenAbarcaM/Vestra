@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './Inscripciones.css';
 import logito from '../assets/logito.png';
 
-export default function Inscripciones({ onAbrirClub, soloLectura = false }) {
+export default function Inscripciones({ onAbrirClub, onAdministrar, soloLectura = false }) {
 
   const [query, setQuery] = useState('');
   const [clubes, setClubes] = useState([]);
@@ -176,6 +176,8 @@ export default function Inscripciones({ onAbrirClub, soloLectura = false }) {
           INSCRIPCIONES
         </h1>
 
+        {!soloLectura && <button type="button" className="insc-admin-btn" onClick={onAdministrar}>Administrar clubes</button>}
+
         <input
           className="insc-search"
           type="search"
@@ -255,7 +257,7 @@ export default function Inscripciones({ onAbrirClub, soloLectura = false }) {
                       handleAbrirClub(club)
                     }
                   >
-                    Ir al club
+                    Solicitar inscripción
                   </button>
                 )}
 
