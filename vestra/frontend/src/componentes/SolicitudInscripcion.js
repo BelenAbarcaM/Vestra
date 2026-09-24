@@ -19,10 +19,18 @@ export default function SolicitudInscripcion({ club, onVolver }) {
         <p>Tu solicitud para {club?.Nombre || 'el club'} quedó registrada en esta sesión.</p>
         <button className="solicitud-submit" type="button" onClick={onVolver}>Volver a clubes</button>
         </div> : <form className="solicitud-form" onSubmit={enviar}>
-            <label>Nombre completo<input name="nombre" required value={formulario.nombre} onChange={actualizar} placeholder="Ingresa tu nombre" /></label>
-            <label>Correo electrónico<input name="correo" type="email" required value={formulario.correo} onChange={actualizar} placeholder="Ingresa tu correo" /></label>
-            <label>Sección<input name="seccion" required value={formulario.seccion} onChange={actualizar} placeholder="Ingrese su seccion" /></label>
-            <label>¿Por qué te interesa este club?<textarea name="motivo" required rows="4" value={formulario.motivo} onChange={actualizar} placeholder="Cuéntanos brevemente" /></label>
+            <label>Nombre completo
+               <input name="nombre" required value={formulario.nombre} onChange={actualizar} placeholder="Ingresa tu nombre" />
+            </label>
+            <label>Correo electrónico
+               <input name="correo" type="email" required value={formulario.correo} onChange={actualizar} placeholder="Ingresa tu correo" />
+            </label>
+            <label>Sección
+               <input name="seccion" required value={formulario.seccion} onChange={actualizar} placeholder="Ingrese su seccion" />
+            </label>
+            <label>¿Por qué te interesa este club?
+                <textarea name="motivo" required rows="4" value={formulario.motivo} onChange={actualizar} placeholder="Cuéntanos brevemente" />
+            </label>
         <button className="solicitud-submit" type="submit">Enviar solicitud</button>
       </form>
       }
