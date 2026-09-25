@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/static/css/main.6c1395b3.css",
+    "main.js": "/static/js/main.07480a1b.js",
+    "static/media/logito.png": "/static/media/logito.2148238fb8ff79bdb2bb.png",
+    "static/media/vestra.png": "/static/media/vestra.6c15db6f08524d9d9366.png",
+    "static/media/Findel-Display-Regular.otf": "/static/media/Findel-Display-Regular.e27c4ba839982951cc48.otf",
+    "static/media/fontello.eot?67869574": "/static/media/fontello.76ca08ba1a1a81fe08e9.eot",
+    "static/media/fontello.ttf?67869574": "/static/media/fontello.e18f8421ad841366b58f.ttf",
+    "static/media/fontello.svg?67869574": "/static/media/fontello.b101cf24fce3b0e4cb5a.svg",
+    "static/media/fontello.woff?67869574": "/static/media/fontello.55d335c4ca3c08c7ab00.woff",
+    "static/media/fontello.woff2?67869574": "/static/media/fontello.a7d863bbb389a7c41977.woff2",
+    "index.html": "/index.html",
+    "main.6c1395b3.css.map": "/static/css/main.6c1395b3.css.map",
+    "main.07480a1b.js.map": "/static/js/main.07480a1b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6c1395b3.css",
+    "static/js/main.07480a1b.js"
+  ]
+}

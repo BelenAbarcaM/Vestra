@@ -719,11 +719,11 @@ const cargarPublicacionesPorClub = async (idClub) => {
           <h1 className="cedes-title">
 
             <span className="line1">
-              LO
+              LO 
             </span>
 
             <span className="line2">
-              ULTIMO EN
+              ULTIMO EN 
             </span>
 
             <span className="line3">

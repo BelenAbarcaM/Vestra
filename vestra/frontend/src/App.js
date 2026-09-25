@@ -10,6 +10,7 @@ import Inicio from './componentes/Inicio';
 import DesarrollaIdea from './componentes/Desarrolla_idea';
 import Inscripciones from './componentes/Inscripciones';
 import CrudClubes from './componentes/CrudClubes';
+import Dashboard from './componentes/Dashboard';
 import SolicitudInscripcion from './componentes/SolicitudInscripcion';
 import MenuNavEstudiante from './componentes/Menu_nav_estudiante';
 import MenuNavVisitante from './componentes/Menu_nav_visitante';
@@ -236,6 +237,10 @@ function App() {
     setPantalla("clubes");
   }
 
+  if (vista === "dashboard") {
+    setPantalla("dashboard");
+  }
+
   if (vista === "crud-clubes") {
     setPantalla("crud-clubes");
   }
@@ -312,6 +317,10 @@ function App() {
         />
       )}
 
+      {pantalla === "dashboard" && (
+        <Dashboard />
+      )}
+
       {pantalla === "solicitud-inscripcion" && (
         <SolicitudInscripcion club={clubSeleccionado} onVolver={() => setPantalla("clubes")} />
       )}
@@ -342,6 +351,7 @@ function App() {
       {(
   pantalla === "inicio" ||
   pantalla === "clubes" ||
+  pantalla === "dashboard" ||
   pantalla === "crud-clubes" ||
   pantalla === "buzon" ||
   pantalla === "perfil"
