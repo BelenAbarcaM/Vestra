@@ -2,114 +2,123 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
-require_once "../../config/conexion.php";
-
 session_start();
 
-
-/* Manejar OPTIONS */
-
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
-}
+require_once "../../config/conexion.php";
 
 
-/* Verificar método */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido."
-    ]);
-    exit;
-}
-
-
-/* Verificar sesión */
-
+// verificar sesion
 if (!isset($_SESSION["id_usuario"])) {
     echo json_encode([
         "success" => false,
-        "message" => "Usuario no autenticado."
+        "error" => "Usuario no autenticado"
     ]);
     exit;
 }
 
+$id_profesor = intval($_SESSION["id_usuario"]);
 
-/* Verificar ID del club */
 
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
+// recibir los datos
+$id_club = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
+$rango = isset($_GET["rango"]) ? $_GET["rango"] : "12";
+
+if ($id_club <= 0) {
     echo json_encode([
         "success" => false,
-        "message" => "ID del club no válido."
+        "error" => "ID de club inválido"
     ]);
     exit;
 }
 
 
-$id_usuario = intval($_SESSION["id_usuario"]);
-$id_club = intval($_GET["id"]);
+// validar rango
+$rangoPermitido = ["7", "30", "3", "6", "9", "12"];
+
+if (!in_array($rango, $rangoPermitido)) {
+    $rango = "12";
+}
 
 
-/* Verificar que el club es del profe */
-
-$sqlClub = "SELECT id_club, Nombre
-            FROM club
-            WHERE id_club = ?
-            AND id_profesor = ?";
+// verificar que el club es del profe
+$sqlClub = "
+    SELECT
+        id_club,
+        Nombre
+    FROM club
+    WHERE id_club = ?
+    AND id_profesor = ?
+";
 
 $stmtClub = $conexion->prepare($sqlClub);
-$stmtClub->bind_param("ii", $id_club, $id_usuario);
+$stmtClub->bind_param("ii", $id_club, $id_profesor);
 $stmtClub->execute();
 
 $resultadoClub = $stmtClub->get_result();
 $club = $resultadoClub->fetch_assoc();
 
-$stmtClub->close();
-
-
 if (!$club) {
     echo json_encode([
         "success" => false,
-        "message" => "No tienes permiso para acceder a este club."
+        "error" => "No tienes permiso para ver las publicaciones de este club"
     ]);
     exit;
 }
 
 
-/* las 3 publis más nuevas nada más */
+//filtar pór fecha
+if ($rango === "7") {
 
-$sql = "SELECT
-            p.id_publicacion,
-            p.contenido,
-            p.fecha,
-            
-            (
-                SELECT COUNT(*)
-                FROM likepublicacion lp
-                WHERE lp.id_publicacion = p.id_publicacion
-            ) AS likes,
+    $filtroFecha = "
+        p.Fecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    ";
 
-            (
-                SELECT COUNT(*)
-                FROM comentario c
-                WHERE c.id_publicacion = p.id_publicacion
-            ) AS comentarios
+} elseif ($rango === "30") {
 
-        FROM publicacion p
+    $filtroFecha = "
+        p.Fecha >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+    ";
 
-        WHERE p.id_club = ?
-        AND p.Estado != 'Eliminada'
+} else {
 
-        ORDER BY p.fecha DESC
+    $filtroFecha = "
+        p.Fecha >= DATE_SUB(NOW(), INTERVAL $rango MONTH)
+    ";
+}
 
-        LIMIT 3";
 
+// obtener las publis
+$sql = "
+    SELECT
+        p.id_publicacion,
+        p.Texto,
+        p.Fecha,
+        p.imagen_url,
+
+        (
+            SELECT COUNT(*)
+            FROM likepublicacion lp
+            WHERE lp.id_publicacion = p.id_publicacion
+        ) AS likes,
+
+        (
+            SELECT COUNT(*)
+            FROM comentario c
+            WHERE c.id_publicacion = p.id_publicacion
+        ) AS comentarios
+
+    FROM publicacion p
+
+    WHERE p.id_club = ?
+    AND p.Estado != 'Eliminada'
+    AND $filtroFecha
+
+    ORDER BY likes DESC, p.Fecha DESC
+";
 
 $stmt = $conexion->prepare($sql);
 $stmt->bind_param("i", $id_club);
@@ -119,30 +128,48 @@ $resultado = $stmt->get_result();
 
 $publicaciones = [];
 
+$totalLikes = 0;
+$totalComentarios = 0;
 
 while ($fila = $resultado->fetch_assoc()) {
 
+    $likes = intval($fila["likes"]);
+    $comentarios = intval($fila["comentarios"]);
+
+    $totalLikes += $likes;
+    $totalComentarios += $comentarios;
+
     $publicaciones[] = [
         "id_publicacion" => intval($fila["id_publicacion"]),
-        "contenido" => $fila["contenido"],
-        "fecha" => $fila["fecha"],
-        "likes" => intval($fila["likes"]),
-        "comentarios" => intval($fila["comentarios"])
+        "texto" => $fila["Texto"],
+        "fecha" => $fila["Fecha"],
+        "imagen_url" => $fila["imagen_url"],
+        "likes" => $likes,
+        "comentarios" => $comentarios
     ];
 }
 
-$stmt->close();
 
-
-/* Respuesta */
-
+// respuesta
 echo json_encode([
     "success" => true,
-    "club" => $club,
+
+    "club" => [
+        "id_club" => intval($club["id_club"]),
+        "Nombre" => $club["Nombre"]
+    ],
+
+    "rango" => is_numeric($rango)
+        ? intval($rango)
+        : $rango,
+
+    "total_publicaciones" => count($publicaciones),
+
+    "total_likes" => $totalLikes,
+
+    "total_comentarios" => $totalComentarios,
+
     "publicaciones" => $publicaciones
 ]);
-
-
-$conexion->close();
 
 ?>

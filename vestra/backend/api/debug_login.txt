@@ -1,0 +1,228 @@
+Correo: [vestra.cedesdonbosco@gmail.com]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [vestra.cedesdonbosco@gmail.com]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [vestra.cedesdonbosco@gmail.com]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [belxjszk@gmail.com]
+Password recibida: [123]
+Longitud: 3
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [belenabarcamonge@gmail.com]
+Password recibida: [123]
+Longitud: 3
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [belxjszk@gmail.com]
+Password recibida: [123]
+Longitud: 3
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [belxjszk@gmail.com]
+Password recibida: [lol]
+Longitud: 3
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [belxjszk@gmail.com]
+Password recibida: [bel]
+Longitud: 3
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [Vestra123]
+Longitud: 9
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [vestra123]
+Longitud: 9
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [vestra]
+Longitud: 6
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [lol123]
+Longitud: 6
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [vestra123]
+Longitud: 9
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [123]
+Longitud: 3
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [Vestra123]
+Longitud: 9
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [lol]
+Longitud: 3
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [123]
+Longitud: 3
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [palvarado@cedesdonbosco.ed.cr]
+Password recibida: [lol123]
+Longitud: 6
+Hash longitud: 59
+Verify: FALSE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [vestra]
+Longitud: 6
+Hash longitud: 6
+Verify: FALSE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [vestra]
+Longitud: 6
+Hash longitud: 6
+Verify: FALSE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [vestra]
+Longitud: 6
+Hash longitud: 6
+Verify: FALSE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [profesor.prueba@cedesdonbosco.ed.cr]
+Password recibida: [Vestra]
+Longitud: 6
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------
+Correo: [2017463@est.cedesdonbosco.ed.cr]
+Password recibida: [Vestra2026]
+Longitud: 10
+Hash longitud: 60
+Verify: TRUE
+-------------------------

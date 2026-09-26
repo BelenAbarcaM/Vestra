@@ -1,5 +1,15 @@
 <?php
 
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 session_start();
 
 include '../../config/conexion.php';
@@ -65,25 +75,27 @@ try {
 
 
 //horario :V
-    if(isset($_POST['horarios'])){
+    if (isset($_POST['horarios'])) {
 
+    $horarios = json_decode($_POST['horarios'], true);
+
+    if (is_array($horarios)) {
 
         $sqlHorario = "INSERT INTO horario_club
         (id_club, dia, hora_inicio, hora_fin)
         VALUES (?, ?, ?, ?)";
 
-
         $stmtHorario = $conexion->prepare($sqlHorario);
 
+        foreach ($horarios as $horario) {
 
+            $dia = $horario['dia'] ?? '';
+            $inicio = $horario['hora_inicio'] ?? '';
+            $fin = $horario['hora_fin'] ?? '';
 
-        foreach($_POST['horarios'] as $horario){
-
-
-            $dia = $horario['dia'];
-            $inicio = $horario['hora_inicio'];
-            $fin = $horario['hora_fin'];
-
+            if ($dia === '' || $inicio === '' || $fin === '') {
+                continue;
+            }
 
             $stmtHorario->bind_param(
                 "isss",
@@ -93,34 +105,34 @@ try {
                 $fin
             );
 
-
             $stmtHorario->execute();
-
         }
-
     }
+}
 
 
 
 //cuota
-    if(isset($_POST['cuotas'])){
+    if (isset($_POST['cuotas'])) {
 
+    $cuotas = json_decode($_POST['cuotas'], true);
+
+    if (is_array($cuotas)) {
 
         $sqlCuota = "INSERT INTO cuota_club
         (id_club, curso, valor)
         VALUES (?, ?, ?)";
 
-
         $stmtCuota = $conexion->prepare($sqlCuota);
 
+        foreach ($cuotas as $cuota) {
 
+            $curso = $cuota['curso'] ?? '';
+            $valor = floatval($cuota['valor'] ?? 0);
 
-        foreach($_POST['cuotas'] as $cuota){
-
-
-            $curso = $cuota['curso'];
-            $valor = $cuota['valor'];
-
+            if ($curso === '') {
+                continue;
+            }
 
             $stmtCuota->bind_param(
                 "isd",
@@ -129,29 +141,32 @@ try {
                 $valor
             );
 
-
             $stmtCuota->execute();
-
         }
-
     }
+}
 
 
 //requisitos
-    if(isset($_POST['requisitos'])){
+    if (isset($_POST['requisitos'])) {
 
+    $requisitos = json_decode($_POST['requisitos'], true);
+
+    if (is_array($requisitos)) {
 
         $sqlRequisito = "INSERT INTO requisito_club
         (id_club, requisito)
         VALUES (?, ?)";
 
-
         $stmtReq = $conexion->prepare($sqlRequisito);
 
+        foreach ($requisitos as $req) {
 
+            $req = trim($req);
 
-        foreach($_POST['requisitos'] as $req){
-
+            if ($req === '') {
+                continue;
+            }
 
             $stmtReq->bind_param(
                 "is",
@@ -159,12 +174,10 @@ try {
                 $req
             );
 
-
             $stmtReq->execute();
-
         }
-
     }
+}
 
 
 

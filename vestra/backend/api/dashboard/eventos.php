@@ -1,111 +1,143 @@
 <?php
 
 header("Content-Type: application/json; charset=UTF-8");
-
 header("Access-Control-Allow-Origin: http://localhost:3000");
-
-header("Access-Control-Allow-Methods: GET");
-
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-
 header("Access-Control-Allow-Credentials: true");
-
-require_once "../../config/conexion.php";
 
 session_start();
 
-// Verificar que el usuario esté logueado
-if (!isset($_SESSION["id_usuario"])) {
+require_once "../../config/conexion.php";
 
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(200);
+    exit;
+}
+
+if (!isset($_SESSION["id_usuario"])) {
     echo json_encode([
+        "success" => false,
         "error" => "Usuario no autenticado"
     ]);
-
     exit;
 }
 
-$id_usuario = intval($_SESSION["id_usuario"]);
+$id_profesor = intval($_SESSION["id_usuario"]);
 
-// Verificar que venga el ID del club
-if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
+$id_club = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 
+if ($id_club <= 0) {
     echo json_encode([
-        "error" => "ID del club no válido"
+        "success" => false,
+        "error" => "Debes indicar el ID del club."
     ]);
-
     exit;
 }
 
-$id_club = intval($_GET["id"]);
 
-/*
-Verificar que el club pertenece al profesor
-*/
+/*verifdicra que el club es del profe*/
 
-$sqlClub = "SELECT
-                id_club,
-                Nombre
-            FROM club
-            WHERE id_club = ?
-            AND id_profesor = ?";
+$sqlClub = "
+    SELECT
+        id_club,
+        Nombre
+    FROM club
+    WHERE id_club = ?
+    AND id_profesor = ?
+";
 
 $stmtClub = $conexion->prepare($sqlClub);
-
-$stmtClub->bind_param("ii", $id_club, $id_usuario);
-
+$stmtClub->bind_param("ii", $id_club, $id_profesor);
 $stmtClub->execute();
 
-$resultadoClub = $stmtClub->get_result();
+$club = $stmtClub->get_result()->fetch_assoc();
 
-$club = $resultadoClub->fetch_assoc();
-
-// Si el club no pertenece al profesor
 if (!$club) {
-
     echo json_encode([
-        "error" => "No tienes permiso para acceder a este club"
+        "success" => false,
+        "error" => "No tienes permiso para consultar este club."
     ]);
-
     exit;
 }
 
-/*
-Obtener eventos del club
-*/
 
-$sqlEventos = "SELECT
-                    id_evento,
-                    titulo,
-                    descripcion,
-                    fecha,
-                    hora_inicio,
-                    hora_fin,
-                    tipo
-                FROM evento_club
-                WHERE id_club = ?
-                ORDER BY fecha ASC, hora_inicio ASC";
+/*filtarr por mes y año*/
 
-$stmtEventos = $conexion->prepare($sqlEventos);
+$mes = isset($_GET["mes"]) ? intval($_GET["mes"]) : 0;
+$anio = isset($_GET["anio"]) ? intval($_GET["anio"]) : 0;
 
-$stmtEventos->bind_param("i", $id_club);
 
-$stmtEventos->execute();
+/*obtener los eventos*/
 
-$resultadoEventos = $stmtEventos->get_result();
+if ($mes >= 1 && $mes <= 12 && $anio > 0) {
+
+    $sql = "
+        SELECT
+            id_evento,
+            id_club,
+            titulo,
+            descripcion,
+            fecha,
+            hora_inicio,
+            hora_fin,
+            tipo
+        FROM evento_club
+        WHERE id_club = ?
+        AND MONTH(fecha) = ?
+        AND YEAR(fecha) = ?
+        ORDER BY fecha ASC, hora_inicio ASC
+    ";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("iii", $id_club, $mes, $anio);
+
+} else {
+
+    $sql = "
+        SELECT
+            id_evento,
+            id_club,
+            titulo,
+            descripcion,
+            fecha,
+            hora_inicio,
+            hora_fin,
+            tipo
+        FROM evento_club
+        WHERE id_club = ?
+        ORDER BY fecha ASC, hora_inicio ASC
+    ";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bind_param("i", $id_club);
+}
+
+$stmt->execute();
+
+$resultado = $stmt->get_result();
 
 $eventos = [];
 
-while ($fila = $resultadoEventos->fetch_assoc()) {
+while ($fila = $resultado->fetch_assoc()) {
 
-    $eventos[] = $fila;
+    $eventos[] = [
+        "id_evento" => intval($fila["id_evento"]),
+        "id_club" => intval($fila["id_club"]),
+        "titulo" => $fila["titulo"],
+        "descripcion" => $fila["descripcion"],
+        "fecha" => $fila["fecha"],
+        "hora_inicio" => $fila["hora_inicio"],
+        "hora_fin" => $fila["hora_fin"],
+        "tipo" => $fila["tipo"]
+    ];
 }
 
-/*
-Devolver información
-*/
 
 echo json_encode([
+    "success" => true,
     "club" => $club,
+    "total_eventos" => count($eventos),
     "eventos" => $eventos
 ]);
 
