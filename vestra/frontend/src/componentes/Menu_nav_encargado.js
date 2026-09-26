@@ -1,12 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import './Menu_nav_estudiante.css';
 
+
 const items = [
-  { id: 'inicio', label: 'Inicio', icon: '🏠' },
-  { id: 'solicitudes', label: 'Solicitudes', icon: '📥' },
-  { id: 'aprobar', label: 'Aprobar', icon: '✔️', extraClass: 'add' },
-  { id: 'mensajes', label: 'Mensajes', icon: '💬' },
-  { id: 'perfil', label: 'Perfil', icon: '👤' },
+  {
+    id: 'inicio',
+    label: 'Inicio',
+    icon: 'icon-home',
+  },
+  {
+    id: 'mensajes',
+    label: 'Mensajes',
+    icon: 'icon-chat',
+    deshabilitado: true,
+  },
+  {
+    id: 'clubes',
+    label: 'Clubes',
+    icon: 'icon-doc-inv',
+  },
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: 'icon-lightbulb',
+  },
+  {
+    id: 'perfil',
+    label: 'Perfil',
+    icon: 'icon-user',
+  },
 ];
 
 export default function MenuNavEncargado({
@@ -19,23 +41,31 @@ export default function MenuNavEncargado({
     setActiva(vistaActiva);
   }, [vistaActiva]);
 
-  const handleClick = (id) => {
+  const handleClick = (id, deshabilitado) => {
+    if (deshabilitado) return;
+
     setActiva(id);
-    if (typeof onCambiarVista === 'function') onCambiarVista(id);
+
+    if (typeof onCambiarVista === 'function') {
+      onCambiarVista(id);
+    }
   };
 
   return (
     <nav className="cedes-bottomnav" aria-label="Menú encargado">
-      {items.map(({ id, label, icon, extraClass = '' }) => (
+      {items.map(({ id, label, icon, deshabilitado }) => (
         <button
           key={id}
           type="button"
           aria-label={label}
           aria-pressed={activa === id}
-          onClick={() => handleClick(id)}
-          className={`nav-btn ${extraClass} ${activa === id ? 'active' : ''}`.trim()}
+          disabled={deshabilitado}
+          onClick={() => handleClick(id, deshabilitado)}
+          className={`nav-btn ${activa === id ? 'active' : ''} ${
+            deshabilitado ? 'nav-btn-disabled' : ''
+          }`.trim()}
         >
-          <span className="nav-icon">{icon}</span>
+          <i className={icon} aria-hidden="true" />
         </button>
       ))}
     </nav>

@@ -184,3 +184,52 @@
     font-size: 1.5rem;
   }
 }
+
+/* selector de clubes */
+
+.club-selector {
+    width: 100%;
+    display: grid;
+    gap: 5px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.club-selector label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.club-selector select {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 34px 9px 11px;
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-soft);
+    color: var(--color-primary-deep);
+    font: 800 0.82rem var(--font-body);
+    cursor: pointer;
+    appearance: auto;
+}
+
+.club-selector select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 173, 197, 0.12);
+}
+
+@media (max-width: 420px) {
+    .club-selector {
+        padding: 9px 10px;
+    }
+}
