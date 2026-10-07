@@ -1,0 +1,28 @@
+.chats-root {
+  min-height: 100vh;
+  padding: 32px 16px;
+  color: #173447;
+  background: #fff3e4;
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+}
+
+.chats-card {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: 22px;
+  box-shadow: 0 20px 48px rgba(12, 48, 65, 0.12);
+}
+
+.chats-card h1 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+  color: #0b6b8f;
+}
+
+.chats-card p {
+  margin: 0;
+  line-height: 1.7;
+  color: #425a6b;
+}

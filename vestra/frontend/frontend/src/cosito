@@ -1,0 +1,18 @@
+import React, { useState } from 'react';
+import './App.css';
+import DesarrollaIdea from './componentes/Desarrolla_idea';
+import './componentes/Desarrolla_idea.css';
+
+function App() {
+
+
+  return (
+    <header className="App-header">
+    <div className="App">
+      <DesarrollaIdea />
+    </div>
+    </header>
+  );
+}
+
+export default App;

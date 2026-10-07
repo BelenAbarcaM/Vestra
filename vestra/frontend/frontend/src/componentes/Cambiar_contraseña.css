@@ -1,0 +1,170 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #fafaf5;
+  color: #1f2a37;
+}
+.verificar-contenedor {
+
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.verificar-tarjeta {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  text-align: left;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.verificar-tarjeta h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  color: #05438f;
+  text-align: center;
+}
+
+.verificar-subtitulo {
+  margin: 8px 0 14px;
+  color: #556070;
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.verificar-demo {
+  margin: 0 0 22px;
+  color:#0b6b8f;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.verificar-formulario {
+  display: grid;
+  gap: 10px;
+}
+.Isologo {
+  width: 432px;
+  height: auto;
+  margin-bottom: 20px;
+}
+.App-logo {
+  height: 20vmin;
+  pointer-events: none;
+  border-radius: 50%;
+  margin-left: 28%;
+}
+.verificar-codigo {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.verificar-input {
+  width: 48px;
+  height: 56px;
+  border: 1px solid #c9d4e2;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  color: #243447;
+  background: #ffffff;
+}
+
+.verificar-input:focus {
+  outline: 2px solid #9ac0ff;
+  border-color: #4a90e2;
+}
+
+.verificar-boton {
+  margin-top: 6px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  background: #6bc5e6;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.verificar-boton:hover {
+  background: #4a90e2;
+}
+
+.verificar-link {
+  margin-top: 14px;
+  border: none;
+  background: transparent;
+  color: #2f6bb3;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.verificar-error {
+  margin: 0;
+  color: #b42318;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .verificar-contenedor {
+    padding: 12px;
+  }
+
+  .verificar-tarjeta {
+    padding: 20px;
+  }
+
+  .verificar-input {
+    width: 44px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+
+  .verificar-codigo {
+    gap: 8px;
+  }
+}
+
+.verificar-input-texto {
+  border: 1px solid #c9d4e2;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #243447;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.verificar-input-texto:focus {
+  outline: 2px solid #9ac0ff;
+  border-color: #4a90e2;
+}
+
+.verificar-input-texto::placeholder {
+  color: #0b3550;
+  opacity: 50%;
+}

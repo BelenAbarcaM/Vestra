@@ -1,0 +1,223 @@
+@import '../theme.css';
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.verificar-contenedor {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: var(--color-bg);
+}
+
+.verificar-tarjeta {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 34px 28px 28px;
+  box-shadow: var(--shadow-lg);
+  text-align: left;
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+.verificar-tarjeta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--color-primary);
+  z-index: 2;
+}
+
+.verificar-tarjeta::after {
+  content: '';
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  top: -60px;
+  right: -40px;
+  border-radius: 50%;
+  background: var(--blob-turquoise);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.verificar-tarjeta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.verificar-tarjeta h1 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-primary-deep);
+  text-align: center;
+}
+
+/* ---------- Encabezado de marca: mascota + isologo juntos ---------- */
+
+.marca-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.App-logo {
+  width: 74px;
+  height: 74px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--tile-turquoise-bg);
+  padding: 6px;
+}
+
+.Isologo {
+  display: block;
+  width: 170px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.verificar-subtitulo {
+  margin: 10px 0 16px;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.verificar-demo {
+  margin: 0 0 22px;
+  color: var(--color-primary-dark);
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.verificar-formulario {
+  display: grid;
+  gap: 12px;
+}
+
+.verificar-codigo {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.verificar-input {
+  width: 48px;
+  height: 56px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-primary-deep);
+  background: var(--color-surface-soft);
+}
+
+.verificar-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.verificar-boton {
+  margin-top: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 14px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.verificar-boton:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.verificar-link {
+  margin-top: 16px;
+  border: none;
+  background: transparent;
+  color: var(--color-primary-dark);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.verificar-link:hover {
+  text-decoration: underline;
+}
+
+.verificar-error {
+  margin: 0;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .verificar-contenedor {
+    padding: 14px;
+  }
+
+  .verificar-tarjeta {
+    padding: 28px 20px 22px;
+    border-radius: var(--radius-lg);
+  }
+
+  .App-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .Isologo {
+    width: 140px;
+  }
+
+  .verificar-input {
+    width: 44px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+
+  .verificar-codigo {
+    gap: 8px;
+  }
+}
