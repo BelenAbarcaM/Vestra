@@ -3,6 +3,7 @@ import "./Inicio.css";
 import "../fontello/css/fontello.css";
 import "./Base_Club.css";
 import logito from "../assets/logito.png";
+import NutriaEscondida from "./Nutria_escondida";
 
 const initialClub = {
 	name: "MATEM",
@@ -59,6 +60,7 @@ export default function BaseClub() {
 
 	return (
 		<>
+		<NutriaEscondida />
 		<div className="base-club-container">
 			<main className="base-club-page">
 			<section className="base-club-overview">

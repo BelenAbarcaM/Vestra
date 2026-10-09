@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Nutria_escondida.css";
-import nutria from "../assets/Vestra.png";
+import nutria from "../assets/Vivi.png";
 
 const INTERVALO_REAPARICION = 10 * 60 * 1000;
 const DURACION_CAPTURA = 1100;
