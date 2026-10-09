@@ -1,165 +1,142 @@
 <?php
-
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Credentials: true");
-header("Content-Type: application/json; charset=UTF-8");
-
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit;
-}
+session_start();
 
 require_once "../../config/conexion.php";
 require_once "../../models/Usuario.php";
 
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+
+if(!isset($_SESSION['id_usuario'])){
     echo json_encode([
         "success" => false,
-        "mensaje" => "Método no permitido."
+        "message" => "Debe iniciar sesión."
     ]);
-    exit;
-}
-
-if (!isset($_POST["id_usuario"])) {
-    echo json_encode([
-        "success" => false,
-        "mensaje" => "Falta el id del usuario."
-    ]);
-    exit;
-}
-
-$id_usuario = intval($_POST["id_usuario"]);
-
-$nombre = isset($_POST["nombre"])
-    ? trim($_POST["nombre"])
-    : "";
-
-$bio = isset($_POST["bio"])
-    ? trim($_POST["bio"])
-    : "";
-
-if ($nombre === "") {
-    echo json_encode([
-        "success" => false,
-        "mensaje" => "El nombre no puede estar vacío."
-    ]);
-    exit;
+    exit();
 }
 
 
+$id_usuario = $_SESSION['id_usuario'];
 
-$foto = null;
+$nombre = $_POST['nombre'] ?? "";
+$clubes = $_POST['clubes'] ?? [];
+
+$nombre = htmlspecialchars(trim($nombre));
+
+
+if(strlen($nombre) < 3){
+    echo json_encode([
+        "success" => false,
+        "message" => "El nombre es demasiado corto."
+    ]);
+    exit();
+}
+
+
+if(empty($clubes)){
+    echo json_encode([
+        "success" => false,
+        "message" => "Debe seleccionar al menos un club."
+    ]);
+    exit();
+}
+
+
+$foto = $_POST['foto_actual'] ?? "default.png";
 
 
 
-if (isset($_FILES["foto"]) && $_FILES["foto"]["error"] === UPLOAD_ERR_OK) {
+if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0){
 
-    $archivo = $_FILES["foto"];
 
-    $extension = strtolower(
-        pathinfo($archivo["name"], PATHINFO_EXTENSION)
-    );
+    if($_FILES['foto']['size'] > 5 * 1024 * 1024){
 
-    $extensionesPermitidas = [
-        "jpg",
-        "jpeg",
-        "png",
-        "webp"
+        echo json_encode([
+            "success" => false,
+            "message" => "La imagen supera los 5MB."
+        ]);
+
+        exit();
+    }
+
+
+
+    $tipo = mime_content_type($_FILES['foto']['tmp_name']);
+
+
+    $permitidas = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
     ];
 
-    if (!in_array($extension, $extensionesPermitidas)) {
-
-        echo json_encode([
-            "success" => false,
-            "mensaje" => "Formato de imagen no permitido."
-        ]);
-
-        exit;
-    }
 
 
-    $nombreFoto =
-        uniqid("perfil_", true)
-        . "."
-        . $extension;
+    if(in_array($tipo, $permitidas)){
 
 
-    $carpeta =
-        "../../../uploads/perfiles/";
-
-
-    if (!is_dir($carpeta)) {
-        mkdir($carpeta, 0777, true);
-    }
-
-
-    $rutaFoto =
-        $carpeta
-        . $nombreFoto;
-
-
-    if (!move_uploaded_file(
-        $archivo["tmp_name"],
-        $rutaFoto
-    )) {
-
-        echo json_encode([
-            "success" => false,
-            "mensaje" => "No se pudo guardar la imagen."
-        ]);
-
-        exit;
-    }
-
-
-    $foto = $nombreFoto;
-
-} else {
-
-
-    $perfilActual =
-        obtenerPerfil(
-            $conexion,
-            $id_usuario
+        $extension = strtolower(
+            pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION)
         );
 
-    if ($perfilActual === false) {
+
+        $nuevoNombre = uniqid() . "." . $extension;
+
+
+        $ruta = "../../uploads/perfiles/";
+
+
+
+        if(!is_dir($ruta)){
+            mkdir($ruta,0755,true);
+        }
+
+
+
+        if(move_uploaded_file(
+            $_FILES['foto']['tmp_name'],
+            $ruta . $nuevoNombre
+        )){
+
+            $foto = $nuevoNombre;
+
+        }
+
+    }else{
 
         echo json_encode([
             "success" => false,
-            "mensaje" => "Usuario no encontrado."
+            "message" => "Formato de imagen no permitido."
         ]);
 
-        exit;
+        exit();
+
     }
 
-    $foto = $perfilActual["Foto_url"];
 }
 
 
-$resultado = actualizarPerfil(
+
+if(actualizarPerfil(
     $conexion,
     $id_usuario,
     $nombre,
-    $bio,
-    $foto
-);
+    $foto,
+    $clubes
+)){
+
+    echo json_encode([
+        "success" => true,
+        "message" => "Perfil actualizado correctamente."
+    ]);
 
 
-if ($resultado === false) {
+}else{
+
 
     echo json_encode([
         "success" => false,
-        "mensaje" => "No se pudo actualizar el perfil."
+        "message" => "Error al actualizar el perfil."
     ]);
 
-    exit;
 }
 
-echo json_encode([
-    "success" => true,
-    "mensaje" => "Perfil actualizado correctamente.",
-    "foto" => $foto
-]);
+?>

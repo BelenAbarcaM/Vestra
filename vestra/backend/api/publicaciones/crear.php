@@ -4,19 +4,12 @@ session_start();
 
 include '../../config/conexion.php';
 
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Credentials: true");
-
-
 $texto = $_POST['texto'];
 $idClub = $_POST['id_club'];;
 $idUsuario = $_SESSION['id_usuario'];
 $imagen = $_FILES['imagen'];
 $nombreImagen = uniqid() . "_" . $imagen['name'];
-$rutaDestino = __DIR__ . "/../../../uploads/publicaciones/" . $nombreImagen;
+$rutaDestino = "../../../uploads/publicaciones/" . $nombreImagen;
 move_uploaded_file(
     $imagen['tmp_name'],
     $rutaDestino
