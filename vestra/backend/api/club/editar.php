@@ -9,7 +9,6 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
 require_once "../../config/conexion.php";
-require_once "../lib/moderacion.php";
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit;
@@ -35,15 +34,6 @@ if ($idClub <= 0 || empty($nombre) || empty($descripcion)) {
         "mensaje" => "El nombre y la descripción son obligatorios."
     ]);
     exit;
-}
-
-$moderacion = vestra_moderar_contenido(
-    $nombre . "\n" . $descripcion,
-    'edicion de club'
-);
-
-if (!empty($moderacion['blocked'])) {
-    vestra_responder_bloqueo_json($moderacion);
 }
 
 /*
