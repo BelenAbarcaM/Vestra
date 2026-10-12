@@ -587,7 +587,7 @@ export default function Inicio({
 
   async function eliminarPublicacion(post) {
     const confirmar = window.confirm(
-      "¿Seguro que querés eliminar esta publicación?"
+      "¿Seguro que quieres eliminar esta publicación?"
     );
 
     if (!confirmar) return;
@@ -764,7 +764,7 @@ export default function Inicio({
           clubesProfesor.length === 0 && (
             <div className="feed-message">
               No encontramos clubes asignados a tu usuario.
-              Revisá que el servidor devuelva los clubes del profesor.
+              Revisa que el servidor devuelva los clubes del profesor.
             </div>
           )}
 
