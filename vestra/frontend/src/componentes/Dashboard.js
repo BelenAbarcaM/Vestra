@@ -390,7 +390,7 @@ function Dashboard({
     } catch (error) {
       console.error(error);
       setMiembrosError(
-        "no se pudo cargar la lista de miembros."
+        "No se pudo cargar la lista de miembros."
       );
       setMiembros([]);
     } finally {
@@ -411,7 +411,7 @@ function Dashboard({
 
       if (data.success === false || data.error) {
         setInsigniasError(
-          data.mensaje || data.error || "No se pudieron cargar las insignias."
+          data.mensaje || data.error || "No se pudo cargar las insignias."
         );
         setInsignias([]);
         return;
@@ -432,7 +432,7 @@ function Dashboard({
       });
     } catch (error) {
       console.error(error);
-      setInsigniasError("No se pudieron cargar las insignias del club.");
+      setInsigniasError("No se pudo cargar las insignias del club.");
       setInsignias([]);
     } finally {
       setCargandoInsignias(false);
@@ -450,17 +450,17 @@ function Dashboard({
     }
 
     if (!nombreInsignia.trim() || !descripcionInsignia.trim() || !imagenInsignia) {
-      setInsigniasError("Completa el nombre, la descripción y selecciona una imagen PNG.");
+      setInsigniasError("Completa el nombre, la descripción y selecciona una imágen PNG.");
       return;
     }
 
     if (imagenInsignia.type !== "image/png") {
-      setInsigniasError("La imagen debe estar en formato PNG.");
+      setInsigniasError("La imágen debe estar en formato PNG.");
       return;
     }
 
     if (imagenInsignia.size > 5 * 1024 * 1024) {
-      setInsigniasError("La imagen no puede superar los 5 MB.");
+      setInsigniasError("La imágen no puede superar los 5 MB.");
       return;
     }
 
@@ -559,14 +559,14 @@ function Dashboard({
         setPublicacionesError(
           data.message ||
             data.error ||
-            "no se pudieron cargar las publicaciones."
+            "No se pudo cargar las publicaciones."
         );
         setPublicaciones([]);
       }
     } catch (error) {
       console.error(error);
       setPublicacionesError(
-        "no se pudieron cargar las publicaciones."
+        "No se pudo cargar las publicaciones."
       );
       setPublicaciones([]);
     } finally {
@@ -594,7 +594,7 @@ function Dashboard({
     } catch (error) {
       console.error(error);
       setEstadisticasError(
-        "no se pudieron cargar las estadísticas."
+        "No se pudo cargar las estadísticas."
       );
       setEstadisticas(null);
     } finally {
@@ -619,14 +619,14 @@ function Dashboard({
         setComparacionError(
           data.message ||
             data.error ||
-            "no se pudo cargar la comparación."
+            "No se pudo cargar la comparación."
         );
         setComparacion(null);
       }
     } catch (error) {
       console.error(error);
       setComparacionError(
-        "no se pudo cargar la comparación."
+        "No se pudo cargar la comparación."
       );
       setComparacion(null);
     } finally {
@@ -789,13 +789,13 @@ const gestionarSolicitud = async (idSolicitud, accion) => {
       } else {
         setAsistenciaError(
           data.error ||
-            "no se pudo registrar la asistencia."
+            "No se pudo registrar la asistencia."
         );
       }
     } catch (error) {
       console.error(error);
       setAsistenciaError(
-        "no se pudo registrar la asistencia."
+        "No se pudo registrar la asistencia."
       );
     } finally {
       setGuardandoAsistenciaId(null);
@@ -908,13 +908,13 @@ const gestionarSolicitud = async (idSolicitud, accion) => {
       } else {
         setEventosError(
           data.error ||
-            "no se pudo guardar el evento."
+            "No se pudo guardar el evento."
         );
       }
     } catch (error) {
       console.error(error);
       setEventosError(
-        "no se pudo guardar el evento."
+        "No se pudo guardar el evento."
       );
     }
   };
@@ -1027,13 +1027,13 @@ const gestionarSolicitud = async (idSolicitud, accion) => {
       } else {
         setEventosError(
           data.error ||
-            "no se pudo eliminar el evento."
+            "No se pudo eliminar el evento."
         );
       }
     } catch (error) {
       console.error(error);
       setEventosError(
-        "no se pudo eliminar el evento."
+        "No se pudo eliminar el evento."
       );
     }
   };
