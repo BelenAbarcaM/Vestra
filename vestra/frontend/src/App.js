@@ -19,9 +19,9 @@ import MenuNavEncargado from "./componentes/Menu_nav_encargado";
 import BaseClub from "./componentes/Base_Club"
 import NutriaEscondida from "./componentes/Nutria_escondida";
 import Chats from "./componentes/Chats";
-import ChatProfesores from "./componentes/ChatProfesores";
 import ForoClub from "./componentes/ForoClub";
 import TestAfinidad from "./componentes/TestAfinidad";
+import FormularioPublicacion from "./componentes/FormularioPublicacion";
 
 import {
   esVisitante,
@@ -62,6 +62,12 @@ function App() {
     String(tipoUsuario) === TIPO_PROFESOR;
   const esEstudianteActual =
     String(tipoUsuario) === TIPO_ESTUDIANTE;
+
+    const [modoFormularioPublicacion, setModoFormularioPublicacion] =
+    useState(null);
+
+const [publicacionEnEdicion, setPublicacionEnEdicion] =
+    useState(null);
 
   // login correcto
   const manejarLoginCorrecto = () => {
@@ -177,37 +183,47 @@ function App() {
   };
 
   // clubes del encargado
-  const cargarClubesDelProfesor = async () => {
+  
+const cargarClubesDelProfesor = async () => {
     try {
-      const respuesta = await fetch(
-        "http://localhost/vestra/backend/api/dashboard/mi_club.php",
-        {
-          credentials: "include",
+        const respuesta = await fetch(
+            "http://localhost/vestra/backend/api/dashboard/mi_club.php",
+            {
+                credentials: "include",
+            }
+        );
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok || datos.success === false) {
+            throw new Error(
+                datos.mensaje || "No se pudieron cargar los clubes."
+            );
         }
-      );
 
-      const datos = await respuesta.json();
-
-      if (
-        datos.clubes &&
-        datos.clubes.length > 0
-      ) {
-        setClubesProfesor(datos.clubes);
-        setClubSeleccionado(datos.clubes[0]);
-      } else {
+        if (Array.isArray(datos.clubes) && datos.clubes.length > 0) {
+            setClubesProfesor(datos.clubes);
+            setClubSeleccionado(datos.clubes[0]);
+        } else {
+            setClubesProfesor([]);
+            setClubSeleccionado(null);
+        }
+    } catch (error) {
+        console.error("Error buscando los clubes del profesor:", error);
         setClubesProfesor([]);
         setClubSeleccionado(null);
-      }
-    } catch (error) {
-      console.error(
-        "Error buscando los clubes del profesor:",
-        error
-      );
-
-      setClubesProfesor([]);
-      setClubSeleccionado(null);
     }
-  };
+};
+const manejarAbrirFormularioPublicacion = async (publicacion = null) => {
+    // Asegurarse de tener los clubes cargados antes de abrir el formulario
+    if (esEncargadoActual) {
+        await cargarClubesDelProfesor();
+    }
+
+    setPublicacionEnEdicion(publicacion);
+    setModoFormularioPublicacion("publicacion");
+    setPantalla("formulario-publicacion");
+};
 
   // cambiar vista
   
@@ -284,10 +300,13 @@ const manejarCambioVista = (vista) => {
 
       {/* inicio */}
       {pantalla === "inicio" && (
-        <Inicio
-          onVerPerfil={manejarVerPerfil}
-        />
-      )}
+    <Inicio
+        onVerPerfil={manejarVerPerfil}
+        onAbrirFormularioPublicacion={
+            manejarAbrirFormularioPublicacion
+        }
+    />
+)}
 
 {/* clubes */}
 {pantalla === "clubes" && (
@@ -316,7 +335,7 @@ const manejarCambioVista = (vista) => {
   />
 )}
 {pantalla === "mensajes" && !esVisitanteActual && (
-  esEncargadoActual ? <ChatProfesores /> : <Chats />
+  <Chats />
 )}
 
       {/* dashboard */}
@@ -409,7 +428,24 @@ const manejarCambioVista = (vista) => {
           onCerrarSesion={manejarCerrarSesion}
         />
       )}
-
+{pantalla === "formulario-publicacion" && (
+    <FormularioPublicacion
+        apiUrl="http://localhost/vestra/backend/api"
+        clubes={clubesProfesor}
+        publicacion={publicacionEnEdicion}
+        onCancelar={() => {
+            setPantalla("inicio");
+            setPublicacionEnEdicion(null);
+        }}
+        onGuardado={() => {
+            setPantalla("inicio");
+            setPublicacionEnEdicion(null);
+            window.dispatchEvent(
+                new CustomEvent("vestra:actualizar-publicaciones")
+            );
+        }}
+    />
+)}
       {/* menú inferior */}
       {
 (
