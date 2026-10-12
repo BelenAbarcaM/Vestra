@@ -12,24 +12,24 @@ const initialMessages = [
   {
     id: "welcome",
     sender: "bot",
-    text: "Hola, soy Vivi. Estoy aqui para ayudarte a conocer Vestra, sus clubes, publicaciones, inscripciones y el funcionamiento del proyecto.",
+    text: "Hola, soy Vivi. Estoy aquí para ayudarte a conocer Vestra, sus clubes, publicaciones, inscripciones y el funcionamiento del proyecto.",
   },
 ];
 
 const teaserMessages = [
   "Soy Vivi, estoy para ayudarte",
-  "Preguntame que es Vestra",
+  "Preguntame qué es Vestra",
   "Te cuento sobre los clubes",
-  "Quieres ideas para consultar?",
+  "¿Quieres ideas para consultar?",
 ];
 
 const suggestedQuestions = [
-  "Que es Vestra?",
-  "Que clubes hay?",
-  "Como me inscribo a un club?",
-  "Que publicaciones hay?",
-  "Que problema resuelve Vestra?",
-  "Como funciona la base de datos?",
+  "¿Qué es Vestra?",
+  "¿Qué clubes hay?",
+  "¿Cómo me inscribo a un club?",
+  "¿Qué publicaciones hay?",
+  "¿Qué problema resuelve Vestra?",
+  "¿Cómo funciona la base de datos?",
 ];
 
 export default function Chatbot() {
@@ -159,7 +159,7 @@ export default function Chatbot() {
         {
           id: `error-${Date.now()}`,
           sender: "bot",
-          text: "No pude conectar con el servidor. Revisa que Apache, MySQL y la carpeta vestra esten activos en localhost.",
+          text: "No se pudo conectar con el servidor. Revisa que Apache, MySQL y la carpeta Vestra esten activos en localhost.",
         },
       ]);
     } finally {
@@ -244,7 +244,7 @@ export default function Chatbot() {
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Preguntale a Vivi"
+              placeholder="Pregúntale a Vivi"
               disabled={loading}
             />
             <button
