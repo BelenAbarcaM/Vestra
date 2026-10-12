@@ -18,7 +18,7 @@ const initialMessages = [
 
 const teaserMessages = [
   "Soy Vivi, estoy para ayudarte",
-  "Preguntame qué es Vestra",
+  "Pregúntame ¿qué es Vestra?",
   "Te cuento sobre los clubes",
   "¿Quieres ideas para consultar?",
 ];
