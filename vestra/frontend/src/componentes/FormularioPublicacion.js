@@ -145,7 +145,7 @@ export default function FormularioPublicacion({
       />
 
 <label className="imagen-upload-label" htmlFor="publicacion-imagen">
-    Añadir una imagen
+    Añadir una imágen
 </label>
 
 <label
@@ -171,7 +171,7 @@ export default function FormularioPublicacion({
     </span>
 
     <span className="imagen-upload-titulo">
-        {imagen ? "¡Imagen seleccionada!" : "Añade una foto a tu publicación"}
+        {imagen ? "¡Imágen seleccionada!" : "Añade una foto a tu publicación"}
     </span>
 
     <span className="imagen-upload-descripcion">
@@ -179,7 +179,7 @@ export default function FormularioPublicacion({
     </span>
 
     <span className="imagen-upload-boton">
-        {imagen ? "Cambiar imagen" : "Seleccionar imagen"}
+        {imagen ? "Cambiar imágen" : "Seleccionar imágen"}
     </span>
 </label>
 
