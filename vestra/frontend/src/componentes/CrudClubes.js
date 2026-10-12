@@ -479,7 +479,7 @@ export default function CrudClubes({
 
                         <div className="crud-field">
                             <label htmlFor="imagen">
-                                Imagen del club
+                                Imágen del club
                             </label>
 
                             <input
@@ -497,7 +497,7 @@ export default function CrudClubes({
 
                             {editando && (
                                 <small>
-                                    Si no seleccionás una imagen nueva,
+                                    Si no seleccionás una imágen nueva,
                                     se conservará la actual.
                                 </small>
                             )}
