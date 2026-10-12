@@ -39,17 +39,6 @@ if(mysqli_num_rows($resultado) > 0){
 
    $verificacion = password_verify($contra, $usuario['Contraseña']);
 
-file_put_contents(
-    __DIR__ . "/debug_login.txt",
-    "Correo: [" . $correo . "]\n" .
-    "Password recibida: [" . $contra . "]\n" .
-    "Longitud: " . strlen($contra) . "\n" .
-    "Hash longitud: " . strlen($usuario['Contraseña']) . "\n" .
-    "Verify: " . ($verificacion ? "TRUE" : "FALSE") . "\n" .
-    "-------------------------\n",
-    FILE_APPEND
-);
-
 if($verificacion){
 $_SESSION['id_usuario'] = $usuario['id_usuario'];
 $_SESSION['usuario'] = $usuario['Nombre'];
