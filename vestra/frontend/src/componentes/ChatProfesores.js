@@ -58,7 +58,7 @@ async function moderarDemo(texto) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           texto,
-          contexto: "chat privado entre profesores",
+          contexto: "Chat privado entre profesores",
         }),
       });
 
