@@ -311,7 +311,9 @@ function moderarMensajeGemini($mensaje) {
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 25
+        CURLOPT_TIMEOUT => 25,
+        CURLOPT_PROXY => '',
+        CURLOPT_NOPROXY => '*'
     ]);
 
     $rawResponse = curl_exec($curl);
@@ -406,7 +408,9 @@ function validarTemaProyecto($mensaje) {
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 25
+        CURLOPT_TIMEOUT => 25,
+        CURLOPT_PROXY => '',
+        CURLOPT_NOPROXY => '*'
     ]);
 
     $rawResponse = curl_exec($curl);
@@ -489,7 +493,9 @@ function generarRespuestaGeminiSinBd($mensaje) {
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 35
+        CURLOPT_TIMEOUT => 35,
+        CURLOPT_PROXY => '',
+        CURLOPT_NOPROXY => '*'
     ]);
 
     $rawResponse = curl_exec($curl);

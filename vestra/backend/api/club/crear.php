@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 session_start();
 
 include '../../config/conexion.php';
+require_once '../lib/moderacion.php';
 
 // Verificar sesión y rol de profesor.
 if (
@@ -30,20 +31,33 @@ if (
     exit;
 }
 
+$nombre = trim($_POST['nombre'] ?? '');
+$descripcion = trim($_POST['descripcion'] ?? '');
+$idProfe = (int) $_SESSION['id_usuario'];
+
+if ($nombre === '' || $descripcion === '') {
+    http_response_code(400);
+    echo json_encode([
+        "success" => false,
+        "mensaje" => "El nombre y la descripcion son obligatorios."
+    ]);
+    exit;
+}
+
+$moderacion = vestra_moderar_contenido(
+    $nombre . "\n" . $descripcion,
+    'creacion de club'
+);
+
+if (!empty($moderacion['blocked'])) {
+    vestra_responder_bloqueo_json($moderacion);
+}
+
 $conexion->begin_transaction();
 
 $rutaImagenCreada = null;
 
 try {
-    $nombre = trim($_POST['nombre'] ?? '');
-    $descripcion = trim($_POST['descripcion'] ?? '');
-    $idProfe = (int) $_SESSION['id_usuario'];
-
-    if ($nombre === '' || $descripcion === '') {
-        throw new Exception(
-            "El nombre y la descripción son obligatorios."
-        );
-    }
 
     // Procesar imagen del club.
     $nombreImagen = null;

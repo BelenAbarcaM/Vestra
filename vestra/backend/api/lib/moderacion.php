@@ -6,12 +6,6 @@ function vestra_moderacion_normalizar($texto) {
         ? mb_strtolower($texto, 'UTF-8')
         : strtolower($texto);
 
-    $texto = str_replace(
-        ['?', '?', '?', '?', '?', '?', '?'],
-        ['a', 'e', 'i', 'o', 'u', 'u', 'n'],
-        $texto
-    );
-
     if (function_exists('iconv')) {
         $sinAcentos = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texto);
         if ($sinAcentos !== false) {
@@ -204,7 +198,7 @@ function vestra_mensaje_contenido_bloqueado($resultado = []) {
     $mensajes = [
         'lenguaje_inadecuado' => 'Tu mensaje fue bloqueado porque contiene vocabulario inadecuado. En Vestra queremos mantener una comunidad respetuosa.',
         'acoso_o_burla' => 'Tu mensaje fue bloqueado porque puede interpretarse como burla o acoso. Escribe tu idea de forma respetuosa para poder publicarla.',
-        'amenaza_o_violencia' => 'Tu mensaje fue bloqueado porque contiene lenguaje amenazante o violento. Vestra no publica contenido que pueda da?ar a otra persona.',
+        'amenaza_o_violencia' => 'Tu mensaje fue bloqueado porque contiene lenguaje amenazante o violento. Vestra no publica contenido que pueda lastimar a otra persona.',
         'trato_agresivo' => 'Tu mensaje fue bloqueado porque usa un tono agresivo. Puedes volver a intentarlo con una forma mas cortes.',
         'revision_ia' => 'Tu mensaje fue bloqueado por el filtro de convivencia de Vestra. Reformulalo con respeto para poder publicarlo.'
     ];

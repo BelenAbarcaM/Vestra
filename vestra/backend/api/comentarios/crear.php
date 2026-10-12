@@ -2,6 +2,7 @@
 
 session_start();
 include '../../config/conexion.php';
+require_once '../lib/moderacion.php';
 
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: http://localhost:3000");
@@ -40,6 +41,12 @@ if ($texto == "") {
         "mensaje" => "El comentario no puede estar vacío"
     ]);
     exit;
+}
+
+$moderacion = vestra_moderar_contenido($texto, 'comentario de publicacion');
+
+if (!empty($moderacion['blocked'])) {
+    vestra_responder_bloqueo_json($moderacion);
 }
 
 $sql = "INSERT INTO comentario (texto, id_usuario, id_publicacion, estado)

@@ -7,6 +7,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
 require_once "../../config/conexion.php";
+require_once "../lib/moderacion.php";
 
 session_start();
 
@@ -57,6 +58,21 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         "mensaje" => "El correo electrónico no es válido."
     ]);
     exit;
+}
+
+$textoModeracion = implode("\n", [
+    $nombreEncargado,
+    $nombreCurso,
+    $descripcion,
+    $horario,
+    $cuota,
+    $requisitos
+]);
+
+$moderacion = vestra_moderar_contenido($textoModeracion, 'propuesta de club');
+
+if (!empty($moderacion['blocked'])) {
+    vestra_responder_bloqueo_json($moderacion);
 }
 
 $sql = "INSERT INTO propuesta_club
