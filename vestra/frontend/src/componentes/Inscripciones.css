@@ -184,3 +184,111 @@
   font-weight: 600;
   padding: 20px 10px;
 }
+.insc-card-body .insc-btn.insc-btn-info {
+display: block;
+width: fit-content;
+min-width: 0;
+margin: -50px 0 0 auto;
+align-self: flex-end;
+}
+
+
+/* Test de afinidad */
+
+.insc-afinidad {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+width: 450px;
+max-width: 100%;
+box-sizing: border-box;
+margin: 0 auto 20px;
+  max-width: none;
+  padding: 24px;
+
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-cute);
+}
+
+.insc-afinidad-texto {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.insc-afinidad-etiqueta {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.insc-afinidad h2 {
+  margin: 0 0 8px;
+  color: var(--color-primary-deep);
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.insc-afinidad p {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.insc-afinidad-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-primary);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+}
+
+.insc-afinidad-decoracion {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tile-turquoise-bg);
+  color: var(--tile-turquoise-fg);
+  font-size: 2.5rem;
+}
+
+@media (max-width: 520px) {
+  .insc-afinidad {
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .insc-afinidad h2 {
+    font-size: 1.1rem;
+  }
+
+  .insc-afinidad-decoracion {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.8rem;
+  }
+}

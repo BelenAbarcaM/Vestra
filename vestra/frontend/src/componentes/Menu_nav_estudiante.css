@@ -74,3 +74,7 @@
   display: block;
   font-size: 19px;
 }
+/* Ocultar la navegación inferior mientras hay un chat abierto */
+body.chat-abierto .cedes-bottomnav {
+  display: none !important;
+}

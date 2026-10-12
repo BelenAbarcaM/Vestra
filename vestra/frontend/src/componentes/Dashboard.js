@@ -11,6 +11,15 @@ import "../App.css";
 const API_BASE_URL =
   "http://localhost/vestra/backend/api/dashboard";
 
+const INSIGNIAS_API_BASE_URL =
+  "http://localhost/vestra/backend/api/insignias";
+
+const INSIGNIAS_ENDPOINTS = {
+  listar: `${INSIGNIAS_API_BASE_URL}/listar.php`,
+  crear: `${INSIGNIAS_API_BASE_URL}/crear.php`,
+  asignar: `${INSIGNIAS_API_BASE_URL}/asignar.php`,
+};
+
 const ENDPOINTS = {
   resumen: `${API_BASE_URL}/resumen.php`,
   solicitudes: `${API_BASE_URL}/solicitudes.php`,
@@ -191,6 +200,19 @@ function Dashboard({
   const [miembrosError, setMiembrosError] = useState("");
 
   const [cargandoMiembros, setCargandoMiembros] = useState(false);
+
+  // Insignias del club
+  const [insignias, setInsignias] = useState([]);
+  const [insigniasError, setInsigniasError] = useState("");
+  const [insigniasMensaje, setInsigniasMensaje] = useState("");
+  const [cargandoInsignias, setCargandoInsignias] = useState(false);
+  const [nombreInsignia, setNombreInsignia] = useState("");
+  const [descripcionInsignia, setDescripcionInsignia] = useState("");
+  const [imagenInsignia, setImagenInsignia] = useState(null);
+  const [guardandoInsignia, setGuardandoInsignia] = useState(false);
+  const [insigniaParaAsignar, setInsigniaParaAsignar] = useState("");
+  const [usuarioParaAsignar, setUsuarioParaAsignar] = useState("");
+  const [asignandoInsignia, setAsignandoInsignia] = useState(false);
 
   const [publicaciones, setPublicaciones] = useState([]);
 
@@ -376,6 +398,150 @@ function Dashboard({
     }
   }, [idClub]);
 
+  const cargarInsignias = useCallback(async () => {
+    if (!idClub) return;
+
+    setCargandoInsignias(true);
+    setInsigniasError("");
+
+    try {
+      const data = await getJSON(
+        `${INSIGNIAS_ENDPOINTS.listar}?id_club=${encodeURIComponent(idClub)}&id=${encodeURIComponent(idClub)}`
+      );
+
+      if (data.success === false || data.error) {
+        setInsigniasError(
+          data.mensaje || data.error || "No se pudieron cargar las insignias."
+        );
+        setInsignias([]);
+        return;
+      }
+
+      const lista = Array.isArray(data)
+        ? data
+        : data.insignias || data.data || [];
+
+      setInsignias(lista);
+      setInsigniasError("");
+
+      setInsigniaParaAsignar((actual) => {
+        if (actual && lista.some((item) => String(item.id_insignia) === String(actual))) {
+          return actual;
+        }
+        return lista.length ? String(lista[0].id_insignia) : "";
+      });
+    } catch (error) {
+      console.error(error);
+      setInsigniasError("No se pudieron cargar las insignias del club.");
+      setInsignias([]);
+    } finally {
+      setCargandoInsignias(false);
+    }
+  }, [idClub]);
+
+  const crearInsignia = async (e) => {
+    e.preventDefault();
+    setInsigniasError("");
+    setInsigniasMensaje("");
+
+    if (!idClub) {
+      setInsigniasError("No se identificó el club seleccionado.");
+      return;
+    }
+
+    if (!nombreInsignia.trim() || !descripcionInsignia.trim() || !imagenInsignia) {
+      setInsigniasError("Completa el nombre, la descripción y selecciona una imagen PNG.");
+      return;
+    }
+
+    if (imagenInsignia.type !== "image/png") {
+      setInsigniasError("La imagen debe estar en formato PNG.");
+      return;
+    }
+
+    if (imagenInsignia.size > 5 * 1024 * 1024) {
+      setInsigniasError("La imagen no puede superar los 5 MB.");
+      return;
+    }
+
+    const formulario = new FormData();
+    formulario.append("id_club", idClub);
+    formulario.append("nombre", nombreInsignia.trim());
+    formulario.append("descripcion", descripcionInsignia.trim());
+    formulario.append("imagen", imagenInsignia);
+
+    setGuardandoInsignia(true);
+
+    try {
+      const respuesta = await fetch(INSIGNIAS_ENDPOINTS.crear, {
+        method: "POST",
+        credentials: "include",
+        body: formulario,
+      });
+
+      const texto = await respuesta.text();
+      let data;
+
+      try {
+        data = JSON.parse(texto);
+      } catch {
+        throw new Error("El servidor no devolvió una respuesta válida. Revisa los errores de PHP.");
+      }
+
+      if (!respuesta.ok || data.success === false || data.error) {
+        throw new Error(data.mensaje || data.error || "No se pudo crear la insignia.");
+      }
+
+      setNombreInsignia("");
+      setDescripcionInsignia("");
+      setImagenInsignia(null);
+
+      const inputImagen = document.getElementById("imagen-insignia-dashboard");
+      if (inputImagen) inputImagen.value = "";
+
+      setInsigniasMensaje(data.mensaje || "Insignia creada correctamente.");
+      await cargarInsignias();
+    } catch (error) {
+      console.error(error);
+      setInsigniasError(error.message || "Ocurrió un error al crear la insignia.");
+    } finally {
+      setGuardandoInsignia(false);
+    }
+  };
+
+  const asignarInsignia = async (e) => {
+    e.preventDefault();
+    setInsigniasError("");
+    setInsigniasMensaje("");
+
+    if (!insigniaParaAsignar || !usuarioParaAsignar) {
+      setInsigniasError("Selecciona una insignia y un miembro del club.");
+      return;
+    }
+
+    setAsignandoInsignia(true);
+
+    try {
+      const data = await postForm(INSIGNIAS_ENDPOINTS.asignar, {
+        id_insignia: insigniaParaAsignar,
+        id_usuario: usuarioParaAsignar,
+      });
+
+      if (data.success === false || data.error) {
+        throw new Error(data.mensaje || data.error || "No se pudo asignar la insignia.");
+      }
+
+      setInsigniasMensaje(data.mensaje || "Insignia asignada al miembro correctamente.");
+      setUsuarioParaAsignar("");
+      await cargarInsignias();
+    } catch (error) {
+      console.error(error);
+      setInsigniasError(error.message || "Ocurrió un error al asignar la insignia.");
+    } finally {
+      setAsignandoInsignia(false);
+    }
+  };
+
   const cargarPublicaciones = useCallback(async () => {
     if (!idClub) return;
 
@@ -474,6 +640,9 @@ function Dashboard({
     setCrecimiento([]);
     setEventos([]);
     setMiembros([]);
+    setInsignias([]);
+    setInsigniasError("");
+    setInsigniasMensaje("");
     setPublicaciones([]);
     setEstadisticas(null);
     setComparacion(null);
@@ -489,6 +658,8 @@ function Dashboard({
     cargarSolicitudes();
     cargarCrecimiento();
     cargarEventos();
+    cargarMiembros();
+    cargarInsignias();
     cargarPublicaciones();
     cargarEstadisticas();
     cargarComparacion();
@@ -498,60 +669,56 @@ function Dashboard({
     cargarSolicitudes,
     cargarCrecimiento,
     cargarEventos,
+    cargarMiembros,
+    cargarInsignias,
     cargarPublicaciones,
     cargarEstadisticas,
     cargarComparacion,
   ]);
 
-  const gestionarSolicitud = async (
-    idSolicitud,
-    accion
-  ) => {
-    setProcesandoSolicitud(idSolicitud);
+const gestionarSolicitud = async (idSolicitud, accion) => {
+  setProcesandoSolicitud(idSolicitud);
+  setSolicitudesError("");
 
-    try {
-      const data = await postForm(
-        ENDPOINTS.gestionarSolicitud,
-        {
-          id_solicitud: idSolicitud,
-          accion,
-        }
-      );
-
-      if (data.success) {
-        setSolicitudes((prev) =>
-          prev.filter(
-            (item) =>
-              item.id_solicitud !== idSolicitud
-          )
-        );
-
-        setSolicitudSeleccionada((prev) =>
-          prev?.id_solicitud === idSolicitud
-            ? null
-            : prev
-        );
-
-        await cargarResumen();
-
-        if (accion === "Aceptar") {
-          await cargarMiembros();
-        }
-      } else {
-        setSolicitudesError(
-          data.error ||
-            "no se pudo procesar la solicitud."
-        );
+  try {
+    const data = await postForm(
+      ENDPOINTS.gestionarSolicitud,
+      {
+        id_solicitud: idSolicitud,
+        accion,
       }
-    } catch (error) {
-      console.error(error);
+    );
+
+    if (!data.success) {
       setSolicitudesError(
-        "no se pudo procesar la solicitud."
+        data.error || data.mensaje || "No se pudo procesar la acción."
       );
-    } finally {
-      setProcesandoSolicitud(null);
+      return;
     }
-  };
+
+    // Recargar desde la base de datos en lugar de eliminar
+    // la solicitud de la interfaz manualmente.
+    await cargarSolicitudes();
+    await cargarResumen();
+
+    if (
+      accion === "Aceptar" ||
+      accion === "AprobarFechaIngreso" ||
+      accion === "RechazarFechaIngreso"
+    ) {
+      await cargarMiembros();
+    }
+
+    setSolicitudSeleccionada(null);
+  } catch (error) {
+    console.error(error);
+    setSolicitudesError(
+      "No se pudo procesar la solicitud. Inténtalo de nuevo."
+    );
+  } finally {
+    setProcesandoSolicitud(null);
+  }
+};
 
   const abrirPanelAsistencia = async (evento) => {
     setEventoSeleccionado(evento);
@@ -1243,54 +1410,49 @@ function Dashboard({
                     </span>
 
                     <small>
-                      Sección{" "}
-                      {solicitud.seccion ||
-                        "Sin sección"}
+                      Sección {solicitud.seccion || "Sin sección"}
+                    </small>
+                    <small>
+                      {solicitud.estado === "Pendiente"
+                        ? "Inscripción pendiente"
+                        : "Revisión de antigüedad pendiente"}
                     </small>
                   </div>
 
                 </div>
 
                 <div className="request-actions">
+                  {solicitud.estado === "Pendiente" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="accept-btn"
+                        disabled={procesandoSolicitud === solicitud.id_solicitud}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          gestionarSolicitud(solicitud.id_solicitud, "Aceptar");
+                        }}
+                      >
+                        Aprobar
+                      </button>
 
-                  <button
-                    type="button"
-                    className="accept-btn"
-                    disabled={
-                      procesandoSolicitud ===
-                      solicitud.id_solicitud
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      gestionarSolicitud(
-                        solicitud.id_solicitud,
-                        "Aceptar"
-                      );
-                    }}
-                  >
-                    Aprobar
-                  </button>
-
-                  <button
-                    type="button"
-                    className="reject-btn"
-                    disabled={
-                      procesandoSolicitud ===
-                      solicitud.id_solicitud
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      gestionarSolicitud(
-                        solicitud.id_solicitud,
-                        "Rechazar"
-                      );
-                    }}
-                  >
-                    Rechazar
-                  </button>
-
+                      <button
+                        type="button"
+                        className="reject-btn"
+                        disabled={procesandoSolicitud === solicitud.id_solicitud}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          gestionarSolicitud(solicitud.id_solicitud, "Rechazar");
+                        }}
+                      >
+                        Rechazar
+                      </button>
+                    </>
+                  ) : solicitud.estado === "Aceptado" &&
+                    solicitud.tipo_membresia === "Antiguo" &&
+                    solicitud.estado_fecha_ingreso === "Pendiente" ? (
+                    <span className="member-state media">Revisar antigüedad</span>
+                  ) : null}
                 </div>
 
               </div>
@@ -1301,12 +1463,33 @@ function Dashboard({
           {solicitudSeleccionada && (
             <div
               className="request-detail-sheet"
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 9999,
+                overflowY: "auto",
+                WebkitOverflowScrolling: "touch",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                padding: "24px 16px",
+                boxSizing: "border-box",
+              }}
               onClick={() =>
                 setSolicitudSeleccionada(null)
               }
             >
               <div
                 className="request-detail-card"
+                style={{
+                  width: "100%",
+                  maxWidth: "560px",
+                  maxHeight: "none",
+                  height: "auto",
+                  overflow: "visible",
+                  flexShrink: 0,
+                  margin: "auto 0",
+                }}
                 onClick={(e) =>
                   e.stopPropagation()
                 }
@@ -1388,6 +1571,37 @@ function Dashboard({
                     </strong>
                   </div>
 
+                  <div className="detail-row">
+                    <span className="detail-label">Tipo de miembro</span>
+                    <strong>
+                      {solicitudSeleccionada.tipo_membresia === "Antiguo"
+                        ? "Ya pertenecía al club"
+                        : "Miembro nuevo"}
+                    </strong>
+                  </div>
+
+                  {solicitudSeleccionada.tipo_membresia === "Antiguo" && (
+                    <>
+                      <div className="detail-row">
+                        <span className="detail-label">Fecha de ingreso solicitada</span>
+                        <strong>
+                          {solicitudSeleccionada.fecha_ingreso_solicitada || "No indicada"}
+                        </strong>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Estado de la fecha</span>
+                        <strong>
+                          {solicitudSeleccionada.estado_fecha_ingreso || "No solicitada"}
+                        </strong>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="detail-row">
+                    <span className="detail-label">Estado de inscripción</span>
+                    <strong>{solicitudSeleccionada.estado}</strong>
+                  </div>
+
                   {solicitudSeleccionada.Bio && (
                     <div className="detail-row detail-row-block">
 
@@ -1406,34 +1620,78 @@ function Dashboard({
 
                 </div>
 
+                {solicitudesError && (
+                  <p
+                    className="status-text status-text-error"
+                    role="alert"
+                    style={{ margin: "12px 0", overflowWrap: "anywhere" }}
+                  >
+                    {solicitudesError}
+                  </p>
+                )}
+
                 <div className="request-actions sheet-actions">
+                  {solicitudSeleccionada.estado === "Pendiente" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="accept-btn"
+                        disabled={procesandoSolicitud === solicitudSeleccionada.id_solicitud}
+                        onClick={() =>
+                          gestionarSolicitud(solicitudSeleccionada.id_solicitud, "Aceptar")
+                        }
+                      >
+                        Aprobar inscripción
+                      </button>
 
-                  <button
-                    type="button"
-                    className="accept-btn"
-                    onClick={() =>
-                      gestionarSolicitud(
-                        solicitudSeleccionada.id_solicitud,
-                        "Aceptar"
-                      )
-                    }
-                  >
-                    Aprobar
-                  </button>
+                      <button
+                        type="button"
+                        className="reject-btn"
+                        disabled={procesandoSolicitud === solicitudSeleccionada.id_solicitud}
+                        onClick={() =>
+                          gestionarSolicitud(solicitudSeleccionada.id_solicitud, "Rechazar")
+                        }
+                      >
+                        Rechazar inscripción
+                      </button>
+                    </>
+                  ) : solicitudSeleccionada.estado === "Aceptado" &&
+                    solicitudSeleccionada.tipo_membresia === "Antiguo" &&
+                    solicitudSeleccionada.estado_fecha_ingreso === "Pendiente" ? (
+                    <>
+                      <button
+                        type="button"
+                        className="accept-btn"
+                        disabled={procesandoSolicitud === solicitudSeleccionada.id_solicitud}
+                        onClick={() =>
+                          gestionarSolicitud(
+                            solicitudSeleccionada.id_solicitud,
+                            "AprobarFechaIngreso"
+                          )
+                        }
+                      >
+                        Aprobar fecha
+                      </button>
 
-                  <button
-                    type="button"
-                    className="reject-btn"
-                    onClick={() =>
-                      gestionarSolicitud(
-                        solicitudSeleccionada.id_solicitud,
-                        "Rechazar"
-                      )
-                    }
-                  >
-                    Rechazar
-                  </button>
-
+                      <button
+                        type="button"
+                        className="reject-btn"
+                        disabled={procesandoSolicitud === solicitudSeleccionada.id_solicitud}
+                        onClick={() =>
+                          gestionarSolicitud(
+                            solicitudSeleccionada.id_solicitud,
+                            "RechazarFechaIngreso"
+                          )
+                        }
+                      >
+                        Rechazar fecha
+                      </button>
+                    </>
+                  ) : (
+                    <p className="status-text">
+                      Esta solicitud ya fue procesada.
+                    </p>
+                  )}
                 </div>
 
               </div>
@@ -2496,6 +2754,151 @@ function Dashboard({
               </div>
             )}
 
+        </section>
+
+        {/* GESTIÓN DE INSIGNIAS */}
+        <section className="dashboard-card badge-management-card">
+          <div className="card-header">
+            <div>
+              <p className="eyebrow">Reconocimientos</p>
+              <h3>Insignias del club</h3>
+              <p className="status-text">
+                Crea insignias en PNG y asígnalas manualmente a miembros inscritos. Las insignias aprobadas también se entregan automáticamente cuando se acepta una solicitud.
+              </p>
+            </div>
+          </div>
+
+          {insigniasError && (
+            <p className="status-text status-text-error" role="alert">
+              {insigniasError}
+            </p>
+          )}
+          {insigniasMensaje && (
+            <p className="status-text" role="status" style={{ color: "#21845b" }}>
+              {insigniasMensaje}
+            </p>
+          )}
+
+          <form onSubmit={crearInsignia} className="badge-create-form">
+            <h4>Crear una insignia</h4>
+            <label className="badge-form-field">
+              <span>Nombre</span>
+              <input
+                type="text"
+                value={nombreInsignia}
+                onChange={(e) => setNombreInsignia(e.target.value)}
+                maxLength={50}
+                placeholder="Ej. Miembro destacado"
+                required
+              />
+            </label>
+            <label className="badge-form-field">
+              <span>Descripción</span>
+              <textarea
+                value={descripcionInsignia}
+                onChange={(e) => setDescripcionInsignia(e.target.value)}
+                maxLength={255}
+                rows={3}
+                placeholder="¿Por qué se obtiene esta insignia?"
+                required
+              />
+            </label>
+            <label className="badge-form-field">
+              <span>Imagen (PNG, máximo 5 MB)</span>
+              <input
+                id="imagen-insignia-dashboard"
+                type="file"
+                accept=".png,image/png"
+                onChange={(e) => setImagenInsignia(e.target.files?.[0] || null)}
+                required
+              />
+            </label>
+            {imagenInsignia && (
+              <p className="status-text">Archivo seleccionado: {imagenInsignia.name}</p>
+            )}
+            <button type="submit" className="dashboard-action-btn" disabled={guardandoInsignia}>
+              {guardandoInsignia ? "Creando…" : "Crear insignia"}
+            </button>
+          </form>
+
+          <div className="badge-assign-form-wrap">
+            <h4>Asignar insignia a un miembro</h4>
+            {cargandoMiembros ? (
+              <p className="status-text">Cargando miembros…</p>
+            ) : miembros.length === 0 ? (
+              <p className="status-text">Todavía no hay miembros inscritos a quienes asignar insignias.</p>
+            ) : insignias.length === 0 ? (
+              <p className="status-text">Primero crea una insignia para poder asignarla.</p>
+            ) : (
+              <form onSubmit={asignarInsignia} className="badge-assign-form">
+                <label className="badge-form-field">
+                  <span>Insignia</span>
+                  <select
+                    value={insigniaParaAsignar}
+                    onChange={(e) => setInsigniaParaAsignar(e.target.value)}
+                    required
+                  >
+                    {insignias.map((insignia) => (
+                      <option key={insignia.id_insignia} value={insignia.id_insignia}>
+                        {insignia.nombre} {insignia.asignaciones != null ? `(${insignia.asignaciones} asignaciones)` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="badge-form-field">
+                  <span>Miembro</span>
+                  <select
+                    value={usuarioParaAsignar}
+                    onChange={(e) => setUsuarioParaAsignar(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecciona un miembro</option>
+                    {miembros.map((miembro) => (
+                      <option key={miembro.id_usuario} value={miembro.id_usuario}>
+                        {miembro.Nombre}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button type="submit" className="dashboard-action-btn" disabled={asignandoInsignia}>
+                  {asignandoInsignia ? "Asignando…" : "Asignar insignia"}
+                </button>
+              </form>
+            )}
+          </div>
+
+          <div className="badge-list-wrap">
+            <h4>Insignias creadas</h4>
+            {cargandoInsignias ? (
+              <p className="status-text">Cargando insignias…</p>
+            ) : insignias.length === 0 ? (
+              <p className="status-text">Todavía no has creado insignias para este club.</p>
+            ) : (
+              <div className="badge-management-list">
+                {insignias.map((insignia) => {
+                  const foto = insignia.foto || insignia.imagen || "";
+                  const fotoUrl = /^https?:\/\//i.test(foto)
+                    ? foto
+                    : `http://localhost/vestra/${String(foto).replace(/^\//, "")}`;
+
+                  return (
+                    <article className="badge-management-item" key={insignia.id_insignia}>
+                      {foto && (
+                        <img src={fotoUrl} alt={insignia.nombre || "Insignia del club"} />
+                      )}
+                      <div className="badge-management-item-copy">
+                        <strong>{insignia.nombre}</strong>
+                        <p>{insignia.descripcion}</p>
+                        <small>
+                          {insignia.asignaciones ?? insignia.total_asignaciones ?? 0} asignaciones · {insignia.estado || "Aprobado"}
+                        </small>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </section>
 
       </div>

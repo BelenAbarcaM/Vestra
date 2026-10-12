@@ -1,28 +1,329 @@
+@import '../theme.css';
+
+/* Contenedor principal */
 .chats-root {
-  min-height: 100vh;
-  padding: 32px 16px;
-  color: #173447;
-  background: #fff3e4;
-  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  padding: 20px 12px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  box-sizing: border-box;
 }
 
-.chats-card {
-  max-width: 520px;
+.chats-root *,
+.chats-root *::before,
+.chats-root *::after {
+  box-sizing: border-box;
+}
+
+/* Tarjeta de conversaciones */
+.chats-app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 430px;
+  min-width: 0;
+  height: min(805px, calc(100dvh - 100px));
+  min-height: 480px;
   margin: 0 auto;
-  padding: 28px;
-  background: #ffffff;
-  border-radius: 22px;
-  box-shadow: 0 20px 48px rgba(12, 48, 65, 0.12);
+  overflow: hidden;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
-.chats-card h1 {
-  margin: 0 0 12px;
-  font-size: 2rem;
-  color: #0b6b8f;
+/* Encabezado */
+.chats-sidebar-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 24px 20px 18px;
+  background: var(--color-surface);
 }
 
-.chats-card p {
+.chats-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.chats-sidebar-header h1 {
+  margin: 0 0 8px;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.chats-sidebar-header p {
   margin: 0;
+  color: var(--color-text-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.chats-header-icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 23px;
+}
+
+/* Buscador */
+.chats-busqueda {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px 18px;
+  padding: 0 14px;
+  color: var(--color-primary-dark);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chats-busqueda:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(13, 173, 197, 0.14);
+}
+
+.chats-busqueda > span {
+  font-size: 23px;
+}
+
+.chats-busqueda input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 0;
+  color: var(--color-text);
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.chats-busqueda input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Título de la lista */
+.chats-lista-titulo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 12px;
+  color: var(--color-primary-dark);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.chats-lista-titulo > span {
+  display: grid;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  place-items: center;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+}
+
+/* Lista desplazable */
+.chats-contactos {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 10px 12px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* Cada contacto */
+.chats-contacto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 13px 10px;
+  color: var(--color-text);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.chats-contacto:hover,
+.chats-contacto:focus-visible {
+  background: var(--color-primary-light);
+  border-color: var(--color-border);
+  outline: none;
+}
+
+.chats-contacto:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+/* Fotos e iniciales */
+.chats-avatar {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  overflow: hidden;
+  place-items: center;
+  color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--color-border);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.chats-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* Información del contacto */
+.chats-contacto-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.chats-contacto-nombre {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chats-contacto-preview {
+  overflow: hidden;
+  color: var(--color-text-soft);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chats-contacto-extra {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.chats-hora {
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+/* Mensajes pendientes */
+.chats-no-leidos {
+  display: grid;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  place-items: center;
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* Estados y avisos */
+.chats-estado {
+  padding: 24px 14px;
+  color: var(--color-text-soft);
+  font-size: 13px;
   line-height: 1.7;
-  color: #425a6b;
+  text-align: center;
+}
+
+.chats-aviso {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Ventanas de poca altura */
+@media (max-height: 650px) {
+  .chats-root {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .chats-app {
+    height: calc(100dvh - 100px);
+    min-height: 300px;
+  }
+
+  .chats-sidebar-header {
+    padding-top: 14px;
+    padding-bottom: 12px;
+  }
+
+  .chats-busqueda {
+    margin-bottom: 12px;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .chats-root {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .chats-app {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+  }
 }

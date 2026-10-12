@@ -1,13 +1,13 @@
+
 import React, { useEffect, useState } from 'react';
 import './CrudClubes.css';
 
 const API = 'http://localhost/vestra/backend/api';
 
-const formularioInicial = {
+const crearFormularioInicial = () => ({
     nombre: '',
     descripcion: '',
     imagen: null,
-
     horarios: [
         {
             dia: '',
@@ -15,79 +15,140 @@ const formularioInicial = {
             hora_fin: ''
         }
     ],
-
     cuotas: [
         {
             curso: '',
             valor: ''
         }
     ],
-
     requisitos: ['']
-};
+});
 
-export default function CrudClubes({ onVolver }) {
-
-    const [clubes, setClubes] = useState([]);
-    const [cargando, setCargando] = useState(true);
+export default function CrudClubes({
+    onVolver,
+    idClubEditar = null
+}) {
     const [guardando, setGuardando] = useState(false);
-
-    const [formulario, setFormulario] = useState(formularioInicial);
-
+    const [formulario, setFormulario] = useState(crearFormularioInicial);
     const [editando, setEditando] = useState(null);
-
     const [aviso, setAviso] = useState('');
     const [error, setError] = useState('');
 
-    
-    // CARGAR CLUBES DEL PROFESOR
-    
+    // CARGAR EL CLUB CUANDO SE ABRE PARA EDITAR
+    useEffect(() => {
+        let cancelado = false;
 
-    const cargarMisClubes = async () => {
-        try {
-            setCargando(true);
-            setError('');
-
-            const respuesta = await fetch(
-                `${API}/dashboard/mi_club.php`,
-                {
-                    credentials: 'include'
-                }
-            );
-
-            const datos = await respuesta.json();
-
-            if (!datos.success) {
-                setClubes([]);
-                setError(
-                    datos.mensaje ||
-                    'No se pudieron cargar tus clubes.'
-                );
+        const cargarClub = async () => {
+            if (!idClubEditar) {
+                setEditando(null);
+                setFormulario(crearFormularioInicial());
+                setAviso('');
+                setError('');
                 return;
             }
 
-            setClubes(datos.clubes || []);
+            try {
+                setError('');
+                setAviso('');
 
-        } catch (err) {
-            console.error(err);
+                const respuesta = await fetch(
+                    `${API}/club/ver.php?id=${idClubEditar}`,
+                    {
+                        credentials: 'include'
+                    }
+                );
 
-            setError(
-                'No se pudieron cargar los clubes.'
-            );
+                if (!respuesta.ok) {
+                    throw new Error(
+                        'No se pudo consultar la información del club.'
+                    );
+                }
 
-        } finally {
-            setCargando(false);
-        }
-    };
+                const datos = await respuesta.json();
 
-    useEffect(() => {
-        cargarMisClubes();
-    }, []);
+                // ver.php devuelve el club directamente.
+                // Esta alternativa también permite respuestas con datos.club.
+                const club = datos.club || datos;
 
-    
-    // CAMBIAR CAMPOS PRINCIPALES
-    
+                if (!club.Nombre) {
+                    throw new Error(
+                        datos.mensaje ||
+                        'No se pudo cargar la información del club.'
+                    );
+                }
 
+                if (cancelado) return;
+
+                setEditando(Number(idClubEditar));
+
+                setFormulario({
+                    nombre: club.Nombre || '',
+                    descripcion: club.Descripcion || '',
+                    imagen: null,
+
+                    horarios:
+                        Array.isArray(club.horarios) &&
+                        club.horarios.length > 0
+                            ? club.horarios.map((horario) => ({
+                                dia: horario.dia || '',
+                                hora_inicio: horario.hora_inicio || '',
+                                hora_fin: horario.hora_fin || ''
+                            }))
+                            : [
+                                {
+                                    dia: '',
+                                    hora_inicio: '',
+                                    hora_fin: ''
+                                }
+                            ],
+
+                    cuotas:
+                        Array.isArray(club.cuotas) &&
+                        club.cuotas.length > 0
+                            ? club.cuotas.map((cuota) => ({
+                                curso: cuota.curso || '',
+                                valor: cuota.valor ?? ''
+                            }))
+                            : [
+                                {
+                                    curso: '',
+                                    valor: ''
+                                }
+                            ],
+
+                    requisitos:
+                        Array.isArray(club.requisitos) &&
+                        club.requisitos.length > 0
+                            ? club.requisitos.map((requisito) =>
+                                typeof requisito === 'string'
+                                    ? requisito
+                                    : requisito.requisito || ''
+                            )
+                            : ['']
+                });
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } catch (err) {
+                if (cancelado) return;
+
+                console.error(err);
+                setError(
+                    err.message || 'No se pudo cargar el club.'
+                );
+            }
+        };
+
+        cargarClub();
+
+        return () => {
+            cancelado = true;
+        };
+    }, [idClubEditar]);
+
+    // CAMPOS PRINCIPALES
     const cambiarCampo = (e) => {
         const { name, value } = e.target;
 
@@ -97,8 +158,7 @@ export default function CrudClubes({ onVolver }) {
         }));
     };
 
-    // horarios
-
+    // HORARIOS
     const agregarHorario = () => {
         setFormulario((anterior) => ({
             ...anterior,
@@ -115,7 +175,6 @@ export default function CrudClubes({ onVolver }) {
 
     const cambiarHorario = (indice, campo, valor) => {
         setFormulario((anterior) => {
-
             const horarios = [...anterior.horarios];
 
             horarios[indice] = {
@@ -132,31 +191,26 @@ export default function CrudClubes({ onVolver }) {
 
     const eliminarHorario = (indice) => {
         setFormulario((anterior) => {
-
             const horarios = anterior.horarios.filter(
                 (_, i) => i !== indice
             );
 
             return {
                 ...anterior,
-                horarios:
-                    horarios.length > 0
-                        ? horarios
-                        : [
-                            {
-                                dia: '',
-                                hora_inicio: '',
-                                hora_fin: ''
-                            }
-                        ]
+                horarios: horarios.length > 0
+                    ? horarios
+                    : [
+                        {
+                            dia: '',
+                            hora_inicio: '',
+                            hora_fin: ''
+                        }
+                    ]
             };
         });
     };
 
-    
     // CUOTAS
-    
-
     const agregarCuota = () => {
         setFormulario((anterior) => ({
             ...anterior,
@@ -172,7 +226,6 @@ export default function CrudClubes({ onVolver }) {
 
     const cambiarCuota = (indice, campo, valor) => {
         setFormulario((anterior) => {
-
             const cuotas = [...anterior.cuotas];
 
             cuotas[indice] = {
@@ -189,30 +242,25 @@ export default function CrudClubes({ onVolver }) {
 
     const eliminarCuota = (indice) => {
         setFormulario((anterior) => {
-
             const cuotas = anterior.cuotas.filter(
                 (_, i) => i !== indice
             );
 
             return {
                 ...anterior,
-                cuotas:
-                    cuotas.length > 0
-                        ? cuotas
-                        : [
-                            {
-                                curso: '',
-                                valor: ''
-                            }
-                        ]
+                cuotas: cuotas.length > 0
+                    ? cuotas
+                    : [
+                        {
+                            curso: '',
+                            valor: ''
+                        }
+                    ]
             };
         });
     };
 
-    
     // REQUISITOS
-    
-
     const agregarRequisito = () => {
         setFormulario((anterior) => ({
             ...anterior,
@@ -225,9 +273,7 @@ export default function CrudClubes({ onVolver }) {
 
     const cambiarRequisito = (indice, valor) => {
         setFormulario((anterior) => {
-
             const requisitos = [...anterior.requisitos];
-
             requisitos[indice] = valor;
 
             return {
@@ -239,257 +285,106 @@ export default function CrudClubes({ onVolver }) {
 
     const eliminarRequisito = (indice) => {
         setFormulario((anterior) => {
-
             const requisitos = anterior.requisitos.filter(
                 (_, i) => i !== indice
             );
 
             return {
                 ...anterior,
-                requisitos:
-                    requisitos.length > 0
-                        ? requisitos
-                        : ['']
+                requisitos: requisitos.length > 0
+                    ? requisitos
+                    : ['']
             };
         });
     };
 
-    
-    // EDITAR CLUB
-    
-
-    const editar = async (club) => {
-
-        try {
-
-            setError('');
-            setAviso('');
-
-            const respuesta = await fetch(
-                `${API}/club/ver.php?id=${club.id_club}`,
-                {
-                    credentials: 'include'
-                }
-            );
-
-            const datos = await respuesta.json();
-
-            if (!datos.club) {
-                setError(
-                    'No se pudo cargar la información del club.'
-                );
-                return;
-            }
-
-            setEditando(club.id_club);
-
-            setFormulario({
-                nombre: datos.club.Nombre || '',
-                descripcion: datos.club.Descripcion || '',
-                imagen: null,
-
-                horarios:
-                    datos.horarios &&
-                    datos.horarios.length > 0
-                        ? datos.horarios.map((horario) => ({
-                            dia: horario.dia || '',
-                            hora_inicio:
-                                horario.hora_inicio || '',
-                            hora_fin:
-                                horario.hora_fin || ''
-                        }))
-                        : [
-                            {
-                                dia: '',
-                                hora_inicio: '',
-                                hora_fin: ''
-                            }
-                        ],
-
-                cuotas:
-                    datos.cuotas &&
-                    datos.cuotas.length > 0
-                        ? datos.cuotas.map((cuota) => ({
-                            curso: cuota.curso || '',
-                            valor: cuota.valor || ''
-                        }))
-                        : [
-                            {
-                                curso: '',
-                                valor: ''
-                            }
-                        ],
-
-                requisitos:
-                    datos.requisitos &&
-                    datos.requisitos.length > 0
-                        ? datos.requisitos.map(
-                            (requisito) =>
-                                requisito.requisito || ''
-                        )
-                        : ['']
-            });
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-
-        } catch (err) {
-
-            console.error(err);
-
-            setError(
-                'No se pudo cargar el club.'
-            );
-        }
-    };
-
-    
-    // CANCELAR EDICIÓN
-    
-
-    const cancelarEdicion = () => {
-
-        setEditando(null);
-
-        setFormulario(formularioInicial);
-
-        setAviso('');
-        setError('');
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    };
-
-    
-    // GUARDAR CLUB
-    
-
+    // GUARDAR: CREAR O EDITAR
     const guardar = async (e) => {
-
         e.preventDefault();
 
         setGuardando(true);
         setAviso('');
         setError('');
 
-        try {
+        // Guardamos este valor antes de realizar la petición.
+        const estabaEditando = Boolean(editando);
 
+        try {
             const datos = new FormData();
 
-            datos.append(
-                'nombre',
-                formulario.nombre
-            );
-
-            datos.append(
-                'descripcion',
-                formulario.descripcion
-            );
+            datos.append('nombre', formulario.nombre);
+            datos.append('descripcion', formulario.descripcion);
 
             if (formulario.imagen) {
-                datos.append(
-                    'imagen',
-                    formulario.imagen
-                );
+                datos.append('imagen', formulario.imagen);
             }
 
-            // -------------------------
             // HORARIOS
-            // -------------------------
-
-            const horariosValidos =
-                formulario.horarios.filter(
-                    (horario) =>
-                        horario.dia &&
-                        horario.hora_inicio &&
-                        horario.hora_fin
-                );
+            const horariosValidos = formulario.horarios.filter(
+                (horario) =>
+                    horario.dia &&
+                    horario.hora_inicio &&
+                    horario.hora_fin
+            );
 
             datos.append(
                 'horarios',
                 JSON.stringify(horariosValidos)
             );
 
-            // -------------------------
             // CUOTAS
-            // -------------------------
-
-            const cuotasValidas =
-                formulario.cuotas.filter(
-                    (cuota) =>
-                        cuota.curso &&
-                        cuota.valor !== ''
-                );
+            const cuotasValidas = formulario.cuotas.filter(
+                (cuota) =>
+                    cuota.curso.trim() !== '' &&
+                    cuota.valor !== ''
+            );
 
             datos.append(
                 'cuotas',
                 JSON.stringify(cuotasValidas)
             );
 
-            // -------------------------
             // REQUISITOS
-            // -------------------------
-
-            const requisitosValidos =
-                formulario.requisitos
-                    .map((requisito) =>
-                        requisito.trim()
-                    )
-                    .filter(
-                        (requisito) =>
-                            requisito !== ''
-                    );
+            const requisitosValidos = formulario.requisitos
+                .map((requisito) => requisito.trim())
+                .filter((requisito) => requisito !== '');
 
             datos.append(
                 'requisitos',
                 JSON.stringify(requisitosValidos)
             );
 
-            // -------------------------
-            // SI ESTAMOS EDITANDO
-            // -------------------------
-
+            // SELECCIONAR EL ENDPOINT
             let url;
 
-            if (editando) {
-
+            if (estabaEditando) {
                 url = `${API}/club/editar.php`;
-
-                datos.append(
-                    'id_club',
-                    editando
-                );
-
+                datos.append('id_club', editando);
             } else {
-
-                // -------------------------
-                // SI ESTAMOS CREANDO
-                // -------------------------
-
                 url = `${API}/club/crear.php`;
             }
 
-            const respuesta = await fetch(
-                url,
-                {
-                    method: 'POST',
-                    body: datos,
-                    credentials: 'include'
-                }
-            );
+            const respuesta = await fetch(url, {
+                method: 'POST',
+                body: datos,
+                credentials: 'include'
+            });
 
             const texto = await respuesta.text();
 
-            let resultado;
+            let resultado = null;
 
             try {
                 resultado = JSON.parse(texto);
             } catch {
-                resultado = null;
+                // crear.php puede responder con texto plano.
+            }
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    resultado?.mensaje ||
+                    'El servidor no pudo guardar el club.'
+                );
             }
 
             if (
@@ -502,50 +397,34 @@ export default function CrudClubes({ onVolver }) {
                 );
             }
 
-            setAviso(
-                editando
-                    ? 'Club actualizado correctamente.'
-                    : 'Club creado correctamente.'
-            );
+            // SI EDITAMOS, VOLVER A LOS DETALLES DEL CLUB
+            if (estabaEditando) {
+                onVolver?.();
+                return;
+            }
 
-            setFormulario(formularioInicial);
+            // SI CREAMOS, LIMPIAR EL FORMULARIO
+            setAviso('Club creado correctamente.');
+            setFormulario(crearFormularioInicial());
             setEditando(null);
-
-            // Recargar únicamente MIS clubes
-            await cargarMisClubes();
-
         } catch (err) {
-
             console.error(err);
 
             setError(
                 err.message ||
                 'Ocurrió un error al guardar el club.'
             );
-
         } finally {
-
             setGuardando(false);
         }
     };
 
-    
     // RENDER
-    
-
     return (
         <div className="crud-page">
-
-            {/* ===================== */}
-            {/* ENCABEZADO */}
-            {/* ===================== */}
-
             <div className="crud-header">
-
                 <h1>
-                    {editando
-                        ? 'Editar club'
-                        : 'Crear club'}
+                    {editando ? 'Editar club' : 'Crear club'}
                 </h1>
 
                 <p>
@@ -553,37 +432,26 @@ export default function CrudClubes({ onVolver }) {
                         ? 'Modifica la información de tu club.'
                         : 'Crea y administra la información de tu club.'}
                 </p>
-
             </div>
 
             <div className="crud-layout">
-
-                {/* ===================== */}
-                {/* FORMULARIO */}
-                {/* ===================== */}
-
                 <form
                     className="crud-form"
                     onSubmit={guardar}
                 >
-
                     {/* INFORMACIÓN GENERAL */}
-
                     <section className="crud-section">
-
                         <div className="crud-section-title">
-                            <h2>
-                                Información general
-                            </h2>
+                            <h2>Información general</h2>
                         </div>
 
                         <div className="crud-field">
-
-                            <label>
+                            <label htmlFor="nombre">
                                 Nombre del club
                             </label>
 
                             <input
+                                id="nombre"
                                 type="text"
                                 name="nombre"
                                 value={formulario.nombre}
@@ -591,16 +459,15 @@ export default function CrudClubes({ onVolver }) {
                                 placeholder="Ej. Club de Matemáticas"
                                 required
                             />
-
                         </div>
 
                         <div className="crud-field">
-
-                            <label>
+                            <label htmlFor="descripcion">
                                 Descripción
                             </label>
 
                             <textarea
+                                id="descripcion"
                                 name="descripcion"
                                 value={formulario.descripcion}
                                 onChange={cambiarCampo}
@@ -608,70 +475,55 @@ export default function CrudClubes({ onVolver }) {
                                 rows="4"
                                 required
                             />
-
                         </div>
 
                         <div className="crud-field">
-
-                            <label>
+                            <label htmlFor="imagen">
                                 Imagen del club
                             </label>
 
                             <input
+                                id="imagen"
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => {
-
-                                    setFormulario(
-                                        (anterior) => ({
-                                            ...anterior,
-                                            imagen:
-                                                e.target.files[0]
-                                                || null
-                                        })
-                                    );
-
+                                    setFormulario((anterior) => ({
+                                        ...anterior,
+                                        imagen:
+                                            e.target.files?.[0] || null
+                                    }));
                                 }}
                             />
 
+                            {editando && (
+                                <small>
+                                    Si no seleccionás una imagen nueva,
+                                    se conservará la actual.
+                                </small>
+                            )}
                         </div>
-
                     </section>
 
-                    {/* ===================== */}
                     {/* HORARIOS */}
-                    {/* ===================== */}
-
                     <section className="crud-section">
-
                         <div className="crud-section-title">
-
-                            <h2>
-                                Horarios
-                            </h2>
-
+                            <h2>Horarios</h2>
                         </div>
 
                         <div className="crud-repeat">
-
                             {formulario.horarios.map(
                                 (horario, indice) => (
-
                                     <div
                                         className="crud-horario"
                                         key={indice}
                                     >
-
                                         <div className="crud-field">
-
                                             <label>
                                                 Día
                                             </label>
 
                                             <select
-                                                value={
-                                                    horario.dia
-                                                }
+                                                value={horario.dia}
                                                 onChange={(e) =>
                                                     cambiarHorario(
                                                         indice,
@@ -680,50 +532,38 @@ export default function CrudClubes({ onVolver }) {
                                                     )
                                                 }
                                             >
-
                                                 <option value="">
                                                     Seleccionar día
                                                 </option>
-
                                                 <option value="Lunes">
                                                     Lunes
                                                 </option>
-
                                                 <option value="Martes">
                                                     Martes
                                                 </option>
-
                                                 <option value="Miércoles">
                                                     Miércoles
                                                 </option>
-
                                                 <option value="Jueves">
                                                     Jueves
                                                 </option>
-
                                                 <option value="Viernes">
                                                     Viernes
                                                 </option>
-
                                                 <option value="Sábado">
                                                     Sábado
                                                 </option>
-
                                             </select>
-
                                         </div>
 
                                         <div className="crud-field">
-
                                             <label>
                                                 Hora de inicio
                                             </label>
 
                                             <input
                                                 type="time"
-                                                value={
-                                                    horario.hora_inicio
-                                                }
+                                                value={horario.hora_inicio}
                                                 onChange={(e) =>
                                                     cambiarHorario(
                                                         indice,
@@ -732,20 +572,16 @@ export default function CrudClubes({ onVolver }) {
                                                     )
                                                 }
                                             />
-
                                         </div>
 
                                         <div className="crud-field">
-
                                             <label>
                                                 Hora de finalización
                                             </label>
 
                                             <input
                                                 type="time"
-                                                value={
-                                                    horario.hora_fin
-                                                }
+                                                value={horario.hora_fin}
                                                 onChange={(e) =>
                                                     cambiarHorario(
                                                         indice,
@@ -754,11 +590,9 @@ export default function CrudClubes({ onVolver }) {
                                                     )
                                                 }
                                             />
-
                                         </div>
 
                                         {formulario.horarios.length > 1 && (
-
                                             <button
                                                 type="button"
                                                 className="crud-remove"
@@ -768,14 +602,10 @@ export default function CrudClubes({ onVolver }) {
                                             >
                                                 Eliminar horario
                                             </button>
-
                                         )}
-
                                     </div>
-
                                 )
                             )}
-
                         </div>
 
                         <button
@@ -785,44 +615,29 @@ export default function CrudClubes({ onVolver }) {
                         >
                             + Agregar horario
                         </button>
-
                     </section>
 
-                    {/* ===================== */}
                     {/* CUOTAS */}
-                    {/* ===================== */}
-
                     <section className="crud-section">
-
                         <div className="crud-section-title">
-
-                            <h2>
-                                Cuotas
-                            </h2>
-
+                            <h2>Cuotas</h2>
                         </div>
 
                         <div className="crud-repeat">
-
                             {formulario.cuotas.map(
                                 (cuota, indice) => (
-
                                     <div
                                         className="crud-item"
                                         key={indice}
                                     >
-
                                         <div className="crud-field">
-
                                             <label>
                                                 Concepto
                                             </label>
 
                                             <input
                                                 type="text"
-                                                value={
-                                                    cuota.curso
-                                                }
+                                                value={cuota.curso}
                                                 onChange={(e) =>
                                                     cambiarCuota(
                                                         indice,
@@ -832,11 +647,9 @@ export default function CrudClubes({ onVolver }) {
                                                 }
                                                 placeholder="Ej. Mensualidad"
                                             />
-
                                         </div>
 
                                         <div className="crud-field">
-
                                             <label>
                                                 Valor
                                             </label>
@@ -845,9 +658,7 @@ export default function CrudClubes({ onVolver }) {
                                                 type="number"
                                                 min="0"
                                                 step="0.01"
-                                                value={
-                                                    cuota.valor
-                                                }
+                                                value={cuota.valor}
                                                 onChange={(e) =>
                                                     cambiarCuota(
                                                         indice,
@@ -857,11 +668,9 @@ export default function CrudClubes({ onVolver }) {
                                                 }
                                                 placeholder="₡0"
                                             />
-
                                         </div>
 
                                         {formulario.cuotas.length > 1 && (
-
                                             <button
                                                 type="button"
                                                 className="crud-remove"
@@ -871,14 +680,10 @@ export default function CrudClubes({ onVolver }) {
                                             >
                                                 Eliminar cuota
                                             </button>
-
                                         )}
-
                                     </div>
-
                                 )
                             )}
-
                         </div>
 
                         <button
@@ -888,44 +693,29 @@ export default function CrudClubes({ onVolver }) {
                         >
                             + Agregar cuota
                         </button>
-
                     </section>
 
-                    {/* ===================== */}
                     {/* REQUISITOS */}
-                    {/* ===================== */}
-
                     <section className="crud-section">
-
                         <div className="crud-section-title">
-
-                            <h2>
-                                Requisitos
-                            </h2>
-
+                            <h2>Requisitos</h2>
                         </div>
 
                         <div className="crud-repeat">
-
                             {formulario.requisitos.map(
                                 (requisito, indice) => (
-
                                     <div
                                         className="crud-item"
                                         key={indice}
                                     >
-
                                         <div className="crud-field">
-
                                             <label>
                                                 Requisito
                                             </label>
 
                                             <textarea
                                                 rows="2"
-                                                value={
-                                                    requisito
-                                                }
+                                                value={requisito}
                                                 onChange={(e) =>
                                                     cambiarRequisito(
                                                         indice,
@@ -934,11 +724,9 @@ export default function CrudClubes({ onVolver }) {
                                                 }
                                                 placeholder="Ej. Tener disponibilidad para asistir a las reuniones"
                                             />
-
                                         </div>
 
                                         {formulario.requisitos.length > 1 && (
-
                                             <button
                                                 type="button"
                                                 className="crud-remove"
@@ -948,14 +736,10 @@ export default function CrudClubes({ onVolver }) {
                                             >
                                                 Eliminar requisito
                                             </button>
-
                                         )}
-
                                     </div>
-
                                 )
                             )}
-
                         </div>
 
                         <button
@@ -965,31 +749,23 @@ export default function CrudClubes({ onVolver }) {
                         >
                             + Agregar requisito
                         </button>
-
                     </section>
 
-                    {/* ===================== */}
                     {/* MENSAJES */}
-                    {/* ===================== */}
-
                     {aviso && (
-                        <div className="crud-aviso">
+                        <div className="crud-aviso" role="status">
                             {aviso}
                         </div>
                     )}
 
                     {error && (
-                        <div className="crud-error">
+                        <div className="crud-error" role="alert">
                             {error}
                         </div>
                     )}
 
-                    {/* ===================== */}
                     {/* BOTONES */}
-                    {/* ===================== */}
-
                     <div className="crud-actions">
-
                         <button
                             type="submit"
                             className="crud-save"
@@ -1002,94 +778,17 @@ export default function CrudClubes({ onVolver }) {
                                     : 'Crear club'}
                         </button>
 
-                        {editando && (
-
-                            <button
-                                type="button"
-                                className="crud-cancel"
-                                onClick={cancelarEdicion}
-                            >
-                                Cancelar edición
-                            </button>
-
-                        )}
-
+                        <button
+                            type="button"
+                            className="crud-cancel"
+                            onClick={() => onVolver?.()}
+                            disabled={guardando}
+                        >
+                            {editando ? 'Cancelar edición' : 'Volver'}
+                        </button>
                     </div>
-
                 </form>
-
-                {/* ===================== */}
-                {/* MIS CLUBES */}
-                {/* ===================== */}
-
-                <div className="crud-list">
-
-                    <div className="crud-section-title">
-
-                        <h2>
-                            Mis clubes
-                        </h2>
-
-                        <span>
-                            {clubes.length}
-                        </span>
-
-                    </div>
-
-                    {cargando ? (
-
-                        <p className="crud-empty">
-                            Cargando tus clubes...
-                        </p>
-
-                    ) : clubes.length === 0 ? (
-
-                        <p className="crud-empty">
-                            Todavía no tienes clubes a cargo.
-                        </p>
-
-                    ) : (
-
-                        clubes.map((club) => (
-
-                            <div
-                                className="crud-item"
-                                key={club.id_club}
-                            >
-
-                                <div>
-
-                                    <h3>
-                                        {club.Nombre}
-                                    </h3>
-
-                                    <p>
-                                        {club.Descripcion ||
-                                            'Sin descripción'}
-                                    </p>
-
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className="crud-edit"
-                                    onClick={() =>
-                                        editar(club)
-                                    }
-                                >
-                                    Editar
-                                </button>
-
-                            </div>
-
-                        ))
-
-                    )}
-
-                </div>
-
             </div>
-
         </div>
     );
 }

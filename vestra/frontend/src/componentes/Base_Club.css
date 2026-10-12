@@ -57,6 +57,10 @@
   font-size: 36px;
   font-weight: 800;
   line-height: 0.95;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .base-club-title-group h1 {
@@ -350,5 +354,96 @@
     grid-template-columns: 52px minmax(0, 1fr) auto;
     gap: 5px;
     font-size: 9px;
+  }
+}
+
+.insc-btn {
+display: block;
+margin: 28px auto 35px;
+padding: 12px 28px;
+min-width: 220px;
+color: #fff;
+border: none;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.insc-btn:hover {
+transform: translateY(-2px);
+}
+
+.base-club-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.base-club-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 38px;
+    height: 38px;
+
+    border: 1px solid #dbe3f0;
+    border-radius: 10px;
+    background: #ffc92b;
+    color: #fff;
+
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.base-club-edit-btn:hover {
+    background: #dba300;
+    transform: translateY(-1px);
+}
+
+
+.base-club-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.base-club-foro-btn {
+ display: block;
+  margin: 0 auto 12px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 15px 28px;
+  color: var(--tile-turquoise-fg);
+  background: var(--tile-turquoise-bg);
+  font-size: 16px;
+    font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.base-club-foro-btn:hover{
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+
+@media (max-width: 480px) {
+  .base-club-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .base-club-foro-btn,
+  .base-club-actions .insc-btn {
+    width: 100%;
+    box-sizing: border-box;
   }
 }

@@ -8,12 +8,12 @@ const items = [
     label: 'Inicio',
     icon: 'icon-home',
   },
-  {
-    id: 'mensajes',
-    label: 'Mensajes',
-    icon: 'icon-chat',
-    deshabilitado: true,
-  },
+
+{
+  id: 'mensajes',
+  label: 'Mensajes',
+  icon: 'icon-chat',
+},
   {
     id: 'clubes',
     label: 'Clubes',
@@ -71,3 +71,5 @@ export default function MenuNavEncargado({
     </nav>
   );
 }
+
+
