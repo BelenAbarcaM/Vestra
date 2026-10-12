@@ -62,7 +62,7 @@ export default function FormularioPublicacion({
     }
 
     if (!idClub) {
-      setError("Seleccioná uno de tus clubes.");
+      setError("Selecciona uno de tus clubes.");
       return;
     }
 
