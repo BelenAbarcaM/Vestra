@@ -16,6 +16,11 @@ import SolicitudInscripcion from "./componentes/SolicitudInscripcion";
 import MenuNavEstudiante from "./componentes/Menu_nav_estudiante";
 import MenuNavVisitante from "./componentes/Menu_nav_visitante";
 import MenuNavEncargado from "./componentes/Menu_nav_encargado";
+import BaseClub from "./componentes/Base_Club"
+import NutriaEscondida from "./componentes/Nutria_escondida";
+import Chats from "./componentes/Chats";
+import ForoClub from "./componentes/ForoClub";
+import TestAfinidad from "./componentes/TestAfinidad";
 
 import {
   esVisitante,
@@ -47,6 +52,9 @@ function App() {
 
   const [tipoUsuario, setTipoUsuario] =
     useState(localStorage.getItem("tipo_usuario"));
+
+
+    const [clubForo, setClubForo] = useState(null);
 
   const esVisitanteActual = esVisitante(tipoUsuario);
   const esEncargadoActual =
@@ -201,41 +209,45 @@ function App() {
   };
 
   // cambiar vista
-  const manejarCambioVista = (vista) => {
-    if (vista === "inicio") {
-      setPantalla("inicio");
-    }
+  
+const manejarCambioVista = (vista) => {
+  if (vista === "inicio") {
+    setPantalla("inicio");
+  }
 
-    if (vista === "clubes") {
-      setPantalla("clubes");
-    }
+  if (vista === "mensajes" && !esVisitanteActual) {
+    setPantalla("mensajes");
+  }
 
-    if (vista === "dashboard") {
-      if (esEncargadoActual) {
-        cargarClubesDelProfesor();
-      }
+  if (vista === "clubes") {
+    setPantalla("clubes");
+  }
 
-      setPantalla("dashboard");
+  if (vista === "dashboard") {
+    if (esEncargadoActual) {
+      cargarClubesDelProfesor();
     }
+    setPantalla("dashboard");
+  }
 
-    if (vista === "crud-clubes") {
-      setPantalla("crud-clubes");
-    }
+  if (vista === "crud-clubes") {
+    setPantalla("crud-clubes");
+  }
 
-    if (
-      vista === "buzon" &&
-      !esVisitanteActual
-    ) {
-      setPantalla("buzon");
-    }
+  if (vista === "buzon" && !esVisitanteActual) {
+    setPantalla("buzon");
+  }
 
-    if (vista === "perfil") {
-      manejarPerfilPropio();
-    }
-  };
+  if (vista === "perfil") {
+    manejarPerfilPropio();
+  }
+};
 
   return (
     <header className="App-header">
+      {localStorage.getItem("id_usuario") && (
+  <NutriaEscondida />
+)}
 
       {/* login */}
       {pantalla === "login" && (
@@ -276,20 +288,35 @@ function App() {
         />
       )}
 
-      {/* clubes */}
-      {pantalla === "clubes" && (
-        <Inscripciones
-          puedeSolicitar={esEstudianteActual}
-          puedeAdministrar={esEncargadoActual}
-          onAbrirClub={(club) => {
-            setClubSeleccionado(club);
-            setPantalla("solicitud-inscripcion");
-          }}
-          onAdministrar={() =>
-            setPantalla("crud-clubes")
-          }
-        />
-      )}
+{/* clubes */}
+{pantalla === "clubes" && (
+  <Inscripciones
+    puedeSolicitar={esEstudianteActual}
+    puedeAdministrar={esEncargadoActual}
+    onProbarAfinidad={() => setPantalla("test-afinidad")}
+    onAbrirClub={(club) => {
+      setClubSeleccionado(club);
+      setPantalla("solicitud-inscripcion");
+    }}
+    onVerMas={(club) => {
+      setClubSeleccionado(club);
+      setPantalla("detalle-club");
+    }}
+    onAdministrar={() => {
+      setClubSeleccionado(null);
+      setPantalla("crud-clubes");
+    }}
+  />
+)}
+
+{pantalla === "test-afinidad" && esEstudianteActual && (
+  <TestAfinidad
+    onVolver={() => setPantalla("clubes")}
+  />
+)}
+{pantalla === "mensajes" && !esVisitanteActual && (
+  <Chats />
+)}
 
       {/* dashboard */}
       {pantalla === "dashboard" && (
@@ -318,6 +345,26 @@ function App() {
           </div>
         )
       )}
+{/* información completa del club */}
+{pantalla === "detalle-club" && clubSeleccionado && (
+   <BaseClub
+  idClub={clubSeleccionado.id_club}
+  puedeSolicitar={esEstudianteActual}
+  onSolicitarInscripcion={() => setPantalla("solicitud-inscripcion")}
+  onEditar={() => setPantalla("crud-clubes")}
+  onAbrirForo={(idClub) => {
+    setClubForo({
+      id_club: idClub,
+      nombre: clubSeleccionado.Nombre
+    });
+    setPantalla("foro-club");
+  }}
+  onVolver={() => {
+    setClubSeleccionado(null);
+    setPantalla("clubes");
+  }}
+/>
+)}
 
       {/* solicitud de inscripción */}
       {pantalla ===
@@ -330,14 +377,23 @@ function App() {
         />
       )}
 
-      {/* crud de clubes */}
-      {pantalla === "crud-clubes" && (
-        <CrudClubes
-          onVolver={() =>
-            setPantalla("clubes")
-          }
-        />
-      )}
+{pantalla === "crud-clubes" && (
+    <CrudClubes
+        idClubEditar={clubSeleccionado?.id_club ?? null}
+        onVolver={() =>
+            setPantalla(
+                clubSeleccionado ? "detalle-club" : "clubes"
+            )
+        }
+    />
+)}
+
+{pantalla === "foro-club" && clubForo && (
+  <ForoClub
+    idClub={clubForo.id_club}
+    onVolver={() => setPantalla("detalle-club")}
+  />
+)}
 
       {/* buzón */}
       {pantalla === "buzon" &&
@@ -354,14 +410,16 @@ function App() {
       )}
 
       {/* menú inferior */}
-      {(
-        pantalla === "inicio" ||
-        pantalla === "clubes" ||
-        pantalla === "dashboard" ||
-        pantalla === "crud-clubes" ||
-        pantalla === "buzon" ||
-        pantalla === "perfil"
-      ) && (
+      {
+(
+  pantalla === "inicio" ||
+  pantalla === "mensajes" ||
+  pantalla === "clubes" ||
+  pantalla === "dashboard" ||
+  pantalla === "crud-clubes" ||
+  pantalla === "buzon" ||
+  pantalla === "perfil"
+) && (
         esVisitanteActual ? (
           <MenuNavVisitante
             vistaActiva={pantalla}
@@ -404,6 +462,7 @@ function App() {
           }
         />
       )}
+
 
     </header>
   );
