@@ -40,6 +40,93 @@ const opcionesReaccion = [
   { id: "gracioso", emoji: "😄", texto: "Gracioso" },
 ];
 
+const MODERATION_ENDPOINTS = [
+  "http://localhost/Vestra-main/vestra/backend/api/moderar.php",
+  "http://localhost/vestra/backend/api/moderar.php",
+];
+
+function normalizarModeracion(valor) {
+  return valor
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[431!057@$]/g, (caracter) =>
+      ({
+        "4": "a",
+        "@": "a",
+        "3": "e",
+        "1": "i",
+        "!": "i",
+        "0": "o",
+        "5": "s",
+        "7": "t",
+        "$": "s",
+      }[caracter] || caracter)
+    );
+}
+
+function moderacionLocal(texto) {
+  const limpio = normalizarModeracion(texto).replace(/[^a-z0-9]+/g, "");
+  const bloqueadas = [
+    "puta",
+    "puto",
+    "carepicha",
+    "mierda",
+    "mrd",
+    "hijueputa",
+    "hp",
+    "malparido",
+    "imbecil",
+    "idiota",
+    "estupido",
+    "maricon",
+    "zorra",
+    "perra",
+    "cabron",
+    "pendejo",
+    "mamapichas",
+  ];
+
+  return bloqueadas.some((palabra) => limpio.includes(palabra));
+}
+
+async function moderarContenidoForo(texto) {
+  for (const endpoint of MODERATION_ENDPOINTS) {
+    try {
+      const respuesta = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          texto,
+          contexto: "publicacion del foro de Vestra",
+        }),
+      });
+
+      if (!respuesta.ok && respuesta.status !== 422) {
+        continue;
+      }
+
+      const data = await respuesta.json();
+      return {
+        bloqueado: Boolean(data.blocked),
+        mensaje: data.mensaje,
+      };
+    } catch {
+      // Si Apache o Gemini no responden durante la demo, cae al filtro local.
+    }
+  }
+
+  if (moderacionLocal(texto)) {
+    return {
+      bloqueado: true,
+      mensaje:
+        "Tu publicacion fue bloqueada porque contiene vocabulario inadecuado. En Vestra queremos mantener una comunidad respetuosa.",
+    };
+  }
+
+  return { bloqueado: false };
+}
+
 export default function Foro({
   nombreClub = localStorage.getItem("nombre_club") || "Club sin seleccionar",
 }) {
@@ -52,6 +139,7 @@ export default function Foro({
   const [categoria, setCategoria] = useState("General");
   const [publicacionAbierta, setPublicacionAbierta] = useState(null);
   const [reacciones, setReacciones] = useState({});
+  const [avisoModeracion, setAvisoModeracion] = useState("");
 
   const publicacionesVisibles = useMemo(() => {
     const consulta = busqueda.trim().toLowerCase();
@@ -71,13 +159,27 @@ export default function Foro({
     });
   }, [publicaciones, categoriaActiva, busqueda]);
 
-  function publicar(event) {
+  async function publicar(event) {
     event.preventDefault();
 
     const tituloLimpio = titulo.trim();
     const textoLimpio = texto.trim();
 
     if (!tituloLimpio || !textoLimpio) return;
+
+    setAvisoModeracion("");
+
+    const revision = await moderarContenidoForo(
+      `${tituloLimpio}\n${textoLimpio}`
+    );
+
+    if (revision.bloqueado) {
+      setAvisoModeracion(
+        revision.mensaje ||
+          "Tu publicacion fue bloqueada por el filtro de convivencia de Vestra. Reformulala con respeto para poder publicarla."
+      );
+      return;
+    }
 
     setPublicaciones((actuales) => [
       {
@@ -98,6 +200,7 @@ export default function Foro({
     setTitulo("");
     setTexto("");
     setCategoria("General");
+    setAvisoModeracion("");
     setMostrarFormulario(false);
   }
 
@@ -223,6 +326,12 @@ export default function Foro({
                 onChange={(event) => setTexto(event.target.value)}
                 required
               />
+
+              {avisoModeracion && (
+                <div className="forum-moderation-alert" role="alert">
+                  {avisoModeracion}
+                </div>
+              )}
 
               <div className="forum-form-actions">
                 <span className="form-label-small">

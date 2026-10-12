@@ -383,3 +383,14 @@
     font-size: 0.64rem;
   }
 }
+
+.forum-moderation-alert {
+  padding: 10px 12px;
+  border: 1px solid #e7b31b;
+  border-radius: var(--radius-md);
+  background: #fff7d8;
+  color: #5f4300;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
