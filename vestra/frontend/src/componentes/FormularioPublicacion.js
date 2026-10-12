@@ -38,12 +38,12 @@ export default function FormularioPublicacion({
     if (!archivo) return;
 
     if (!archivo.type.startsWith("image/")) {
-      setError("Seleccioná un archivo de imagen válido.");
+      setError("Seleccioná un archivo de imágen válido.");
       return;
     }
 
     if (archivo.size > 5 * 1024 * 1024) {
-      setError("La imagen no puede superar los 5 MB.");
+      setError("La imágen no puede superar los 5 MB.");
       return;
     }
 
