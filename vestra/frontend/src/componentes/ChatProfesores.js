@@ -129,7 +129,7 @@ export default function ChatProfesores() {
         const data = await pedirApi("contactos.php");
 
         if (!data.success) {
-          setAviso(data.mensaje || "No se pudieron cargar los profesores.");
+          setAviso(data.mensaje || "No se pudo cargar los profesores.");
           setContactos([]);
           return;
         }
@@ -277,7 +277,7 @@ export default function ChatProfesores() {
       <section className="prof-chat-shell">
         <header className="prof-chat-header">
           <div>
-            <p className="eyebrow">Comunicacion interna</p>
+            <p className="eyebrow">Comunicación interna</p>
             <h1>Chat de profesores</h1>
           </div>
           <span>Privado y moderado con IA</span>
@@ -316,7 +316,7 @@ export default function ChatProfesores() {
             )}
           </aside>
 
-          <section className="prof-chat-panel" aria-label="Conversacion privada">
+          <section className="prof-chat-panel" aria-label="Conversación privada">
             <div className="prof-chat-current">
               {contactoSeleccionado ? (
                 <>
@@ -344,7 +344,7 @@ export default function ChatProfesores() {
                 <p className="prof-chat-empty">Cargando conversacion...</p>
               ) : mensajes.length === 0 ? (
                 <p className="prof-chat-empty">
-                  Aun no hay mensajes. Puedes iniciar la conversacion.
+                  Aún no hay mensajes. Puedes iniciar la conversación.
                 </p>
               ) : (
                 mensajes.map((mensaje) => (
