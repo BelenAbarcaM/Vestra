@@ -1,0 +1,155 @@
+.pagina-formulario-publicacion {
+    width: 100%;
+    max-width: 420px;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 20px 16px;
+    box-sizing: border-box;
+}
+
+.form-publicacion {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.form-publicacion input,
+.form-publicacion select,
+.form-publicacion textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.form-publicacion-preview {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    box-sizing: border-box;
+}
+
+.form-publicacion-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.form-publicacion-acciones button {
+    min-width: 0;
+    max-width: 100%;
+    background-color: #ffc92b;
+    color: white;
+    
+    box-shadow: 0 4px 10px rgba(70, 60, 120, 0.12);
+    transition: background 0.2s ease, transform 0.2s ease,
+                box-shadow 0.2s ease;
+
+
+}
+.form-publicacion-acciones button:hover {
+    background: var(--color-primario-oscuro, #dba300);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(70, 60, 120, 0.18);
+
+}
+.imagen-upload-label {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--color-turquoise-dark, #0a8a9e);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.form-publicacion .imagen-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+    border: 0;
+}
+
+.imagen-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    border: 2px dashed var(--color-turquoise-pastel-deep, #c9eef2);
+    border-radius: 16px;
+    background: var(--color-turquoise-pastel, #e0f6f8);
+    color: var(--color-turquoise-dark, #0a8a9e);
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.imagen-upload-area:hover {
+    background: var(--color-blue-pastel-deep, #d3ddef);
+    border-color: var(--color-turquoise, #0dadc5);
+}
+
+.imagen-upload-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: var(--color-turquoise-pastel-deep, #c9eef2);
+    color: var(--color-turquoise-dark, #0a8a9e);
+}
+
+.imagen-upload-titulo {
+    color: var(--color-turquoise-dark, #0a8a9e);
+    font-size: 14px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.imagen-upload-descripcion {
+    color: #52777d;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.imagen-upload-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    background: var(--color-turquoise, #0dadc5);
+    color: white;
+    font-size: 13px;
+    font-weight: 800;
+    transition: background 0.2s ease;
+}
+
+.imagen-upload-area:hover .imagen-upload-boton {
+    background: var(--color-turquoise-dark, #0a8a9e);
+}
+
+.form-publicacion .imagen-upload-input:focus-visible + .imagen-upload-area {
+    outline: 3px solid var(--color-turquoise, #0dadc5);
+    outline-offset: 3px;
+}
+
+.imagen-upload-preview {
+    display: block;
+    width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 14px;
+}
