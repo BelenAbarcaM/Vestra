@@ -85,6 +85,11 @@ function moderacionLocal(texto) {
     "cabron",
     "pendejo",
     "mamapichas",
+    "mongolo",
+    "estúpido",
+    "imbécil",
+    "maricón",
+    "cabrón",
   ];
 
   return bloqueadas.some((palabra) => limpio.includes(palabra));
@@ -98,7 +103,7 @@ async function moderarContenidoForo(texto) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           texto,
-          contexto: "publicacion del foro de Vestra",
+          contexto: "Publicación del foro de Vestra",
         }),
       });
 
@@ -120,7 +125,7 @@ async function moderarContenidoForo(texto) {
     return {
       bloqueado: true,
       mensaje:
-        "Tu publicacion fue bloqueada porque contiene vocabulario inadecuado. En Vestra queremos mantener una comunidad respetuosa.",
+        "Tu publicación fue bloqueada porque contiene vocabulario inadecuado. En Vestra queremos mantener una comunidad respetuosa.",
     };
   }
 
@@ -176,7 +181,7 @@ export default function Foro({
     if (revision.bloqueado) {
       setAvisoModeracion(
         revision.mensaje ||
-          "Tu publicacion fue bloqueada por el filtro de convivencia de Vestra. Reformulala con respeto para poder publicarla."
+          "Tu publicación fue bloqueada por el filtro de convivencia de Vestra. Reformúlala con respeto para poder publicarla."
       );
       return;
     }
@@ -349,7 +354,7 @@ export default function Foro({
           {publicacionesVisibles.length === 0 ? (
             <div className="dashboard-card forum-empty">
               <p className="eyebrow">Sin resultados</p>
-              <p>No encontramos publicaciones con esos criterios.</p>
+              <p>No se encontraron publicaciones con esos criterios.</p>
             </div>
           ) : (
             publicacionesVisibles.map((publicacion) => (
