@@ -85,7 +85,7 @@ useEffect(() => {
       const datos = await respuesta.json();
 
       if (!respuesta.ok || !datos.success) {
-        throw new Error(datos.error || 'No se pudieron cargar los chats.');
+        throw new Error(datos.error || 'No se pudo cargar los chats.');
       }
 
       const conversaciones = datos.conversaciones || [];
@@ -99,7 +99,7 @@ useEffect(() => {
 
         if (!respuestaProfesores.ok || !datosProfesores.success) {
           throw new Error(
-            datosProfesores.error || 'No se pudieron cargar los profesores.'
+            datosProfesores.error || 'No se pudo cargar los profesores.'
           );
         }
 
