@@ -256,7 +256,7 @@ function Dashboard({
       }
     } catch (error) {
       console.error(error);
-      setResumenError("no se pudo cargar el resumen.");
+      setResumenError("No se pudo cargar el resumen.");
       setResumen(null);
     } finally {
       setCargandoResumen(false);
@@ -283,7 +283,7 @@ function Dashboard({
     } catch (error) {
       console.error(error);
       setSolicitudesError(
-        "no se pudieron cargar las solicitudes."
+        "No se pudo cargar las solicitudes."
       );
       setSolicitudes([]);
     } finally {
@@ -308,14 +308,14 @@ function Dashboard({
         setCrecimientoError(
           data.message ||
             data.error ||
-            "no se pudo cargar el crecimiento."
+            "No se pudo cargar el crecimiento."
         );
         setCrecimiento([]);
       }
     } catch (error) {
       console.error(error);
       setCrecimientoError(
-        "no se pudo cargar el crecimiento."
+        "No se pudo cargar el crecimiento."
       );
       setCrecimiento([]);
     } finally {
@@ -362,7 +362,7 @@ function Dashboard({
     } catch (error) {
       console.error(error);
       setEventosError(
-        "no se pudieron cargar los eventos."
+        "No se pudo cargar los eventos."
       );
       setEventos([]);
     } finally {
@@ -450,17 +450,17 @@ function Dashboard({
     }
 
     if (!nombreInsignia.trim() || !descripcionInsignia.trim() || !imagenInsignia) {
-      setInsigniasError("Completa el nombre, la descripción y selecciona una imágen PNG.");
+      setInsigniasError("Completa el nombre, la descripción y selecciona una imagen PNG.");
       return;
     }
 
     if (imagenInsignia.type !== "image/png") {
-      setInsigniasError("La imágen debe estar en formato PNG.");
+      setInsigniasError("La imagen debe estar en formato PNG.");
       return;
     }
 
     if (imagenInsignia.size > 5 * 1024 * 1024) {
-      setInsigniasError("La imágen no puede superar los 5 MB.");
+      setInsigniasError("La imagen no puede superar los 5 MB.");
       return;
     }
 
