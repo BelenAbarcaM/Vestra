@@ -38,12 +38,12 @@ export default function FormularioPublicacion({
     if (!archivo) return;
 
     if (!archivo.type.startsWith("image/")) {
-      setError("Seleccioná un archivo de imágen válido.");
+      setError("Seleccioná un archivo de imagen válido.");
       return;
     }
 
     if (archivo.size > 5 * 1024 * 1024) {
-      setError("La imágen no puede superar los 5 MB.");
+      setError("La imagen no puede superar los 5 MB.");
       return;
     }
 
@@ -171,7 +171,7 @@ export default function FormularioPublicacion({
     </span>
 
     <span className="imagen-upload-titulo">
-        {imagen ? "¡Imágen seleccionada!" : "Añade una foto a tu publicación"}
+        {imagen ? "¡Imagen seleccionada!" : "Añade una foto a tu publicación"}
     </span>
 
     <span className="imagen-upload-descripcion">
@@ -179,7 +179,7 @@ export default function FormularioPublicacion({
     </span>
 
     <span className="imagen-upload-boton">
-        {imagen ? "Cambiar imágen" : "Seleccionar imágen"}
+        {imagen ? "Cambiar imagen" : "Seleccionar imagen"}
     </span>
 </label>
 
