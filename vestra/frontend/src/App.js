@@ -19,6 +19,7 @@ import MenuNavEncargado from "./componentes/Menu_nav_encargado";
 import BaseClub from "./componentes/Base_Club"
 import NutriaEscondida from "./componentes/Nutria_escondida";
 import Chats from "./componentes/Chats";
+import ChatProfesores from "./componentes/ChatProfesores";
 import ForoClub from "./componentes/ForoClub";
 import TestAfinidad from "./componentes/TestAfinidad";
 
@@ -315,7 +316,7 @@ const manejarCambioVista = (vista) => {
   />
 )}
 {pantalla === "mensajes" && !esVisitanteActual && (
-  <Chats />
+  esEncargadoActual ? <ChatProfesores /> : <Chats />
 )}
 
       {/* dashboard */}

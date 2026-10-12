@@ -366,6 +366,7 @@ const cargarPublicacionesPorClub = async (idClub) => {
       );
 
       if (!data.success) {
+        setError(data.mensaje || "No se pudo publicar el comentario.");
         console.error(data.mensaje);
         return;
       }
@@ -430,6 +431,7 @@ const cargarPublicacionesPorClub = async (idClub) => {
       );
 
       if (!data.success) {
+        setError(data.mensaje || "No se pudo actualizar la reaccion.");
         console.error(data.mensaje);
         return;
       }
@@ -494,6 +496,7 @@ const cargarPublicacionesPorClub = async (idClub) => {
       );
 
       if (!data.success) {
+        setError(data.mensaje || "No se pudo actualizar la reaccion.");
         console.error(data.mensaje);
         return;
       }
