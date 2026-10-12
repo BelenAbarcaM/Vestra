@@ -5,6 +5,10 @@ include '../../config/conexion.php';
 session_start();
 
 header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 
 
 if (!isset($_SESSION['id_usuario'])) {
@@ -31,6 +35,7 @@ $id_publicacion = $data['id_publicacion'];
 
 $sql = "SELECT
             c.id_comentario,
+            c.id_usuario,
             c.texto,
             c.fecha,
             u.Nombre AS usuario,
@@ -58,6 +63,7 @@ $sql = "SELECT
 
         GROUP BY
             c.id_comentario,
+            c.id_usuario,
             c.texto,
             c.fecha,
             u.Nombre,

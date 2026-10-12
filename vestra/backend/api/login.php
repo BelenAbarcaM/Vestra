@@ -51,9 +51,10 @@ file_put_contents(
 );
 
 if($verificacion){
-        $_SESSION['id_usuario'] = $usuario['id_usuario'];
-        $_SESSION['usuario'] = $usuario['Nombre'];
-        $_SESSION['tipo'] = $usuario['id_tipo_usuario'];
+$_SESSION['id_usuario'] = $usuario['id_usuario'];
+$_SESSION['usuario'] = $usuario['Nombre'];
+$_SESSION['tipo'] = $usuario['id_tipo_usuario'];
+$_SESSION['id_tipo_usuario'] = (int) $usuario['id_tipo_usuario'];
         unset($_SESSION['recuperacion_verificada']);
         unset($_SESSION['id_usuario_recuperacion']);
 
