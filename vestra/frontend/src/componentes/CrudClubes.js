@@ -497,7 +497,7 @@ export default function CrudClubes({
 
                             {editando && (
                                 <small>
-                                    Si no seleccionás una imágen nueva,
+                                    Si no seleccionas una imagen nueva,
                                     se conservará la actual.
                                 </small>
                             )}
