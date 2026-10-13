@@ -19,7 +19,7 @@ import MenuNavEncargado from "./componentes/Menu_nav_encargado";
 import BaseClub from "./componentes/Base_Club"
 import NutriaEscondida from "./componentes/Nutria_escondida";
 import Chats from "./componentes/Chats";
-import ForoClub from "./componentes/ForoClub";
+import Foro from "./componentes/Foro";
 import TestAfinidad from "./componentes/TestAfinidad";
 import FormularioPublicacion from "./componentes/FormularioPublicacion";
 
@@ -372,13 +372,11 @@ const manejarCambioVista = (vista) => {
   puedeSolicitar={esEstudianteActual}
   onSolicitarInscripcion={() => setPantalla("solicitud-inscripcion")}
   onEditar={() => setPantalla("crud-clubes")}
-  onAbrirForo={(idClub) => {
-    setClubForo({
-      id_club: idClub,
-      nombre: clubSeleccionado.Nombre
-    });
-    setPantalla("foro-club");
-  }}
+  
+onAbrirForo={(club) => {
+  setClubForo(club);
+  setPantalla("foro-club");
+}}
   onVolver={() => {
     setClubSeleccionado(null);
     setPantalla("clubes");
@@ -408,9 +406,12 @@ const manejarCambioVista = (vista) => {
     />
 )}
 
+
 {pantalla === "foro-club" && clubForo && (
-  <ForoClub
+  <Foro
+    key={clubForo.id_club}
     idClub={clubForo.id_club}
+    nombreClub={clubForo.nombre}
     onVolver={() => setPantalla("detalle-club")}
   />
 )}

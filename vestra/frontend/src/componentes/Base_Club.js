@@ -293,11 +293,19 @@ export default function BaseClub({
                             )}
                         </section>
 
+
 <div className="base-club-actions">
   <button
     type="button"
     className="base-club-foro-btn"
-    onClick={() => onAbrirForo?.(idClub)}
+    onClick={() => {
+      if (idClub) {
+        onAbrirForo?.({
+          id_club: idClub,
+          nombre: club.Nombre
+        });
+      }
+    }}
   >
     <i className="icon-comment" aria-hidden="true"></i>
     Entrar al foro

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Menu_nav_estudiante.css';
 
-// Menú del visitante: solo puede ver Inicio, la lista de Clubes
-// y su propio Perfil (sin Mensajes ni Buzón).
 const items = [
   {
     id: 'inicio',

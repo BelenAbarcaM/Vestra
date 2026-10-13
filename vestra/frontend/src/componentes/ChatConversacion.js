@@ -4,7 +4,12 @@ import './ChatConversacion.css';
 
 const API = 'http://localhost/vestra/backend/api/chats/';
 
+const MODERATION_ENDPOINTS = [
+  'http://localhost/Vestra-main/vestra/backend/api/moderar.php',
+  'http://localhost/vestra/backend/api/moderar.php',
+];
 
+// Obtener la ruta completa de la fotografía del contacto.
 function obtenerFoto(ruta) {
   if (!ruta) {
     return 'http://localhost/vestra/uploads/perfiles/default.jpeg';
@@ -16,17 +21,17 @@ function obtenerFoto(ruta) {
 
   const rutaLimpia = ruta.trim().replace(/^\/+/, '');
 
-  if (rutaLimpia.startsWith('uploads/')) {
-    return `http://localhost/vestra/${rutaLimpia}`;
-  }
-
-  if (rutaLimpia.startsWith('backend/')) {
+  if (
+    rutaLimpia.startsWith('uploads/') ||
+    rutaLimpia.startsWith('backend/')
+  ) {
     return `http://localhost/vestra/${rutaLimpia}`;
   }
 
   return `http://localhost/vestra/uploads/perfiles/${rutaLimpia}`;
 }
 
+// Obtener las iniciales del contacto.
 function iniciales(nombre = '') {
   return nombre
     .trim()
@@ -36,25 +41,90 @@ function iniciales(nombre = '') {
     .join('');
 }
 
+// Mostrar la hora del mensaje.
 function mostrarFecha(fecha) {
   if (!fecha) return '';
 
   const fechaLocal = new Date(fecha.replace(' ', 'T'));
+
   if (Number.isNaN(fechaLocal.getTime())) return '';
 
   return fechaLocal.toLocaleTimeString('es-CR', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
+}
+
+// Moderar el mensaje antes de enviarlo.
+async function moderarMensaje(texto) {
+  let ultimoError = null;
+
+  for (const endpoint of MODERATION_ENDPOINTS) {
+    try {
+      const respuesta = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          texto,
+          contexto: 'Chat privado de Vestra',
+        }),
+      });
+
+      let datos;
+
+      try {
+        datos = await respuesta.json();
+      } catch {
+        ultimoError = new Error(
+          'El moderador devolvió una respuesta inválida.'
+        );
+        continue;
+      }
+
+      // Un 422 puede contener una decisión de moderación.
+      if (!respuesta.ok && respuesta.status !== 422) {
+        ultimoError = new Error(
+          datos.mensaje || 'No se pudo verificar el mensaje.'
+        );
+        continue;
+      }
+
+      // El formato esperado es { blocked: true/false, mensaje: "..." }.
+      if (typeof datos.blocked !== 'boolean') {
+        ultimoError = new Error(
+          'La respuesta del moderador no contiene el campo blocked.'
+        );
+        continue;
+      }
+
+      return {
+        bloqueado: datos.blocked,
+        mensaje: datos.mensaje || '',
+      };
+    } catch (error) {
+      ultimoError = error;
+    }
+  }
+
+  // Si no se puede comprobar el mensaje, no se envía.
+  return {
+    bloqueado: true,
+    mensaje:
+      ultimoError?.message ||
+      'No se pudo conectar con el moderador. Inténtalo de nuevo.',
+  };
 }
 
 export default function ChatConversacion({
   contacto,
   tipo,
   onVolver,
-  onConversacionActualizada
+  onConversacionActualizada,
 }) {
   const idUsuario = Number(localStorage.getItem('id_usuario') || 0);
+
   const [mensajes, setMensajes] = useState([]);
   const [contenido, setContenido] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -64,14 +134,16 @@ export default function ChatConversacion({
   const listaRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Cargar los mensajes de la conversación seleccionada.
   useEffect(() => {
     let cancelado = false;
 
     async function cargarMensajes() {
       setMensajes([]);
 
-      if (!contacto.id_conversacion) {
+      if (!contacto?.id_conversacion) {
         setCargando(false);
+        setAviso('');
         return;
       }
 
@@ -80,13 +152,20 @@ export default function ChatConversacion({
         setAviso('');
 
         const respuesta = await fetch(
-          `${API}obtener_mensajes.php?id_conversacion=${contacto.id_conversacion}`,
-          { credentials: 'include' }
+          `${API}obtener_mensajes.php?id_conversacion=${encodeURIComponent(
+            contacto.id_conversacion
+          )}`,
+          {
+            credentials: 'include',
+          }
         );
+
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.success) {
-          throw new Error(datos.error || 'No se pudieron cargar los mensajes.');
+          throw new Error(
+            datos.error || 'No se pudieron cargar los mensajes.'
+          );
         }
 
         if (!cancelado) {
@@ -94,10 +173,14 @@ export default function ChatConversacion({
         }
       } catch (error) {
         if (!cancelado) {
-          setAviso(error.message || 'Ocurrió un error al cargar los mensajes.');
+          setAviso(
+            error.message || 'Ocurrió un error al cargar los mensajes.'
+          );
         }
       } finally {
-        if (!cancelado) setCargando(false);
+        if (!cancelado) {
+          setCargando(false);
+        }
       }
     }
 
@@ -106,60 +189,92 @@ export default function ChatConversacion({
     return () => {
       cancelado = true;
     };
-  }, [contacto.id_conversacion]);
+  }, [contacto?.id_conversacion]);
 
+  // Mantener visible el mensaje más reciente.
   useEffect(() => {
     if (listaRef.current) {
       listaRef.current.scrollTop = listaRef.current.scrollHeight;
     }
   }, [mensajes, cargando]);
 
+  // Enviar un mensaje después de comprobarlo con el moderador.
   async function enviarMensaje(evento) {
     evento.preventDefault();
 
     const texto = contenido.trim();
-    if (!texto || enviando) return;
+
+    if (
+      !texto ||
+      enviando ||
+      !contacto?.id_contacto
+    ) {
+      return;
+    }
 
     try {
       setEnviando(true);
       setAviso('');
 
+      // PASO 1: verificar el contenido.
+      const revision = await moderarMensaje(texto);
+
+      if (revision.bloqueado) {
+        setAviso(
+          revision.mensaje ||
+            'Tu mensaje fue bloqueado por el filtro de convivencia de Vestra.'
+        );
+        return;
+      }
+
+      // PASO 2: si está permitido, enviarlo mediante tu API original.
       const respuesta = await fetch(`${API}enviar_mensaje.php`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           id_destinatario: contacto.id_contacto,
-          contenido: texto
-        })
+          contenido: texto,
+        }),
       });
 
       const datos = await respuesta.json();
 
       if (!respuesta.ok || !datos.success) {
-        throw new Error(datos.error || 'No se pudo enviar el mensaje.');
+        throw new Error(
+          datos.error || 'No se pudo enviar el mensaje.'
+        );
       }
 
       setContenido('');
 
-      onConversacionActualizada(datos.id_conversacion);
+      if (datos.id_conversacion) {
+        onConversacionActualizada?.(datos.id_conversacion);
+      }
 
-      // Mostrar inmediatamente el mensaje recién enviado.
+      // Mostrar inmediatamente el mensaje enviado.
       setMensajes(actuales => [
         ...actuales,
         {
           id_mensaje: datos.id_mensaje,
           id_remitente: idUsuario,
           contenido: texto,
-          fecha_envio: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          fecha_envio: new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' '),
           leido: 0,
-          es_mio: true
-        }
+          es_mio: true,
+        },
       ]);
 
       inputRef.current?.focus();
     } catch (error) {
-      setAviso(error.message || 'Ocurrió un error al enviar el mensaje.');
+      setAviso(
+        error.message || 'Ocurrió un error al enviar el mensaje.'
+      );
     } finally {
       setEnviando(false);
     }
@@ -222,12 +337,16 @@ export default function ChatConversacion({
             return (
               <div
                 key={mensaje.id_mensaje}
-                className={`chat-mensaje-fila ${esMio ? 'mio' : 'otro'}`}
+                className={`chat-mensaje-fila ${
+                  esMio ? 'mio' : 'otro'
+                }`}
               >
                 <div className="chat-burbuja">
                   <p>{mensaje.contenido}</p>
+
                   <span className="chat-mensaje-hora">
                     {mostrarFecha(mensaje.fecha_envio)}
+
                     {esMio && Number(mensaje.leido) === 1 && (
                       <span title="Leído"> ✓✓</span>
                     )}
@@ -250,6 +369,7 @@ export default function ChatConversacion({
           aria-label="Escribe tu mensaje"
           disabled={enviando}
         />
+
         <button
           type="submit"
           disabled={!contenido.trim() || enviando}
