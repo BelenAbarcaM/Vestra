@@ -1,14 +1,15 @@
+import { APP_BASE_URL, apiUrl, appUrl } from '../config/api';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import './Chats.css';
 import ChatConversacion from './ChatConversacion';
 
-const API = 'http://localhost/vestra/backend/api/chats/';
+const API = apiUrl("/chats/");
 
 
 function obtenerFoto(ruta) {
   if (!ruta) {
-    return 'http://localhost/vestra/uploads/perfiles/default.jpeg';
+    return appUrl("uploads/perfiles/default.jpeg");
   }
 
   if (/^https?:\/\//i.test(ruta)) {
@@ -18,14 +19,14 @@ function obtenerFoto(ruta) {
   const rutaLimpia = ruta.trim().replace(/^\/+/, '');
 
   if (rutaLimpia.startsWith('uploads/')) {
-    return `http://localhost/vestra/${rutaLimpia}`;
+    return `${APP_BASE_URL}/${rutaLimpia}`;
   }
 
   if (rutaLimpia.startsWith('backend/')) {
-    return `http://localhost/vestra/${rutaLimpia}`;
+    return `${APP_BASE_URL}/${rutaLimpia}`;
   }
 
-  return `http://localhost/vestra/uploads/perfiles/${rutaLimpia}`;
+  return `${APP_BASE_URL}/uploads/perfiles/${rutaLimpia}`;
 }
 
 

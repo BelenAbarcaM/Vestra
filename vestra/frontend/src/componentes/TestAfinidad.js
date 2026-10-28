@@ -1,9 +1,10 @@
+import { apiUrl, appUrl } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import './TestAfinidad.css';
 import Mensaje from './Mensaje';
 import logito from '../assets/logito.png';
 
-const API = 'http://localhost/vestra/backend/api/afinidad';
+const API = apiUrl("/afinidad");
 
 export default function TestAfinidad({ onVolver }) {
   const [fase, setFase] = useState('cargando');
@@ -116,7 +117,7 @@ export default function TestAfinidad({ onVolver }) {
       return logito;
     }
 
-    return 'http://localhost/vestra/uploads/clubes/' + club.Foto_url;
+    return appUrl("uploads/clubes/") + club.Foto_url;
   };
 
   const textoNivel = (puntaje) => {

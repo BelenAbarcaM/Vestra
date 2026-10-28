@@ -1,3 +1,4 @@
+import { apiUrl } from '../config/api';
 import React, { useState } from 'react';
 import './Desarrolla_idea.css';
 import Mensaje from './Mensaje';
@@ -28,7 +29,7 @@ export default function DesarrollaIdea({ onCrear }) {
 
   try {
     const respuesta = await fetch(
-      "http://localhost/vestra/backend/api/club/proponer.php",
+      apiUrl("/club/proponer.php"),
       {
         method: "POST",
         headers: {

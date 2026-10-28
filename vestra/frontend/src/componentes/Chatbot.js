@@ -1,8 +1,9 @@
+import { apiUrl } from '../config/api';
 import React, { useEffect, useRef, useState } from "react";
 import "./Chatbot.css";
 import botPhoto from "../assets/logito.png";
 
-const API_URL = "http://localhost/vestra/backend/api/chatbot.php";
+const API_URL = apiUrl("/chatbot.php");
 const STORAGE_KEY = "vestra_chatbot_session";
 const TEST_WITHOUT_DATABASE = false;
 const TEASER_VISIBLE_MS = 7000;

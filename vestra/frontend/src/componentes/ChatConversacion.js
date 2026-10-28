@@ -1,18 +1,19 @@
+import { APP_BASE_URL, apiUrl, appUrl } from '../config/api';
 
 import React, { useEffect, useRef, useState } from 'react';
 import './ChatConversacion.css';
 
-const API = 'http://localhost/vestra/backend/api/chats/';
+const API = apiUrl("/chats/");
 
 const MODERATION_ENDPOINTS = [
-  'http://localhost/Vestra-main/vestra/backend/api/moderar.php',
-  'http://localhost/vestra/backend/api/moderar.php',
+  apiUrl("/moderar.php"),
+  apiUrl("/moderar.php"),
 ];
 
 // Obtener la ruta completa de la fotografía del contacto.
 function obtenerFoto(ruta) {
   if (!ruta) {
-    return 'http://localhost/vestra/uploads/perfiles/default.jpeg';
+    return appUrl("uploads/perfiles/default.jpeg");
   }
 
   if (/^https?:\/\//i.test(ruta)) {
@@ -25,10 +26,10 @@ function obtenerFoto(ruta) {
     rutaLimpia.startsWith('uploads/') ||
     rutaLimpia.startsWith('backend/')
   ) {
-    return `http://localhost/vestra/${rutaLimpia}`;
+    return `${APP_BASE_URL}/${rutaLimpia}`;
   }
 
-  return `http://localhost/vestra/uploads/perfiles/${rutaLimpia}`;
+  return `${APP_BASE_URL}/uploads/perfiles/${rutaLimpia}`;
 }
 
 // Obtener las iniciales del contacto.

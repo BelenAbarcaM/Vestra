@@ -1,8 +1,9 @@
+import { API_BASE_URL } from '../config/api';
 
 import React, { useEffect, useState } from 'react';
 import './CrudClubes.css';
 
-const API = 'http://localhost/vestra/backend/api';
+const API = API_BASE_URL;
 
 const crearFormularioInicial = () => ({
     nombre: '',

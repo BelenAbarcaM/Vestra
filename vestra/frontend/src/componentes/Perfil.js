@@ -1,3 +1,4 @@
+import { API_BASE_URL, APP_BASE_URL, apiUrl, appUrl } from '../config/api';
 
 import React, { useState, useEffect } from 'react';
 import './Perfil.css';
@@ -55,7 +56,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
     console.log('Cargando perfil:', idUsuarioPerfil);
 
     fetch(
-      `http://localhost/vestra/backend/api/perfil/obtener.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
+      `${API_BASE_URL}/perfil/obtener.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
     )
       .then((respuesta) => respuesta.json())
       .then((resultado) => {
@@ -74,9 +75,9 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
             let urlFoto;
 
             if (usuario.Foto_url === 'default.jpeg') {
-              urlFoto = 'http://localhost/vestra/uploads/default.jpeg';
+              urlFoto = appUrl("uploads/default.jpeg");
             } else {
-              urlFoto = `http://localhost/vestra/uploads/perfiles/${usuario.Foto_url}`;
+              urlFoto = `${APP_BASE_URL}/uploads/perfiles/${usuario.Foto_url}`;
             }
 
             setImagenPerfil(urlFoto);
@@ -110,7 +111,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
 
       try {
         const respuesta = await fetch(
-          `http://localhost/vestra/backend/api/insignias/mis_insignias.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
+          `${API_BASE_URL}/insignias/mis_insignias.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
         );
 
         const resultado = await respuesta.json();
@@ -168,7 +169,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
     );
 
     fetch(
-      `http://localhost/vestra/backend/api/perfil/likes.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
+      `${API_BASE_URL}/perfil/likes.php?id_usuario=${encodeURIComponent(idUsuarioPerfil)}`
     )
       .then((respuesta) => respuesta.json())
       .then((resultado) => {
@@ -237,7 +238,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
 
     try {
       const respuesta = await fetch(
-        'http://localhost/vestra/backend/api/perfil/editar.php',
+        apiUrl("/perfil/editar.php"),
         {
           method: 'POST',
           body: datos,
@@ -274,7 +275,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
 
         if (resultado.foto) {
           setImagenPerfil(
-            `http://localhost/vestra/uploads/perfiles/${resultado.foto}`
+            `${APP_BASE_URL}/uploads/perfiles/${resultado.foto}`
           );
         }
 
@@ -304,7 +305,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
   const handleCerrarSesion = async () => {
     try {
       const respuesta = await fetch(
-        'http://localhost/vestra/backend/api/logout.php',
+        apiUrl("/logout.php"),
         {
           method: 'GET',
         }
@@ -493,7 +494,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
              
 <div className="perfil-insignias">
   {insignias.map((insignia) => {
-    const fotoInsignia = `http://localhost/vestra/${String(
+    const fotoInsignia = `${APP_BASE_URL}/${String(
       insignia.foto || ""
     ).replace(/^\/+/, "")}`;
 
@@ -554,7 +555,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
 
       <img
         className="modal-insignia-imagen"
-        src={`http://localhost/vestra/${String(
+        src={`${APP_BASE_URL}/${String(
           insigniaSeleccionada.foto || ""
         ).replace(/^\/+/, "")}`}
         alt={insigniaSeleccionada.nombre}
@@ -604,8 +605,8 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
                           <img
                             src={
                               publicacion.foto_usuario === 'default.jpeg'
-                                ? 'http://localhost/vestra/uploads/default.jpeg'
-                                : `http://localhost/vestra/uploads/perfiles/${publicacion.foto_usuario}`
+                                ? appUrl("uploads/default.jpeg")
+                                : `${APP_BASE_URL}/uploads/perfiles/${publicacion.foto_usuario}`
                             }
                             alt={publicacion.nombre_usuario}
                             className="perfil-like-avatar-img"
@@ -634,7 +635,7 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
                     {publicacion.imagen_url && (
                       <img
                         className="perfil-like-imagen"
-                        src={`http://localhost/vestra/uploads/publicaciones/${publicacion.imagen_url}`}
+                        src={`${APP_BASE_URL}/uploads/publicaciones/${publicacion.imagen_url}`}
                         alt="Publicación"
                       />
                     )}

@@ -1,18 +1,50 @@
 @import '../theme.css';
 
 .login-contenedor {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 24px;
-  background: var(--color-bg);
+  background: transparent;
   font-family: var(--font-body);
+}
+
+.login-contenedor::before,
+.login-contenedor::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.login-contenedor::before {
+  width: clamp(170px, 55vw, 250px);
+  aspect-ratio: 1;
+  top: 8%;
+  left: -72px;
+  background: rgba(13, 173, 197, 0.14);
+  animation: vestra-orbe-uno 17s ease-in-out infinite alternate;
+}
+
+.login-contenedor::after {
+  width: clamp(135px, 42vw, 205px);
+  aspect-ratio: 1;
+  right: -54px;
+  bottom: 6%;
+  background: rgba(255, 201, 43, 0.18);
+  animation: vestra-orbe-dos 20s ease-in-out infinite alternate;
 }
 
 .login-tarjeta {
   position: relative;
+  z-index: 1;
   overflow: hidden;
   width: 100%;
   max-width: 420px;
@@ -228,7 +260,7 @@
 
 @media (max-width: 480px) {
   .login-contenedor {
-    padding: 14px;
+    padding: 8px;
   }
 
   .login-tarjeta {

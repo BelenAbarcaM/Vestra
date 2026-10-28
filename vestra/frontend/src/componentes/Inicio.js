@@ -1,3 +1,4 @@
+import { API_BASE_URL, appUrl } from '../config/api';
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 
@@ -10,8 +11,8 @@ import Chatbot from "./Chatbot";
 import FormularioPublicacion from "./FormularioPublicacion";
 import "./FormularioPublicacion.css"
 
-const API_URL = "http://localhost/vestra/backend/api";
-const BASE_URL = "http://localhost/vestra/";
+const API_URL = API_BASE_URL;
+const BASE_URL = appUrl("");
 
 export default function Inicio({
     onVerPerfil,

@@ -1,3 +1,4 @@
+import { apiUrl } from '../config/api';
 import React, { useMemo, useRef, useState } from 'react';
 import './Verificar_datos.css';
 import logo from '../logito.png';
@@ -111,12 +112,12 @@ export default function VerificarDatos({
       if (modo === 'recuperacion') {
 
         url =
-          'http://localhost/vestra/backend/api/verificar_recuperacion.php';
+          apiUrl("/verificar_recuperacion.php");
 
       } else {
 
         url =
-          'http://localhost/vestra/backend/api/verificar_codigo.php';
+          apiUrl("/verificar_codigo.php");
 
       }
 
@@ -187,7 +188,7 @@ const handleReenviar = async () => {
     datos.append('correo', correo);
 
     const respuesta = await fetch(
-      'http://localhost/vestra/backend/api/solicitar_recuperacion.php',
+      apiUrl("/solicitar_recuperacion.php"),
       {
         method: 'POST',
         body: datos,

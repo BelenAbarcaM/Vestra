@@ -1,3 +1,4 @@
+import { apiUrl } from '../config/api';
 import React, { useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
@@ -32,7 +33,7 @@ export default function Registro({ onIniciarSesion, onRegistroExitoso }) {
         datos.append("password", password);
 
         const respuesta = await fetch(
-            "http://localhost/vestra/backend/api/registro.php",
+            apiUrl("/registro.php"),
             {
                 method: "POST",
                 body: datos,

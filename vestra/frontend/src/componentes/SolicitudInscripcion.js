@@ -1,7 +1,8 @@
+import { apiUrl } from '../config/api';
 import React, { useEffect, useState } from 'react';
 import './SolicitudInscripcion.css';
 
-const API = 'http://localhost/vestra/backend/api/club';
+const API = apiUrl("/club");
 
 function obtenerFechaLocal() {
 const fecha = new Date();

@@ -1,3 +1,4 @@
+import { apiUrl } from '../config/api';
 
 import React, { useEffect, useState } from "react";
 import "./Inicio.css";
@@ -7,7 +8,7 @@ import logito from "../assets/logito.png";
 import NutriaEscondida from "./Nutria_escondida";
 
 
-const API = "http://localhost/vestra/backend/api/club/ver.php";
+const API = apiUrl("/club/ver.php");
 
 function formatearHora(hora) {
     if (!hora) return "";

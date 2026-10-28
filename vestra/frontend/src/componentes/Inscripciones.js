@@ -1,3 +1,4 @@
+import { APP_BASE_URL, apiUrl } from '../config/api';
 import React, { useEffect, useMemo, useState } from 'react';
 import './Inscripciones.css';
 import logito from '../assets/logito.png';
@@ -23,7 +24,7 @@ export default function Inscripciones({
         setError('');
 
         const respuesta = await fetch(
-          'http://localhost/vestra/backend/api/club/listar.php',
+          apiUrl("/club/listar.php"),
           {
             method: 'GET',
             credentials: 'include'
@@ -79,7 +80,7 @@ export default function Inscripciones({
   const obtenerImagenClub = (club) => {
     if (!club.Foto_url) return logito;
 
-    return `http://localhost/vestra/uploads/clubes/${club.Foto_url}`;
+    return `${APP_BASE_URL}/uploads/clubes/${club.Foto_url}`;
   };
 
   return (

@@ -1,8 +1,9 @@
+import { apiUrl } from '../config/api';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Nutria_escondida.css";
 import nutria from "../assets/Vivi.png";
 
-const API = "http://localhost/vestra/backend/api/dinamica/nutria_escondida.php";
+const API = apiUrl("/dinamica/nutria_escondida.php");
 const DURACION_CAPTURA = 1100;
 
 function obtenerPosicionAleatoria(posicionActual) {

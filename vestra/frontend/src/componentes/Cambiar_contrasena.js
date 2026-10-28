@@ -1,3 +1,4 @@
+import { apiUrl } from '../config/api';
 import React, { useState } from 'react';
 import './Cambiar_contrasena.css';
 import logo from '../logito.png';
@@ -35,7 +36,7 @@ export default function CambiarContrasena({
       datos.append('password', nuevaContrasena);
 
       const respuesta = await fetch(
-        'http://localhost/vestra/backend/api/cambiar_password.php',
+        apiUrl("/cambiar_password.php"),
         {
           method: 'POST',
           body: datos,

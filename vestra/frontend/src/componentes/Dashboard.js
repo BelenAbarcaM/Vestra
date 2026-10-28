@@ -1,3 +1,4 @@
+import { APP_BASE_URL, apiUrl } from '../config/api';
 import React, {
   useEffect,
   useMemo,
@@ -9,10 +10,10 @@ import "./Dashboard.css";
 import "../App.css";
 
 const API_BASE_URL =
-  "http://localhost/vestra/backend/api/dashboard";
+  apiUrl("/dashboard");
 
 const INSIGNIAS_API_BASE_URL =
-  "http://localhost/vestra/backend/api/insignias";
+  apiUrl("/insignias");
 
 const INSIGNIAS_ENDPOINTS = {
   listar: `${INSIGNIAS_API_BASE_URL}/listar.php`,
@@ -2879,7 +2880,7 @@ const gestionarSolicitud = async (idSolicitud, accion) => {
                   const foto = insignia.foto || insignia.imagen || "";
                   const fotoUrl = /^https?:\/\//i.test(foto)
                     ? foto
-                    : `http://localhost/vestra/${String(foto).replace(/^\//, "")}`;
+                    : `${APP_BASE_URL}/${String(foto).replace(/^\//, "")}`;
 
                   return (
                     <article className="badge-management-item" key={insignia.id_insignia}>

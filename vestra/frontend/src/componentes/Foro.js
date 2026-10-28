@@ -1,7 +1,8 @@
+import { apiUrl } from '../config/api';
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./Foro.css";
 
-const API_FORO = "http://localhost/vestra/backend/api/foro/foro_publicaciones";
+const API_FORO = apiUrl("/foro/foro_publicaciones");
 const categorias = ["Todos", "General", "Eventos", "Preguntas", "Logros"];
 const opcionesReaccion = [
   { id: "util", emoji: "💡", texto: "Útil" },
