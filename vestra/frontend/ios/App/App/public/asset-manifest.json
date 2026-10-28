@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/static/css/main.6e23c83c.css",
+    "main.js": "/static/js/main.b5e0f485.js",
+    "static/media/Vivi.png": "/static/media/Vivi.44a55d908b4b00a61cb6.png",
+    "static/media/logito.png": "/static/media/logito.2148238fb8ff79bdb2bb.png",
+    "static/media/vestra.png": "/static/media/vestra.6c15db6f08524d9d9366.png",
+    "static/media/Findel-Display-Regular.otf": "/static/media/Findel-Display-Regular.e27c4ba839982951cc48.otf",
+    "static/media/fontello.eot?37272132": "/static/media/fontello.580e98c46c6b60448a9a.eot",
+    "static/media/fontello.ttf?37272132": "/static/media/fontello.ead1fc1e17dd2c7ad513.ttf",
+    "static/media/fontello.svg?37272132": "/static/media/fontello.8dc6b63ca1e1f89dd1d1.svg",
+    "static/media/fontello.woff?37272132": "/static/media/fontello.db10cde8ba9dee4fc865.woff",
+    "static/media/fontello.woff2?37272132": "/static/media/fontello.43694321165abb7242d4.woff2",
+    "index.html": "/index.html",
+    "main.6e23c83c.css.map": "/static/css/main.6e23c83c.css.map",
+    "main.b5e0f485.js.map": "/static/js/main.b5e0f485.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6e23c83c.css",
+    "static/js/main.b5e0f485.js"
+  ]
+}
