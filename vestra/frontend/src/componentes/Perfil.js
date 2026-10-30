@@ -70,20 +70,30 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
 
           setTipoUsuarioPerfil(extraerTipoUsuario(usuario));
 
-          // FOTO DE PERFIL
-          if (usuario.Foto_url) {
-            let urlFoto;
+          
 
-            if (usuario.Foto_url === 'default.jpeg') {
-              urlFoto = appUrl("uploads/default.jpeg");
-            } else {
-              urlFoto = `${APP_BASE_URL}/uploads/perfiles/${usuario.Foto_url}`;
-            }
+ // FOTO DE PERFIL
+const fotoGuardada = String(usuario.Foto_url || '').trim();
 
-            setImagenPerfil(urlFoto);
-          } else {
-            setImagenPerfil('');
-          }
+if (
+  !fotoGuardada ||
+  fotoGuardada === 'default.jpeg' ||
+  fotoGuardada.endsWith('/default.jpeg')
+) {
+  setImagenPerfil(appUrl('uploads/perfiles/default.jpeg'));
+} else if (/^https?:\/\//i.test(fotoGuardada)) {
+  // Foto alojada en Google
+  setImagenPerfil(fotoGuardada);
+} else {
+  // Foto guardada en el servidor
+  const nombreFoto = fotoGuardada.split('/').pop();
+
+  setImagenPerfil(
+    appUrl(`uploads/perfiles/${nombreFoto}`)
+  );
+}
+
+
         }
       })
       .catch((error) => {
@@ -404,14 +414,17 @@ export default function Perfil({ idUsuarioPerfil, onCerrarSesion }) {
         <div className="perfil-hero">
           <div className="perfil-avatar">
             {imagenPerfil ? (
-              <img
-                src={imagenPerfil}
-                alt="Perfil"
-                className="perfil-avatar-img"
-              />
-            ) : (
-              <span className="perfil-avatar-icon">:v</span>
-            )}
+ <img
+  src={imagenPerfil}
+  alt="Perfil"
+  className="perfil-avatar-img"
+  referrerPolicy="no-referrer"
+  onLoad={() => console.log("FOTO CARGADA")}
+  onError={() => console.log("FOTO NO CARGADA:", imagenPerfil)}
+/>
+) : (
+  <span className="perfil-avatar-icon">:v</span>
+)}
           </div>
 
           {esMiPerfil && editando && (

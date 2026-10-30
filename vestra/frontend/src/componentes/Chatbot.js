@@ -33,8 +33,11 @@ const suggestedQuestions = [
   "¿Cómo funciona la base de datos?",
 ];
 
-export default function Chatbot() {
+export default function Chatbot({ onOpenChange }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+  onOpenChange?.(open);
+}, [open, onOpenChange]);
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

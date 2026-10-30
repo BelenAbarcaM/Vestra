@@ -3,6 +3,7 @@
 .insc-root {
   min-height: 100vh;
   width: 100%;
+  box-sizing: border-box;
   background: var(--color-bg);
   padding: 16px 14px 140px;
   font-family: var(--font-body);
@@ -290,5 +291,31 @@ margin: 0 auto 20px;
     width: 48px;
     height: 48px;
     font-size: 1.8rem;
+  }
+}
+@media screen and (max-width: 600px) {
+  .insc-root {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .insc-top,
+  .insc-feed,
+  .insc-afinidad {
+    width: 100%;
+    max-width: 460px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .insc-search {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 }

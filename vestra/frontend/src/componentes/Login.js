@@ -1,109 +1,279 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import './Login.css';
 import logo from '../logito.png';
 import { extraerTipoUsuario } from './utilTipoUsuario';
 import { apiUrl } from '../config/api';
+import { Capacitor } from '@capacitor/core';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 
-export default function Login({
-  onCrearCuenta,
-  onLoginCorrecto,
-  onRecuperarContrasena
-}) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function Login({ onLoginCorrecto }) {
+  const botonGoogleRef = useRef(null);
+  const onLoginCorrectoRef = useRef(onLoginCorrecto);
+
   const [mensaje, setMensaje] = useState('');
+  const [googleNativoListo, setGoogleNativoListo] = useState(false);
 
-  const manejarEnvio = async (e) => {
-    e.preventDefault();
+  const esAndroid = Capacitor.getPlatform() === 'android';
 
-    if (!email.trim() || !password.trim()) {
-      setMensaje('Por favor, complete todos los campos.');
+  useEffect(() => {
+    onLoginCorrectoRef.current = onLoginCorrecto;
+  }, [onLoginCorrecto]);
+
+  // Enviar la credencial de Google al backend de Vestra.
+  const procesarCredencial = async (credential) => {
+    if (!credential) {
+      setMensaje('Google no proporcionó una credencial válida.');
       return;
     }
 
-    try {
-      const datos = new FormData();
-      datos.append('email', email);
-      datos.append('pass', password);
+    setMensaje('Verificando tu cuenta de Google...');
 
-      const respuesta = await fetch(apiUrl('login.php'), {
+    try {
+      const respuesta = await fetch(apiUrl('google_login.php'), {
         method: 'POST',
-        body: datos,
-        credentials: 'include'
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          credential: credential
+        })
       });
+
       const resultado = await respuesta.json();
 
-      if (resultado.success) {
-        localStorage.setItem('id_usuario', resultado.id_usuario);
-        const tipo = extraerTipoUsuario(resultado);
-        if (tipo !== null) localStorage.setItem('tipo_usuario', tipo);
-        setMensaje(`Bienvenido ${resultado.usuario}`);
-        setTimeout(onLoginCorrecto, 1000);
-      } else {
-        setMensaje(resultado.mensaje);
+      if (!respuesta.ok || !resultado.success) {
+        setMensaje(
+          resultado.mensaje || 'No se pudo iniciar sesión con Google.'
+        );
+        return;
       }
+
+      localStorage.setItem('id_usuario', resultado.id_usuario);
+
+      const tipo =
+        extraerTipoUsuario(resultado) ??
+        resultado.tipo_usuario ??
+        resultado.id_tipo_usuario;
+
+      if (tipo !== null && tipo !== undefined) {
+        localStorage.setItem('tipo_usuario', tipo);
+      }
+
+      setMensaje(`¡Bienvenido/a, ${resultado.usuario}!`);
+      onLoginCorrectoRef.current?.();
+
     } catch (error) {
-      console.error(error);
-      setMensaje('Error al conectar con el servidor.');
+      console.error('Error al iniciar sesión con Google:', error);
+      setMensaje('No se pudo conectar con el servidor de Vestra.');
     }
   };
+
+  // Inicializar Google nativo en Android.
+  useEffect(() => {
+    if (!esAndroid) return;
+
+    let cancelado = false;
+
+    const inicializarGoogleNativo = async () => {
+      const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+      if (!clientId) {
+        setMensaje('Falta configurar el ID de cliente de Google.');
+        return;
+      }
+
+      try {
+        await SocialLogin.initialize({
+          google: {
+            webClientId: clientId,
+            mode: 'online'
+          }
+        });
+
+        if (!cancelado) {
+          setGoogleNativoListo(true);
+        }
+
+      } catch (error) {
+        console.error('Error al inicializar Google nativo:', error);
+
+        if (!cancelado) {
+          setMensaje('No se pudo inicializar el inicio de sesión con Google.');
+        }
+      }
+    };
+
+    inicializarGoogleNativo();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [esAndroid]);
+
+  // Iniciar sesión nativo al pulsar el botón de Android.
+  const iniciarGoogleNativo = async () => {
+    try {
+      setMensaje('Conectando con Google...');
+
+      const respuestaGoogle = await SocialLogin.login({
+        provider: 'google',
+        options: {
+          scopes: ['email', 'profile']
+        }
+      });
+
+      const credential = respuestaGoogle.result?.idToken;
+
+      if (!credential) {
+        setMensaje('Google no proporcionó un ID token válido.');
+        return;
+      }
+
+      await procesarCredencial(credential);
+
+    } catch (error) {
+      console.error('Error en el inicio de sesión nativo:', error);
+      setMensaje('No se pudo iniciar sesión con Google.');
+    }
+  };
+
+  // Conservar el inicio de sesión web mediante Google Identity Services.
+  useEffect(() => {
+    if (esAndroid) return;
+
+    let cancelado = false;
+
+    let script = document.querySelector(
+      'script[src="https://accounts.google.com/gsi/client"]'
+    );
+
+    const procesarRespuestaWeb = (respuestaGoogle) => {
+      procesarCredencial(respuestaGoogle?.credential);
+    };
+
+    const manejarErrorScript = () => {
+      if (!cancelado) {
+        setMensaje('No se pudo cargar el servicio de Google.');
+      }
+    };
+
+    const inicializarGoogleWeb = () => {
+      if (cancelado) return;
+
+      if (!window.google?.accounts?.id || !botonGoogleRef.current) {
+        return;
+      }
+
+      const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+      if (!clientId) {
+        setMensaje('Falta configurar el ID de cliente de Google en React.');
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: procesarRespuestaWeb
+      });
+
+      botonGoogleRef.current.innerHTML = '';
+
+      window.google.accounts.id.renderButton(
+        botonGoogleRef.current,
+        {
+          theme: 'outline',
+          size: 'large',
+          text: 'continue_with',
+          shape: 'pill',
+          width: 340,
+          locale: 'es'
+        }
+      );
+    };
+
+    if (window.google?.accounts?.id) {
+      inicializarGoogleWeb();
+
+    } else if (script) {
+      script.addEventListener('load', inicializarGoogleWeb);
+      script.addEventListener('error', manejarErrorScript);
+
+    } else {
+      script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+
+      script.addEventListener('load', inicializarGoogleWeb);
+      script.addEventListener('error', manejarErrorScript);
+
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      cancelado = true;
+
+      if (script) {
+        script.removeEventListener('load', inicializarGoogleWeb);
+        script.removeEventListener('error', manejarErrorScript);
+      }
+    };
+  }, [esAndroid]);
 
   return (
     <section className="login-contenedor">
       <div className="login-tarjeta">
+
         <div className="marca-header">
-          <img src={logo} className="App-logo" alt="Mascota vestra" />
-          <img src={require('../vestra.png')} className="Isologo" alt="vestra" />
+          <img
+            src={logo}
+            className="App-logo"
+            alt="Mascota Vestra"
+          />
+
+          <img
+            src={require('../vestra.png')}
+            className="Isologo"
+            alt="Vestra"
+          />
         </div>
 
-        <h1>Iniciar sesion</h1>
-        <p className="login-subtitulo">Acceda con su email y contraseña</p>
+        <h1>Iniciar sesión</h1>
 
-        <form className="login-formulario" onSubmit={manejarEnvio}>
-          <label htmlFor="email">Correo electronico</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="123@est.cedesdonbosco.ed.cr"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <p className="login-subtitulo">
+          Accede a Vestra con tu cuenta de Google
+        </p>
 
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            placeholder="Ingrese su contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <div className="login-google">
 
-          <div className="login-opciones">
+          {esAndroid ? (
             <button
               type="button"
-              className="login-enlace"
-              onClick={async () => {
-                const resultado = await onRecuperarContrasena(email);
-                if (!resultado.success) setMensaje(resultado.mensaje);
-              }}
+              className="login-google-boton"
+              onClick={iniciarGoogleNativo}
+              disabled={!googleNativoListo}
             >
-              Olvidé mi contraseña
+              {googleNativoListo
+                ? 'Continuar con Google'
+                : 'Conectando con Google...'}
             </button>
-          </div>
+          ) : (
+            <div
+              ref={botonGoogleRef}
+              className="login-google-boton"
+            />
+          )}
 
-          <button type="submit" className="login-boton">Entrar</button>
-        </form>
+        </div>
 
-        {mensaje && <p className="login-mensaje">{mensaje}</p>}
+        {mensaje && (
+          <p className="login-mensaje" role="status">
+            {mensaje}
+          </p>
+        )}
 
-        <p className="login-registro">
-          No tiene cuenta?{' '}
-          <button type="button" className="login-link-texto" onClick={onCrearCuenta}>
-            Crear cuenta
-          </button>
-        </p>
       </div>
     </section>
   );

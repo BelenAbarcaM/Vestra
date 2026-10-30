@@ -277,3 +277,104 @@
     width: 160px;
   }
 }
+
+
+/* BOTÓN DE GOOGLE */
+
+.login-google {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 28px 0 12px;
+}
+
+.login-google-boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  width: 100%;
+  max-width: 340px;
+  min-height: 48px;
+  padding: 12px 20px;
+
+  background: #ffffff;
+  color: #3c4043;
+
+  border: 1px solid #dadce0;
+  border-radius: 999px;
+
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Letra G de Google */
+
+
+.login-google-boton::before {
+  content: "G";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 800;
+
+  background: conic-gradient(
+    from -45deg,
+    #4285F4 0deg 90deg,
+    #34A853 90deg 180deg,
+    #FBBC05 180deg 270deg,
+    #EA4335 270deg 360deg
+  );
+
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+
+  flex-shrink: 0;
+}
+
+
+/* Efecto al pasar el cursor */
+
+.login-google-boton:hover:not(:disabled) {
+  background: #f8faff;
+  border-color: #c8d5e8;
+  box-shadow: 0 2px 6px rgba(60, 64, 67, 0.18);
+}
+
+/* Efecto al pulsar */
+
+.login-google-boton:active:not(:disabled) {
+  background: #f1f3f4;
+  transform: scale(0.98);
+}
+
+/* Estado deshabilitado */
+
+.login-google-boton:disabled {
+  background: #f5f5f5;
+  color: #9aa0a6;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Botón oficial de Google en navegador */
+
+.login-google-boton iframe {
+  max-width: 100%;
+}
+

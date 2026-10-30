@@ -1,11 +1,10 @@
-import { useState } from "react";
 
+import { useState } from "react";
 import "./App.css";
 
 import Login from "./componentes/Login";
 import Perfil from "./componentes/Perfil";
 import VerificarDatos from "./componentes/Verificar_datos";
-import Registro from "./componentes/Registro";
 import CambiarContrasena from "./componentes/Cambiar_contrasena";
 import Inicio from "./componentes/Inicio";
 import DesarrollaIdea from "./componentes/Desarrolla_idea";
@@ -16,12 +15,14 @@ import SolicitudInscripcion from "./componentes/SolicitudInscripcion";
 import MenuNavEstudiante from "./componentes/Menu_nav_estudiante";
 import MenuNavVisitante from "./componentes/Menu_nav_visitante";
 import MenuNavEncargado from "./componentes/Menu_nav_encargado";
-import BaseClub from "./componentes/Base_Club"
+import BaseClub from "./componentes/Base_Club";
 import NutriaEscondida from "./componentes/Nutria_escondida";
 import Chats from "./componentes/Chats";
 import Foro from "./componentes/Foro";
 import TestAfinidad from "./componentes/TestAfinidad";
 import FormularioPublicacion from "./componentes/FormularioPublicacion";
+
+import { API_BASE_URL } from "./config/api";
 
 import {
   esVisitante,
@@ -36,26 +37,24 @@ function App() {
       : "login"
   );
 
-  const [correoRecuperacion, setCorreoRecuperacion] =
-    useState("");
+  const [correoRecuperacion, setCorreoRecuperacion] = useState("");
+  const [correoRegistro, setCorreoRegistro] = useState("");
+  const [clubSeleccionado, setClubSeleccionado] = useState(null);
+  const [clubesProfesor, setClubesProfesor] = useState([]);
+  const [chatbotAbierto, setChatbotAbierto] = useState(false);
+  const [usuarioPerfil, setUsuarioPerfil] = useState(
+    localStorage.getItem("id_usuario")
+  );
+  const [tipoUsuario, setTipoUsuario] = useState(
+    localStorage.getItem("tipo_usuario")
+  );
+  const [clubForo, setClubForo] = useState(null);
 
-  const [correoRegistro, setCorreoRegistro] =
-    useState("");
-
-  const [clubSeleccionado, setClubSeleccionado] =
+  const [modoFormularioPublicacion, setModoFormularioPublicacion] =
     useState(null);
 
-  const [clubesProfesor, setClubesProfesor] =
-    useState([]);
-
-  const [usuarioPerfil, setUsuarioPerfil] =
-    useState(localStorage.getItem("id_usuario"));
-
-  const [tipoUsuario, setTipoUsuario] =
-    useState(localStorage.getItem("tipo_usuario"));
-
-
-    const [clubForo, setClubForo] = useState(null);
+  const [publicacionEnEdicion, setPublicacionEnEdicion] =
+    useState(null);
 
   const esVisitanteActual = esVisitante(tipoUsuario);
   const esEncargadoActual =
@@ -63,33 +62,26 @@ function App() {
   const esEstudianteActual =
     String(tipoUsuario) === TIPO_ESTUDIANTE;
 
-    const [modoFormularioPublicacion, setModoFormularioPublicacion] =
-    useState(null);
-
-const [publicacionEnEdicion, setPublicacionEnEdicion] =
-    useState(null);
-
-  // login correcto
+  // Login correcto
   const manejarLoginCorrecto = () => {
     setTipoUsuario(localStorage.getItem("tipo_usuario"));
     setPantalla("inicio");
   };
 
-  // perfiles
+  // Perfiles
   const manejarVerPerfil = (idUsuario) => {
     setUsuarioPerfil(idUsuario);
     setPantalla("perfil");
   };
 
   const manejarPerfilPropio = () => {
-    const idUsuario =
-      localStorage.getItem("id_usuario");
+    const idUsuario = localStorage.getItem("id_usuario");
 
     setUsuarioPerfil(idUsuario);
     setPantalla("perfil");
   };
 
-  // cerrar sesión
+  // Cerrar sesión
   const manejarCerrarSesion = () => {
     localStorage.removeItem("id_usuario");
     localStorage.removeItem("tipo_usuario");
@@ -97,21 +89,21 @@ const [publicacionEnEdicion, setPublicacionEnEdicion] =
     setTipoUsuario(null);
     setClubesProfesor([]);
     setClubSeleccionado(null);
+    setChatbotAbierto(false);
     setPantalla("login");
   };
 
-  // crear cuenta
+  // Crear cuenta
   const manejarCrearCuenta = () => {
     setPantalla("registro");
   };
 
-  // solicitar recuperación
+  // Solicitar recuperación de contraseña
   const manejarRecuperarContrasena = async (correo) => {
     if (!correo || !correo.trim()) {
       return {
         success: false,
-        mensaje:
-          "Primero debes ingresar tu correo electrónico.",
+        mensaje: "Primero debes ingresar tu correo electrónico.",
       };
     }
 
@@ -120,7 +112,7 @@ const [publicacionEnEdicion, setPublicacionEnEdicion] =
       datos.append("correo", correo.trim());
 
       const respuesta = await fetch(
-        "http://localhost/vestra/backend/api/solicitar_recuperacion.php",
+        `${API_BASE_URL}/solicitar_recuperacion.php`,
         {
           method: "POST",
           body: datos,
@@ -135,11 +127,11 @@ const [publicacionEnEdicion, setPublicacionEnEdicion] =
       try {
         resultado = JSON.parse(texto);
       } catch (error) {
-        setCorreoRecuperacion(correo.trim());
-        setPantalla("recuperacion");
+        console.error("Respuesta no válida:", texto);
 
         return {
-          success: true,
+          success: false,
+          mensaje: "El servidor devolvió una respuesta no válida.",
         };
       }
 
@@ -150,20 +142,16 @@ const [publicacionEnEdicion, setPublicacionEnEdicion] =
 
       return resultado;
     } catch (error) {
-      console.error(
-        "Error solicitando recuperación:",
-        error
-      );
+      console.error("Error solicitando recuperación:", error);
 
       return {
         success: false,
-        mensaje:
-          "Error al conectar con el servidor.",
+        mensaje: "Error al conectar con el servidor.",
       };
     }
   };
 
-  // código correcto
+  // Código correcto
   const manejarCodigoCorrecto = (datos) => {
     if (datos.modo === "recuperacion") {
       setCorreoRecuperacion(datos.correo);
@@ -171,318 +159,294 @@ const [publicacionEnEdicion, setPublicacionEnEdicion] =
     }
   };
 
-  // registro exitoso
+  // Registro exitoso
   const manejarRegistroExitoso = (correo) => {
     setCorreoRegistro(correo);
     setPantalla("verificar-registro");
   };
 
-  // registro verificado
+  // Registro verificado
   const manejarRegistroCorrecto = () => {
     setPantalla("login");
   };
 
-  // clubes del encargado
-  
-const cargarClubesDelProfesor = async () => {
+  // Cargar clubes del encargado
+  const cargarClubesDelProfesor = async () => {
     try {
-        const respuesta = await fetch(
-            "http://localhost/vestra/backend/api/dashboard/mi_club.php",
-            {
-                credentials: "include",
-            }
+      const respuesta = await fetch(
+        `${API_BASE_URL}/dashboard/mi_club.php`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok || datos.success === false) {
+        throw new Error(
+          datos.mensaje || "No se pudieron cargar los clubes."
         );
+      }
 
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok || datos.success === false) {
-            throw new Error(
-                datos.mensaje || "No se pudieron cargar los clubes."
-            );
-        }
-
-        if (Array.isArray(datos.clubes) && datos.clubes.length > 0) {
-            setClubesProfesor(datos.clubes);
-            setClubSeleccionado(datos.clubes[0]);
-        } else {
-            setClubesProfesor([]);
-            setClubSeleccionado(null);
-        }
-    } catch (error) {
-        console.error("Error buscando los clubes del profesor:", error);
+      if (Array.isArray(datos.clubes) && datos.clubes.length > 0) {
+        setClubesProfesor(datos.clubes);
+        setClubSeleccionado(datos.clubes[0]);
+      } else {
         setClubesProfesor([]);
         setClubSeleccionado(null);
+      }
+    } catch (error) {
+      console.error(
+        "Error buscando los clubes del profesor:",
+        error
+      );
+
+      setClubesProfesor([]);
+      setClubSeleccionado(null);
     }
-};
-const manejarAbrirFormularioPublicacion = async (publicacion = null) => {
-    // Asegurarse de tener los clubes cargados antes de abrir el formulario
+  };
+
+  // Abrir formulario de publicaciones
+  const manejarAbrirFormularioPublicacion = async (
+    publicacion = null
+  ) => {
     if (esEncargadoActual) {
-        await cargarClubesDelProfesor();
+      await cargarClubesDelProfesor();
     }
 
     setPublicacionEnEdicion(publicacion);
     setModoFormularioPublicacion("publicacion");
     setPantalla("formulario-publicacion");
-};
+  };
 
-  // cambiar vista
-  
-const manejarCambioVista = (vista) => {
-  if (vista === "inicio") {
-    setPantalla("inicio");
-  }
-
-  if (vista === "mensajes" && !esVisitanteActual) {
-    setPantalla("mensajes");
-  }
-
-  if (vista === "clubes") {
-    setPantalla("clubes");
-  }
-
-  if (vista === "dashboard") {
-    if (esEncargadoActual) {
-      cargarClubesDelProfesor();
+  // Cambiar vista
+  const manejarCambioVista = (vista) => {
+    if (vista === "inicio") {
+      setPantalla("inicio");
     }
-    setPantalla("dashboard");
-  }
 
-  if (vista === "crud-clubes") {
-    setPantalla("crud-clubes");
-  }
+    if (vista === "mensajes" && !esVisitanteActual) {
+      setPantalla("mensajes");
+    }
 
-  if (vista === "buzon" && !esVisitanteActual) {
-    setPantalla("buzon");
-  }
+    if (vista === "clubes") {
+      setPantalla("clubes");
+    }
 
-  if (vista === "perfil") {
-    manejarPerfilPropio();
-  }
-};
+    if (vista === "dashboard") {
+      if (esEncargadoActual) {
+        cargarClubesDelProfesor();
+      }
+
+      setPantalla("dashboard");
+    }
+
+    if (vista === "crud-clubes") {
+      setPantalla("crud-clubes");
+    }
+
+    if (vista === "buzon" && !esVisitanteActual) {
+      setPantalla("buzon");
+    }
+
+    if (vista === "perfil") {
+      manejarPerfilPropio();
+    }
+  };
 
   return (
     <header className="App-header">
+
       {localStorage.getItem("id_usuario") && (
-  <NutriaEscondida />
-)}
+        <NutriaEscondida />
+      )}
 
-      {/* login */}
+      {/* Login con Google */}
       {pantalla === "login" && (
-        <Login
-          onCrearCuenta={manejarCrearCuenta}
-          onLoginCorrecto={manejarLoginCorrecto}
-          onRecuperarContrasena={
-            manejarRecuperarContrasena
-          }
-        />
+        <Login onLoginCorrecto={manejarLoginCorrecto} />
       )}
 
-      {/* registro */}
-      {pantalla === "registro" && (
-        <Registro
-          onIniciarSesion={() =>
-            setPantalla("login")
-          }
-          onRegistroExitoso={
-            manejarRegistroExitoso
-          }
-        />
-      )}
-
-      {/* verificar código de registro */}
-      {pantalla === "verificar-registro" && (
-        <VerificarDatos
-          modo="registro"
-          correo={correoRegistro}
-          onSuccess={manejarRegistroCorrecto}
-        />
-      )}
-
-      {/* inicio */}
+      {/* Inicio */}
       {pantalla === "inicio" && (
-    <Inicio
-        onVerPerfil={manejarVerPerfil}
-        onAbrirFormularioPublicacion={
+        <Inicio
+          onVerPerfil={manejarVerPerfil}
+          onAbrirFormularioPublicacion={
             manejarAbrirFormularioPublicacion
-        }
-    />
-)}
+          }
+          onChatbotOpenChange={setChatbotAbierto}
+        />
+      )}
 
-{/* clubes */}
-{pantalla === "clubes" && (
-  <Inscripciones
-    puedeSolicitar={esEstudianteActual}
-    puedeAdministrar={esEncargadoActual}
-    onProbarAfinidad={() => setPantalla("test-afinidad")}
-    onAbrirClub={(club) => {
-      setClubSeleccionado(club);
-      setPantalla("solicitud-inscripcion");
-    }}
-    onVerMas={(club) => {
-      setClubSeleccionado(club);
-      setPantalla("detalle-club");
-    }}
-    onAdministrar={() => {
-      setClubSeleccionado(null);
-      setPantalla("crud-clubes");
-    }}
-  />
-)}
+      {/* Clubes */}
+      {pantalla === "clubes" && (
+        <Inscripciones
+          puedeSolicitar={esEstudianteActual}
+          puedeAdministrar={esEncargadoActual}
+          onProbarAfinidad={() => setPantalla("test-afinidad")}
+          onAbrirClub={(club) => {
+            setClubSeleccionado(club);
+            setPantalla("solicitud-inscripcion");
+          }}
+          onVerMas={(club) => {
+            setClubSeleccionado(club);
+            setPantalla("detalle-club");
+          }}
+          onAdministrar={() => {
+            setClubSeleccionado(null);
+            setPantalla("crud-clubes");
+          }}
+        />
+      )}
 
-{pantalla === "test-afinidad" && esEstudianteActual && (
-  <TestAfinidad
-    onVolver={() => setPantalla("clubes")}
-  />
-)}
-{pantalla === "mensajes" && !esVisitanteActual && (
-  <Chats />
-)}
+      {/* Test de afinidad */}
+      {pantalla === "test-afinidad" && esEstudianteActual && (
+        <TestAfinidad
+          onVolver={() => setPantalla("clubes")}
+        />
+      )}
 
-      {/* dashboard */}
+      {/* Mensajes */}
+      {pantalla === "mensajes" && !esVisitanteActual && (
+        <Chats />
+      )}
+
+      {/* Dashboard */}
       {pantalla === "dashboard" && (
         clubSeleccionado ? (
           <Dashboard
             idClub={clubSeleccionado.id_club}
             clubes={clubesProfesor}
             clubSeleccionado={clubSeleccionado}
-            setClubSeleccionado={
-              setClubSeleccionado
-            }
+            setClubSeleccionado={setClubSeleccionado}
           />
         ) : (
           <div className="dashboard-page">
             <div className="dashboard-shell">
               <section className="dashboard-card">
-                <p className="eyebrow">
-                  Dashboard
-                </p>
-
-                <h3>
-                  No tienes clubes asignados.
-                </h3>
+                <p className="eyebrow">Dashboard</p>
+                <h3>No tienes clubes asignados.</h3>
               </section>
             </div>
           </div>
         )
       )}
-{/* información completa del club */}
-{pantalla === "detalle-club" && clubSeleccionado && (
-   <BaseClub
-  idClub={clubSeleccionado.id_club}
-  puedeSolicitar={esEstudianteActual}
-  onSolicitarInscripcion={() => setPantalla("solicitud-inscripcion")}
-  onEditar={() => setPantalla("crud-clubes")}
-  
-onAbrirForo={(club) => {
-  setClubForo(club);
-  setPantalla("foro-club");
-}}
-  onVolver={() => {
-    setClubSeleccionado(null);
-    setPantalla("clubes");
-  }}
-/>
-)}
 
-      {/* solicitud de inscripción */}
-      {pantalla ===
-        "solicitud-inscripcion" && (
+      {/* Información completa del club */}
+      {pantalla === "detalle-club" && clubSeleccionado && (
+        <BaseClub
+          idClub={clubSeleccionado.id_club}
+          puedeSolicitar={esEstudianteActual}
+          onSolicitarInscripcion={() =>
+            setPantalla("solicitud-inscripcion")
+          }
+          onEditar={() => setPantalla("crud-clubes")}
+          onAbrirForo={(club) => {
+            setClubForo(club);
+            setPantalla("foro-club");
+          }}
+          onVolver={() => {
+            setClubSeleccionado(null);
+            setPantalla("clubes");
+          }}
+        />
+      )}
+
+      {/* Solicitud de inscripción */}
+      {pantalla === "solicitud-inscripcion" && (
         <SolicitudInscripcion
           club={clubSeleccionado}
+          onVolver={() => setPantalla("clubes")}
+        />
+      )}
+
+      {/* CRUD de clubes */}
+      {pantalla === "crud-clubes" && (
+        <CrudClubes
+          idClubEditar={clubSeleccionado?.id_club ?? null}
           onVolver={() =>
-            setPantalla("clubes")
+            setPantalla(
+              clubSeleccionado ? "detalle-club" : "clubes"
+            )
           }
         />
       )}
 
-{pantalla === "crud-clubes" && (
-    <CrudClubes
-        idClubEditar={clubSeleccionado?.id_club ?? null}
-        onVolver={() =>
-            setPantalla(
-                clubSeleccionado ? "detalle-club" : "clubes"
-            )
-        }
-    />
-)}
+      {/* Foro del club */}
+      {pantalla === "foro-club" && clubForo && (
+        <Foro
+          key={clubForo.id_club}
+          idClub={clubForo.id_club}
+          nombreClub={clubForo.nombre}
+          onVolver={() => setPantalla("detalle-club")}
+        />
+      )}
 
+      {/* Buzón */}
+      {pantalla === "buzon" && !esVisitanteActual && (
+        <DesarrollaIdea />
+      )}
 
-{pantalla === "foro-club" && clubForo && (
-  <Foro
-    key={clubForo.id_club}
-    idClub={clubForo.id_club}
-    nombreClub={clubForo.nombre}
-    onVolver={() => setPantalla("detalle-club")}
-  />
-)}
-
-      {/* buzón */}
-      {pantalla === "buzon" &&
-        !esVisitanteActual && (
-          <DesarrollaIdea />
-        )}
-
-      {/* perfil */}
+      {/* Perfil */}
       {pantalla === "perfil" && (
         <Perfil
           idUsuarioPerfil={usuarioPerfil}
           onCerrarSesion={manejarCerrarSesion}
         />
       )}
-{pantalla === "formulario-publicacion" && (
-    <FormularioPublicacion
-        apiUrl="http://localhost/vestra/backend/api"
-        clubes={clubesProfesor}
-        publicacion={publicacionEnEdicion}
-        onCancelar={() => {
+
+      {/* Formulario de publicaciones */}
+      {pantalla === "formulario-publicacion" && (
+        <FormularioPublicacion
+          apiUrl={API_BASE_URL}
+          clubes={clubesProfesor}
+          publicacion={publicacionEnEdicion}
+          onCancelar={() => {
             setPantalla("inicio");
             setPublicacionEnEdicion(null);
-        }}
-        onGuardado={() => {
+          }}
+          onGuardado={() => {
             setPantalla("inicio");
             setPublicacionEnEdicion(null);
+
             window.dispatchEvent(
-                new CustomEvent("vestra:actualizar-publicaciones")
+              new CustomEvent("vestra:actualizar-publicaciones")
             );
-        }}
-    />
-)}
-      {/* menú inferior */}
-      {
-(
-  pantalla === "inicio" ||
-  pantalla === "mensajes" ||
-  pantalla === "clubes" ||
-  pantalla === "dashboard" ||
-  pantalla === "crud-clubes" ||
-  pantalla === "buzon" ||
-  pantalla === "perfil"
-) && (
-        esVisitanteActual ? (
-          <MenuNavVisitante
-            vistaActiva={pantalla}
-            onCambiarVista={
-              manejarCambioVista
-            }
-          />
-        ) : esEncargadoActual ? (
-          <MenuNavEncargado
-            vistaActiva={pantalla}
-            onCambiarVista={
-              manejarCambioVista
-            }
-          />
-        ) : (
-          <MenuNavEstudiante
-            vistaActiva={pantalla}
-            onCambiarVista={
-              manejarCambioVista
-            }
-          />
+          }}
+        />
+      )}
+
+      {/* Menú inferior: oculto mientras Vivi está abierta */}
+      {!chatbotAbierto && (
+        (
+          pantalla === "inicio" ||
+          pantalla === "mensajes" ||
+          pantalla === "clubes" ||
+          pantalla === "dashboard" ||
+          pantalla === "crud-clubes" ||
+          pantalla === "buzon" ||
+          pantalla === "perfil"
+        ) && (
+          esVisitanteActual ? (
+            <MenuNavVisitante
+              vistaActiva={pantalla}
+              onCambiarVista={manejarCambioVista}
+            />
+          ) : esEncargadoActual ? (
+            <MenuNavEncargado
+              vistaActiva={pantalla}
+              onCambiarVista={manejarCambioVista}
+            />
+          ) : (
+            <MenuNavEstudiante
+              vistaActiva={pantalla}
+              onCambiarVista={manejarCambioVista}
+            />
+          )
         )
       )}
 
-      {/* recuperación */}
+      {/* Recuperación */}
       {pantalla === "recuperacion" && (
         <VerificarDatos
           modo="recuperacion"
@@ -491,16 +455,13 @@ onAbrirForo={(club) => {
         />
       )}
 
-      {/* cambiar contraseña */}
+      {/* Cambiar contraseña */}
       {pantalla === "cambiar-contrasena" && (
         <CambiarContrasena
           correo={correoRecuperacion}
-          onSuccess={() =>
-            setPantalla("login")
-          }
+          onSuccess={() => setPantalla("login")}
         />
       )}
-
 
     </header>
   );

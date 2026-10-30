@@ -1,23 +1,32 @@
 @import '../theme.css';
 
+
 .cedes-bottomnav {
   position: fixed;
   left: 16px;
   right: 16px;
   bottom: 16px;
+
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  width: min(calc(100% - 32px), 420px);
-  margin: auto;
-  padding: 8px 14px;
+
+  width: auto;
+  max-width: 420px;
+  box-sizing: border-box;
+  margin: 0 auto;
+
+  padding: 8px 10px;
+
   background: var(--gradient-primary);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  z-index: 60;
+
+  z-index: 9999;
   backdrop-filter: blur(10px);
 }
+
 
 .nav-btn {
   width: 42px;
@@ -77,4 +86,30 @@
 /* Ocultar la navegación inferior mientras hay un chat abierto */
 body.chat-abierto .cedes-bottomnav {
   display: none !important;
+}
+/* Correcciones exclusivas para pantallas pequeñas */
+@media screen and (max-width: 600px) {
+  .cedes-bottomnav {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 12px !important;
+
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 8px 6px !important;
+    box-sizing: border-box !important;
+
+    transform: none !important;
+    z-index: 99999 !important;
+  }
+
+  .cedes-bottomnav .nav-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
 }

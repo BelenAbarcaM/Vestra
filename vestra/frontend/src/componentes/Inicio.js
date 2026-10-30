@@ -15,8 +15,9 @@ const API_URL = API_BASE_URL;
 const BASE_URL = appUrl("");
 
 export default function Inicio({
-    onVerPerfil,
-    onAbrirFormularioPublicacion
+  onVerPerfil,
+  onAbrirFormularioPublicacion,
+  onChatbotOpenChange
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -135,6 +136,14 @@ export default function Inicio({
       );
 
       const data = await leerRespuesta(response);
+
+console.log("ESTADO HTTP:", response.status);
+console.log("RESPUESTA COMPLETA:", JSON.stringify(data, null, 2));
+console.log("SUCCESS:", data.success);
+console.log("MENSAJE:", data.mensaje);
+console.log("PUBLICACIONES:", data.publicaciones);
+
+
 
       if (!response.ok || !data.success) {
         setError(
@@ -1084,7 +1093,7 @@ export default function Inicio({
         );
       })}
 
-      <Chatbot />
+      <Chatbot onOpenChange={onChatbotOpenChange} />
     </div>
   );
 }
