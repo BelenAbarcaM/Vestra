@@ -1,19 +1,11 @@
 
 <?php
 
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Credentials: true");
-
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit;
-}
+require_once __DIR__ . '/../../config/cors.php';
 
 session_start();
-require_once "../../config/conexion.php";
+
+require_once __DIR__ . '/../../config/conexion.php';
 
 // Verificar sesión
 if (!isset($_SESSION["id_usuario"])) {

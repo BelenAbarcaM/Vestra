@@ -1,5 +1,7 @@
 <?php
 
+
+require_once __DIR__ . '/../../config/cors.php';
 function vestra_moderacion_normalizar($texto) {
     $texto = (string) $texto;
     $texto = function_exists('mb_strtolower')

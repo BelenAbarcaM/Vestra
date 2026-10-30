@@ -1,4 +1,6 @@
 <?php
+
+require_once __DIR__ . '/../../../config/cors.php';
 require_once __DIR__ . '/_comun.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') foro_json(405, ['success'=>false,'mensaje'=>'Método no permitido.']);
 $idUsuario = foro_usuario_autenticado(); $data = foro_json_entrada();
