@@ -35,14 +35,31 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     ], 405);
 }
 
-/**
- * Verificar sesión.
- */
+// Verificar sesión
 if (!isset($_SESSION["id_usuario"])) {
-    responder([
+    http_response_code(401);
+
+    echo json_encode([
         "success" => false,
         "error" => "Usuario no autenticado."
-    ], 401);
+    ]);
+
+    exit;
+}
+
+// Verificar que sea profesor
+if (
+    !isset($_SESSION["id_tipo_usuario"]) ||
+    (int) $_SESSION["id_tipo_usuario"] !== 2
+) {
+    http_response_code(403);
+
+    echo json_encode([
+        "success" => false,
+        "error" => "No tienes permisos para realizar esta acción."
+    ]);
+
+    exit;
 }
 
 $id_profesor = (int) $_SESSION["id_usuario"];

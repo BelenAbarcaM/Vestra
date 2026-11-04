@@ -2,11 +2,12 @@
 
 
 require_once __DIR__ . '/../../config/cors.php';
-header("Content-Type: application/json; charset=UTF-8");header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
-require_once "../../config/conexion.php";
+require_once __DIR__ . '/../../config/conexion.php';
 
 session_start();
 
@@ -32,14 +33,34 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 
 /* Verificar sesión */
 
+// Verificar sesión
 if (!isset($_SESSION["id_usuario"])) {
+    http_response_code(401);
+
     echo json_encode([
         "success" => false,
-        "message" => "Usuario no autenticado."
+        "error" => "Usuario no autenticado."
     ]);
+
     exit;
 }
 
+// Verificar que sea profesor
+if (
+    !isset($_SESSION["id_tipo_usuario"]) ||
+    (int) $_SESSION["id_tipo_usuario"] !== 2
+) {
+    http_response_code(403);
+
+    echo json_encode([
+        "success" => false,
+        "error" => "No tienes permisos para realizar esta acción."
+    ]);
+
+    exit;
+}
+
+$id_profesor = (int) $_SESSION["id_usuario"];
 
 /* Verificar ID del club */
 

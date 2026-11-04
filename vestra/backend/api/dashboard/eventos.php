@@ -2,28 +2,48 @@
 
 
 require_once __DIR__ . '/../../config/cors.php';
-header("Content-Type: application/json; charset=UTF-8");header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
 session_start();
 
-require_once "../../config/conexion.php";
+require_once __DIR__ . '/../../config/conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(200);
     exit;
 }
 
+// Verificar sesión
 if (!isset($_SESSION["id_usuario"])) {
+    http_response_code(401);
+
     echo json_encode([
         "success" => false,
-        "error" => "Usuario no autenticado"
+        "error" => "Usuario no autenticado."
     ]);
+
     exit;
 }
 
-$id_profesor = intval($_SESSION["id_usuario"]);
+// Verificar que sea profesor
+if (
+    !isset($_SESSION["id_tipo_usuario"]) ||
+    (int) $_SESSION["id_tipo_usuario"] !== 2
+) {
+    http_response_code(403);
+
+    echo json_encode([
+        "success" => false,
+        "error" => "No tienes permisos para realizar esta acción."
+    ]);
+
+    exit;
+}
+
+$id_profesor = (int) $_SESSION["id_usuario"];
 
 $id_club = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 

@@ -207,6 +207,13 @@ try {
     $_SESSION['usuario'] = $usuario['Nombre'];
     $_SESSION['tipo'] = (int) $usuario['id_tipo_usuario'];
     $_SESSION['id_tipo_usuario'] = (int) $usuario['id_tipo_usuario'];
+    error_log(
+    "VESTRA GOOGLE LOGIN: " .
+    "origin=" . ($_SERVER['HTTP_ORIGIN'] ?? 'SIN ORIGIN') .
+    " | session=" . session_id() .
+    " | usuario=" . ($_SESSION['id_usuario'] ?? 'SIN USUARIO') .
+    " | cookie=" . ($_COOKIE[session_name()] ?? 'SIN COOKIE')
+);
 
     unset(
         $_SESSION['correo_verificacion'],
