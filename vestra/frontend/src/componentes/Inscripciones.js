@@ -2,12 +2,14 @@ import { APP_BASE_URL, apiUrl } from '../config/api';
 import React, { useEffect, useMemo, useState } from 'react';
 import './Inscripciones.css';
 import logito from '../assets/logito.png';
+import vivi from '../assets/Vivi.png';
 
 export default function Inscripciones({
   onAbrirClub,
   onVerMas,
   onAdministrar,
   onProbarAfinidad,
+  onJugar,
   puedeSolicitar = false,
   puedeAdministrar = false
 }) {
@@ -134,6 +136,34 @@ export default function Inscripciones({
     </div>
   </section>
 )}
+      {typeof onJugar === 'function' && (
+        <section className="insc-afinidad insc-juegos">
+          <div className="insc-afinidad-texto">
+            <span className="insc-afinidad-etiqueta">
+              JUEGA CON VIVI
+            </span>
+
+            <h2>Minijuegos de los clubes</h2>
+
+            <p>
+              Cada club tiene su propio juego.
+              Elige un club y mira su lado más divertido.
+            </p>
+
+            <button
+              type="button"
+              className="insc-afinidad-btn"
+              onClick={onJugar}
+            >
+              Jugar
+            </button>
+          </div>
+
+          <div className="insc-afinidad-decoracion insc-juegos-vivi" aria-hidden="true">
+            <img src={vivi} alt="" />
+          </div>
+        </section>
+      )}
       <main className="insc-feed">
         {cargando && (
           <p className="insc-empty">Cargando clubes...</p>

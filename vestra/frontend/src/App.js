@@ -20,6 +20,7 @@ import NutriaEscondida from "./componentes/Nutria_escondida";
 import Chats from "./componentes/Chats";
 import Foro from "./componentes/Foro";
 import TestAfinidad from "./componentes/TestAfinidad";
+import Juegos from "./componentes/Juegos";
 import FormularioPublicacion from "./componentes/FormularioPublicacion";
 
 import { API_BASE_URL } from "./config/api";
@@ -303,6 +304,11 @@ const [errorClubesProfesor, setErrorClubesProfesor] =
           puedeSolicitar={esEstudianteActual}
           puedeAdministrar={esEncargadoActual}
           onProbarAfinidad={() => setPantalla("test-afinidad")}
+          onJugar={
+            esEstudianteActual
+              ? () => setPantalla("juegos")
+              : undefined
+          }
           onAbrirClub={(club) => {
             setClubSeleccionado(club);
             setPantalla("solicitud-inscripcion");
@@ -323,6 +329,11 @@ const [errorClubesProfesor, setErrorClubesProfesor] =
         <TestAfinidad
           onVolver={() => setPantalla("clubes")}
         />
+      )}
+
+      {/* Minijuegos (solo estudiantes) */}
+      {pantalla === "juegos" && esEstudianteActual && (
+        <Juegos onVolver={() => setPantalla("clubes")} />
       )}
 
       {/* Mensajes */}
