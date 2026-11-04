@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect  } from "react";
 import "./App.css";
 
 import Login from "./componentes/Login";
@@ -31,6 +31,7 @@ import {
 } from "./componentes/utilTipoUsuario";
 
 function App() {
+
   const [pantalla, setPantalla] = useState(
     localStorage.getItem("id_usuario")
       ? "inicio"
@@ -80,6 +81,12 @@ function App() {
     setUsuarioPerfil(idUsuario);
     setPantalla("perfil");
   };
+
+  const [cargandoClubesProfesor, setCargandoClubesProfesor] =
+  useState(false);
+
+const [errorClubesProfesor, setErrorClubesProfesor] =
+  useState("");
 
   // Cerrar sesión
   const manejarCerrarSesion = () => {
@@ -171,41 +178,54 @@ function App() {
   };
 
   // Cargar clubes del encargado
-  const cargarClubesDelProfesor = async () => {
-    try {
-      const respuesta = await fetch(
-        `${API_BASE_URL}/dashboard/mi_club.php`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
+ const cargarClubesDelProfesor = async () => {
+  setCargandoClubesProfesor(true);
+  setErrorClubesProfesor("");
+  setClubesProfesor([]);
+  setClubSeleccionado(null);
 
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok || datos.success === false) {
-        throw new Error(
-          datos.mensaje || "No se pudieron cargar los clubes."
-        );
+  try {
+    const respuesta = await fetch(
+      `${API_BASE_URL}/dashboard/mi_club.php`,
+      {
+        method: "GET",
+        credentials: "include",
       }
+    );
 
-      if (Array.isArray(datos.clubes) && datos.clubes.length > 0) {
-        setClubesProfesor(datos.clubes);
-        setClubSeleccionado(datos.clubes[0]);
-      } else {
-        setClubesProfesor([]);
-        setClubSeleccionado(null);
-      }
-    } catch (error) {
-      console.error(
-        "Error buscando los clubes del profesor:",
-        error
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok || datos.success === false) {
+      throw new Error(
+        datos.mensaje || "No se pudieron cargar los clubes."
       );
-
-      setClubesProfesor([]);
-      setClubSeleccionado(null);
     }
-  };
+
+    const clubes = Array.isArray(datos.clubes)
+      ? datos.clubes
+      : [];
+
+    setClubesProfesor(clubes);
+
+    if (clubes.length > 0) {
+      setClubSeleccionado(clubes[0]);
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Error buscando los clubes del profesor:",
+      error
+    );
+
+    setErrorClubesProfesor(error.message);
+    return false;
+
+  } finally {
+    setCargandoClubesProfesor(false);
+  }
+};
 
   // Abrir formulario de publicaciones
   const manejarAbrirFormularioPublicacion = async (
@@ -221,39 +241,38 @@ function App() {
   };
 
   // Cambiar vista
-  const manejarCambioVista = (vista) => {
-    if (vista === "inicio") {
-      setPantalla("inicio");
-    }
+ const manejarCambioVista = async (vista) => {
+  if (vista === "inicio") {
+    setPantalla("inicio");
+  }
 
-    if (vista === "mensajes" && !esVisitanteActual) {
-      setPantalla("mensajes");
-    }
+  if (vista === "mensajes" && !esVisitanteActual) {
+    setPantalla("mensajes");
+  }
 
-    if (vista === "clubes") {
-      setPantalla("clubes");
-    }
+  if (vista === "clubes") {
+    setPantalla("clubes");
+  }
 
-    if (vista === "dashboard") {
-      if (esEncargadoActual) {
-        cargarClubesDelProfesor();
-      }
+  if (vista === "dashboard") {
+    if (!esEncargadoActual) return;
 
-      setPantalla("dashboard");
-    }
+    await cargarClubesDelProfesor();
+    setPantalla("dashboard");
+  }
 
-    if (vista === "crud-clubes") {
-      setPantalla("crud-clubes");
-    }
+  if (vista === "crud-clubes") {
+    setPantalla("crud-clubes");
+  }
 
-    if (vista === "buzon" && !esVisitanteActual) {
-      setPantalla("buzon");
-    }
+  if (vista === "buzon" && !esVisitanteActual) {
+    setPantalla("buzon");
+  }
 
-    if (vista === "perfil") {
-      manejarPerfilPropio();
-    }
-  };
+  if (vista === "perfil") {
+    manejarPerfilPropio();
+  }
+};
 
   return (
     <header className="App-header">
@@ -312,44 +331,65 @@ function App() {
       )}
 
       {/* Dashboard */}
-      {pantalla === "dashboard" && (
-        clubSeleccionado ? (
-          <Dashboard
-            idClub={clubSeleccionado.id_club}
-            clubes={clubesProfesor}
-            clubSeleccionado={clubSeleccionado}
-            setClubSeleccionado={setClubSeleccionado}
-          />
-        ) : (
-          <div className="dashboard-page">
-            <div className="dashboard-shell">
-              <section className="dashboard-card">
-                <p className="eyebrow">Dashboard</p>
-                <h3>No tienes clubes asignados.</h3>
-              </section>
-            </div>
-          </div>
-        )
-      )}
+{pantalla === "dashboard" && esEncargadoActual && (
+  cargandoClubesProfesor ? (
+    <div className="dashboard-page">
+      <div className="dashboard-shell">
+        <section className="dashboard-card">
+          <p className="eyebrow">Dashboard</p>
+          <h3>Cargando tus clubes...</h3>
+        </section>
+      </div>
+    </div>
+  ) : errorClubesProfesor ? (
+    <div className="dashboard-page">
+      <div className="dashboard-shell">
+        <section className="dashboard-card">
+          <p className="eyebrow">Dashboard</p>
+          <h3>No se pudieron cargar tus clubes.</h3>
+          <p>{errorClubesProfesor}</p>
+        </section>
+      </div>
+    </div>
+  ) : clubSeleccionado ? (
+    <Dashboard
+      idClub={clubSeleccionado.id_club}
+      clubes={clubesProfesor}
+      clubSeleccionado={clubSeleccionado}
+      setClubSeleccionado={setClubSeleccionado}
+    />
+  ) : (
+    <div className="dashboard-page">
+      <div className="dashboard-shell">
+        <section className="dashboard-card">
+          <p className="eyebrow">Dashboard</p>
+          <h3>No tienes clubes asignados.</h3>
+          <p>Cuando tengas un club a tu cargo, aparecerá aquí.</p>
+        </section>
+      </div>
+    </div>
+  )
+)}
 
       {/* Información completa del club */}
       {pantalla === "detalle-club" && clubSeleccionado && (
         <BaseClub
-          idClub={clubSeleccionado.id_club}
-          puedeSolicitar={esEstudianteActual}
-          onSolicitarInscripcion={() =>
-            setPantalla("solicitud-inscripcion")
-          }
-          onEditar={() => setPantalla("crud-clubes")}
-          onAbrirForo={(club) => {
-            setClubForo(club);
-            setPantalla("foro-club");
-          }}
-          onVolver={() => {
-            setClubSeleccionado(null);
-            setPantalla("clubes");
-          }}
-        />
+    idClub={clubSeleccionado.id_club}
+    puedeSolicitar={esEstudianteActual}
+    puedeVerForo={!esVisitanteActual && (esEstudianteActual || esEncargadoActual)}
+    onSolicitarInscripcion={() =>
+        setPantalla("solicitud-inscripcion")
+    }
+    onEditar={() => setPantalla("crud-clubes")}
+    onAbrirForo={(club) => {
+        setClubForo(club);
+        setPantalla("foro-club");
+    }}
+    onVolver={() => {
+        setClubSeleccionado(null);
+        setPantalla("clubes");
+    }}
+/>
       )}
 
       {/* Solicitud de inscripción */}

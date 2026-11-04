@@ -114,18 +114,19 @@
   --blob-white: rgba(255, 255, 255, 0.35);
 
   /* ---------- Sombras (suaves, sin degradado, estilo "sticker") ---------- */
-  --shadow-sm: 0 3px 10px rgba(91, 68, 44, 0.07);
-  --shadow-md: 0 10px 22px rgba(91, 68, 44, 0.10);
-  --shadow-lg: 0 16px 34px rgba(51, 76, 114, 0.14);
-  --shadow-primary: 0 10px 20px rgba(10, 138, 158, 0.22);
-  --shadow-cute: 0 2px 0 rgba(91, 68, 44, 0.05), 0 12px 26px rgba(91, 68, 44, 0.12);
+  --shadow-sm: 0 3px 10px rgba(91, 68, 44, 0.06);
+  --shadow-md: 0 10px 26px rgba(91, 68, 44, 0.08);
+  --shadow-lg: 0 16px 38px rgba(91, 68, 44, 0.10);
+  --shadow-primary: 0 10px 22px rgba(13, 173, 197, 0.26);
+  --shadow-cute: 0 1px 0 rgba(91, 68, 44, 0.03), 0 10px 28px rgba(91, 68, 44, 0.08);
 
   /* ---------- Bordes muy redondeados (estilo app móvil "cute") ---------- */
-  --radius-sm: 14px;
-  --radius-md: 20px;
-  --radius-lg: 26px;
-  --radius-xl: 34px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 30px;
   --radius-pill: 999px;
+  --radius-btn: 999px; /* botones redondeados tipo píldora, igual en toda la app */
 
   /* ---------- Tipografía ---------- */
   --font-heading: "Baloo 2", "Quicksand", "Segoe UI", sans-serif;
@@ -151,6 +152,261 @@ h2,
 h3,
 h4 {
   font-family: var(--font-heading);
+}
+
+/* =====================================================================
+   SISTEMA DE DISEÑO (unidad entre pantallas)
+   Una sola escala tipográfica, un solo estilo de botón y un solo set de
+   animaciones para toda la app. Cada hoja de estilos usa estas variables
+   para que títulos, subtítulos y botones midan lo mismo en TODAS las
+   pantallas. Para cambiar el tamaño de algo en toda la app, se cambia
+   aquí y nada más.
+   ===================================================================== */
+:root {
+  /* Escala tipográfica (móvil primero) */
+  --fs-title: 1.6rem;      /* título principal de cada pantalla (h1)   */
+  --fs-section: 1.2rem;    /* título de sección / tarjeta (h2, h3)     */
+  --fs-subtitle: 1.05rem;  /* subtítulo fuerte dentro de una tarjeta   */
+  --fs-item: 0.98rem;      /* título de un elemento de lista           */
+  --fs-body: 0.95rem;      /* texto normal                             */
+  --fs-sm: 0.86rem;        /* texto secundario / descripciones         */
+  --fs-xs: 0.75rem;        /* etiquetas, chips, metadatos              */
+
+  --lh-title: 1.2;
+  --lh-body: 1.5;
+
+  /* Botones */
+  --btn-h: 52px;           /* botón principal (ancho completo / acción) */
+  --btn-h-sm: 42px;        /* botón secundario / de tarjeta             */
+  --btn-fs: 1rem;
+  --btn-fs-sm: 0.84rem;
+  --btn-pad-x: 30px;
+  --btn-pad-x-sm: 20px;
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.22, 0.8, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 0.18s;
+  --dur-base: 0.35s;
+  --dur-slow: 0.55s;
+
+  /* Zonas seguras del teléfono (notch / barra de gestos) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fs-title: 1.9rem;
+    --fs-section: 1.3rem;
+    --fs-body: 1rem;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  line-height: var(--lh-body);
+  font-size: var(--fs-body);
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  line-height: var(--lh-title);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+button,
+a,
+[role="button"],
+select {
+  touch-action: manipulation;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Los campos de texto a 16px evitan el zoom automático de iOS al enfocar */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Anillo de foco único, visible con teclado en toda la app */
+:focus-visible {
+  outline: 3px solid rgba(13, 173, 197, 0.45);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-turquoise-pastel-deep);
+  color: var(--color-text);
+}
+
+/* =====================================================================
+   ANIMACIONES COMPARTIDAS
+   Se usan con  animation: nombre var(--dur-base) var(--ease-out) backwards
+   (siempre "backwards", nunca "both": así el elemento no queda con un
+   transform residual que rompería los modales position:fixed).
+   ===================================================================== */
+@keyframes vestra-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vestra-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes vestra-pop {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes vestra-slide-right {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes vestra-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(6px, -10px, 0); }
+}
+
+@keyframes vestra-float-alt {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-8px, 8px, 0); }
+}
+
+@keyframes vestra-bob {
+  0%, 100% { transform: translateY(-6px); }
+  50%      { transform: translateY(-10px); }
+}
+
+@keyframes vestra-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Utilidades opcionales para usar desde cualquier componente */
+.anim-fade-up { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+.anim-pop     { animation: vestra-pop var(--dur-base) var(--ease-spring) backwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =====================================================================
+   GLASSMORPHISM
+   Superficies de vidrio esmerilado: blanco translúcido + desenfoque +
+   borde luminoso. Se ven mejor sobre las manchas de color del fondo
+   (ver "Fondo ambiental" más abajo). Si el navegador no soporta
+   backdrop-filter, se usa un blanco casi opaco (fallback seguro).
+   ===================================================================== */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.74);
+  --glass-bg-tint: rgba(224, 246, 248, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.78);
+  --glass-blur: blur(16px) saturate(1.5);
+  --glass-shadow: 0 12px 34px rgba(91, 68, 44, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --btn-gloss: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 10px 22px rgba(13, 173, 197, 0.26);
+
+  /* Campos de formulario estilo "filas suaves": blancos, sin bordes duros,
+     sombra cálida muy ligera y anillo turquesa al enfocar */
+  --field-bg: rgba(255, 255, 255, 0.94);
+  --field-border: var(--color-border);
+  --field-radius: 18px;
+  --field-h: 52px;
+  --field-pad-x: 18px;
+  --field-shadow: 0 4px 14px rgba(91, 68, 44, 0.07);
+  --field-focus: 0 0 0 4px rgba(13, 173, 197, 0.16), 0 4px 14px rgba(91, 68, 44, 0.07);
+
+  --ambient-turquoise: rgba(13, 173, 197, 0.18);
+  --ambient-yellow: rgba(255, 201, 43, 0.32);
+  --ambient-blue: rgba(195, 161, 134, 0.26); /* tono tan cálido, como el durazno suave de la referencia */
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.94);
+    --glass-bg-tint: rgba(224, 246, 248, 0.96);
+  }
+}
+
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ---------- Fondo ambiental: manchas de color suaves y flotantes ----------
+   Cada mancha es de UN solo color (sin degradados), difuminada. Van detrás
+   de todo el contenido (z-index -1), por eso el body queda transparente y
+   el color crema vive en <html>. */
+html { background: var(--color-bg); }
+html body { background: transparent; }
+
+html::before,
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(46px);
+}
+
+body::before {
+  width: 300px;
+  height: 300px;
+  top: -90px;
+  right: -90px;
+  background: var(--ambient-turquoise);
+  animation: vestra-float 18s ease-in-out infinite;
+}
+
+body::after {
+  width: 260px;
+  height: 260px;
+  bottom: -80px;
+  left: -90px;
+  background: var(--ambient-yellow);
+  animation: vestra-float-alt 22s ease-in-out infinite;
+}
+
+html::before {
+  width: 220px;
+  height: 220px;
+  top: 42%;
+  left: -110px;
+  background: var(--ambient-blue);
+  animation: vestra-float 26s ease-in-out infinite;
+}
+
+@media (min-width: 768px) {
+  body::before { width: 520px; height: 520px; }
+  body::after  { width: 460px; height: 460px; }
+  html::before { width: 380px; height: 380px; }
 }
 
 /* =====================================================================
