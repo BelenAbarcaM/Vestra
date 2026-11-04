@@ -386,3 +386,35 @@
     padding: 11px;
   }
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.chat-contacto-datos h2 { font-size: var(--fs-subtitle); font-weight: 600; line-height: var(--lh-title); }
+.chat-vacio h3 { font-size: var(--fs-subtitle); font-weight: 600; line-height: var(--lh-title); }
+.chat-formulario input { font-size: 16px; }
+.chat-mensaje-fila { animation: vestra-fade-up 0.28s var(--ease-out) backwards; }
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.chat-formulario input {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.chat-formulario input {
+  min-height: 46px;
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.chat-formulario input:hover { border-color: var(--color-border-strong); }
+.chat-formulario input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.chat-formulario input::placeholder { color: var(--color-text-muted); }

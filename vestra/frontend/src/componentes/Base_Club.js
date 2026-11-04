@@ -1,4 +1,4 @@
-import { apiUrl } from '../config/api';
+import { APP_BASE_URL, apiUrl } from '../config/api';
 
 import React, { useEffect, useState } from "react";
 import "./Inicio.css";
@@ -44,16 +44,22 @@ function formatearCuota(valor) {
 }
 
 export default function BaseClub({
-  idClub,
-  onVolver,
-  puedeSolicitar = false,
-  onSolicitarInscripcion,
-  onEditar,
-  onAbrirForo
+    idClub,
+    onVolver,
+    puedeSolicitar = false,
+    puedeVerForo = false,
+    onSolicitarInscripcion,
+    onEditar,
+    onAbrirForo
 }) {
     const [club, setClub] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState("");
+    const manejarVolver = () => {
+    if (typeof onVolver === "function") {
+        onVolver();
+    }
+};
 
     useEffect(() => {
         const controlador = new AbortController();
@@ -123,12 +129,12 @@ export default function BaseClub({
                 <main className="base-club-page">
                     {onVolver && (
                         <button
-                            className="solicitud-back"
-                            type="button"
-                            onClick={onVolver}
-                        >
-                            ← Volver a clubes
-                        </button>
+    className="solicitud-back"
+    type="button"
+    onClick={manejarVolver}
+>
+    ← Volver a clubes
+</button>
                     )}
 
                     <p role="alert">
@@ -138,6 +144,11 @@ export default function BaseClub({
             </div>
         );
     }
+    function obtenerImagenClub(club) {
+    if (!club?.Foto_url) return logito;
+
+    return `${APP_BASE_URL}/uploads/clubes/${club.Foto_url}`;
+}
 
     return (
         <>
@@ -148,12 +159,12 @@ export default function BaseClub({
                     <section className="base-club-overview">
                         {onVolver && (
                             <button
-                                className="solicitud-back"
-                                type="button"
-                                onClick={onVolver}
-                            >
-                                ← Volver a clubes
-                            </button>
+    className="solicitud-back"
+    type="button"
+    onClick={manejarVolver}
+>
+    ← Volver a clubes
+</button>
                         )}
 
                         <header className="base-club-header">
@@ -189,14 +200,14 @@ export default function BaseClub({
                         </p>
 
                         <img
-                            className="base-club-photo"
-                            src={club.Foto_url || logito}
-                            alt={`Imagen del club ${club.Nombre}`}
-                            onError={(event) => {
-                                event.currentTarget.onerror = null;
-                                event.currentTarget.src = logito;
-                            }}
-                        />
+    className="base-club-photo"
+    src={obtenerImagenClub(club)}
+    alt={`Imagen del club ${club.Nombre}`}
+    onError={(event) => {
+        event.currentTarget.onerror = null;
+        event.currentTarget.src = logito;
+    }}
+/>
                     </section>
 
                     <div className="base-club-details">
@@ -296,21 +307,23 @@ export default function BaseClub({
 
 
 <div className="base-club-actions">
-  <button
-    type="button"
-    className="base-club-foro-btn"
-    onClick={() => {
-      if (idClub) {
-        onAbrirForo?.({
-          id_club: idClub,
-          nombre: club.Nombre
-        });
-      }
-    }}
-  >
-    <i className="icon-comment" aria-hidden="true"></i>
-    Entrar al foro
-  </button>
+ {puedeVerForo && (
+    <button
+        type="button"
+        className="base-club-foro-btn"
+        onClick={() => {
+            if (idClub) {
+                onAbrirForo?.({
+                    id_club: idClub,
+                    nombre: club.Nombre
+                });
+            }
+        }}
+    >
+        <i className="icon-comment" aria-hidden="true"></i>
+        Entrar al foro
+    </button>
+)}
 
   {puedeSolicitar && (
     <button

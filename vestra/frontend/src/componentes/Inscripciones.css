@@ -142,7 +142,7 @@
 .insc-card-desc {
   display: inline-flex;
   align-items: center;
-  margin: 0 0 12px;
+  margin: 10px 0 12px;
   padding: 4px 11px;
   color: var(--tile-turquoise-fg);
   background: var(--tile-turquoise-bg);
@@ -189,7 +189,7 @@
 display: block;
 width: fit-content;
 min-width: 0;
-margin: -50px 0 0 auto;
+margin: -45px 0 0 auto;
 align-self: flex-end;
 }
 
@@ -317,5 +317,93 @@ margin: 0 auto 20px;
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
+  }
+}
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.insc-title { font-size: var(--fs-title); font-weight: 600; line-height: var(--lh-title); letter-spacing: -0.01em; letter-spacing: 0.4px; }
+.insc-card-title { font-size: var(--fs-item); font-weight: 700; line-height: 1.25; }
+.insc-afinidad h2 { font-size: var(--fs-section); font-weight: 600; line-height: var(--lh-title); }
+.insc-btn:not(.insc-btn-info),
+.insc-afinidad-btn {
+  min-height: var(--btn-h);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-heading);
+  font-size: var(--btn-fs);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.insc-btn:not(.insc-btn-info):hover:not(:disabled),
+.insc-afinidad-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.insc-btn:not(.insc-btn-info):active:not(:disabled),
+.insc-afinidad-btn:active:not(:disabled) { transform: scale(0.97); }
+.insc-btn.insc-btn-info,
+.insc-admin-btn {
+  min-height: var(--btn-h-sm);
+  padding: 0 var(--btn-pad-x-sm);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-body);
+  font-size: var(--btn-fs-sm);
+  font-weight: 800;
+  line-height: 1.2;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.insc-btn.insc-btn-info:active:not(:disabled),
+.insc-admin-btn:active:not(:disabled) { transform: scale(0.96); }
+.insc-card { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+.insc-feed > .insc-card:nth-child(2) { animation-delay: 0.06s; }
+.insc-feed > .insc-card:nth-child(3) { animation-delay: 0.12s; }
+.insc-feed > .insc-card:nth-child(4) { animation-delay: 0.18s; }
+.insc-feed > .insc-card:nth-child(5) { animation-delay: 0.24s; }
+.insc-feed > .insc-card:nth-child(6) { animation-delay: 0.3s; }
+.insc-afinidad { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+/* =====================================================================
+   GLASSMORPHISM · superficies de vidrio sobre el fondo ambiental
+   ===================================================================== */
+.insc-root { background: transparent; }
+.insc-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.insc-btn,
+.insc-afinidad-btn { box-shadow: var(--btn-gloss); }
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.insc-search {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.insc-search {
+  min-height: var(--field-h);
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.insc-search:hover { border-color: var(--color-border-strong); }
+.insc-search:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.insc-search::placeholder { color: var(--color-text-muted); }
+@media (hover: hover) {
+  .insc-card:hover, .cedes-card:hover, .perfil-like-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(91, 68, 44, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 }

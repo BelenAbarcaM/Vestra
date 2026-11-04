@@ -30,21 +30,37 @@ function tiempoRelativo(fecha) {
 }
 
 async function apiJson(url, opciones = {}) {
-  const respuesta = await fetch(url, {
-    credentials: "include",
-    ...opciones,
-    headers: { ...(opciones.body ? { "Content-Type": "application/json" } : {}), ...(opciones.headers || {}) },
-  });
-  const data = await respuesta.json().catch(() => ({}));
-  if (!respuesta.ok || data.success === false) {
-    const error = new Error(data.mensaje || "No se pudo completar la solicitud.");
-    error.status = respuesta.status;
-    error.data = data;
-    throw error;
-  }
-  return data;
-}
+    const respuesta = await fetch(url, {
+        credentials: "include",
+        ...opciones,
+        headers: {
+            ...(opciones.body
+                ? { "Content-Type": "application/json" }
+                : {}),
+            ...(opciones.headers || {})
+        },
+    });
 
+    const contenido = await respuesta.text();
+
+    let data;
+
+    try {
+        data = JSON.parse(contenido);
+    } catch {
+        throw new Error(
+            `Respuesta no válida del servidor (${respuesta.status}): ${contenido.slice(0, 300)}`
+        );
+    }
+
+    if (!respuesta.ok || data.success === false) {
+        throw new Error(
+            `HTTP ${respuesta.status}: ${data.mensaje || "Error desconocido"}`
+        );
+    }
+
+    return data;
+}
 
 export default function Foro({
   idClub: idClubProp,
@@ -83,8 +99,12 @@ export default function Foro({
       if (data.nombre_club) setNombreClub(data.nombre_club);
       setErrorCarga("");
     } catch (error) {
-      setErrorCarga(error.message || "No se pudieron cargar las publicaciones.");
-    } finally {
+    console.error("ERROR AL PUBLICAR:", error);
+
+    setAvisoModeracion(
+        `Error: ${error.message} | Estado: ${error.status || "Sin respuesta"}`
+    );
+} finally {
       if (!silencioso) setCargando(false);
     }
   }, [idClub]);
@@ -188,11 +208,10 @@ useEffect(() => {
     className="foro-back-btn"
     onClick={onVolver}
   >
-    ←
+    ← Volver
   </button>
 )}
           <div className="dashboard-header-copy">
-            <h1>Foro</h1>
             <span className="forum-club-label">Club: {nombreClub}</span>
           </div>
           <button className="dashboard-action-btn" type="button" onClick={() => { setMostrarFormulario((actual) => !actual); setAvisoModeracion(""); }}>

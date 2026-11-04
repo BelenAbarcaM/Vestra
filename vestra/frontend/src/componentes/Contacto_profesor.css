@@ -302,3 +302,42 @@
     padding: 12px;
   }
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.contacto-encargado-heading h1 { font-size: var(--fs-title); font-weight: 600; line-height: var(--lh-title); letter-spacing: -0.01em; }
+.contacto-encargado-heading p { font-size: var(--fs-sm); line-height: var(--lh-body); }
+.contacto-sidebar-heading h2 { font-size: var(--fs-subtitle); font-weight: 600; line-height: var(--lh-title); }
+.contacto-vacio h2 { font-size: var(--fs-section); font-weight: 600; line-height: var(--lh-title); }
+.contacto-search input, .contacto-search { font-size: 16px; }
+.contacto-persona { animation: vestra-slide-right var(--dur-base) var(--ease-out) backwards; }
+.contacto-lista > .contacto-persona:nth-child(2) { animation-delay: 0.05s; }
+.contacto-lista > .contacto-persona:nth-child(3) { animation-delay: 0.1s; }
+.contacto-lista > .contacto-persona:nth-child(4) { animation-delay: 0.15s; }
+.contacto-lista > .contacto-persona:nth-child(5) { animation-delay: 0.2s; }
+.contacto-lista > .contacto-persona:nth-child(6) { animation-delay: 0.25s; }
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.contacto-search input {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.contacto-search input {
+  min-height: 44px;
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.contacto-search input:hover { border-color: var(--color-border-strong); }
+.contacto-search input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.contacto-search input::placeholder { color: var(--color-text-muted); }

@@ -99,39 +99,23 @@ margin-top: 30px;
 .forum-post {
   border: 1px solid var(--color-border);
   border-left: 6px solid var(--tile-turquoise-fg);
-  background: linear-gradient(
-    135deg,
-    var(--tile-turquoise-bg),
-    rgba(255, 255, 255, 0.98) 75%
-  );
+  background: var(--tile-turquoise-bg);
   box-shadow: var(--shadow-sm);
 }
 
 .forum-post:nth-child(4n + 2) {
   border-left-color: var(--tile-blue-fg);
-  background: linear-gradient(
-    135deg,
-    var(--tile-blue-bg),
-    rgba(255, 255, 255, 0.98) 75%
-  );
+  background: var(--tile-blue-bg);
 }
 
 .forum-post:nth-child(4n + 3) {
   border-left-color: var(--tile-yellow-fg);
-  background: linear-gradient(
-    135deg,
-    var(--tile-yellow-bg),
-    rgba(255, 255, 255, 0.98) 75%
-  );
+  background: var(--tile-yellow-bg);
 }
 
 .forum-post:nth-child(4n + 4) {
   border-left-color: var(--tile-mint-fg);
-  background: linear-gradient(
-    135deg,
-    var(--tile-mint-bg),
-    rgba(255, 255, 255, 0.98) 75%
-  );
+  background: var(--tile-mint-bg);
 }
 
 .forum-post-category {
@@ -140,6 +124,7 @@ margin-top: 30px;
 }
 
 .forum-club-label {
+      margin-top: 40px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -152,11 +137,7 @@ margin-top: 30px;
   font-weight: 800;
 }
 .foro-page .dashboard-header {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-dark),
-    var(--color-primary-deep)
-  );
+  background: var(--color-primary-dark);
 }
 
 .foro-page .forum-post,
@@ -402,24 +383,28 @@ margin-top: 30px;
 /* Botón pequeño para volver al club */
 .foro-back-btn {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 10px;
+    left: 20px;
 
-    width: 30px;
     height: 30px;
+    width: 80px;
     padding: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: transparent;
-    border: none;
-    border-radius: 50%;
+    border-radius: 50px;
 
-    color: #ffc92b;
-    font-size: 22px;
+    background-color: #ffd55b;
+    border: none;
+
+    color: #ffff;
+    font-size: 0.75rem;
     line-height: 1;
+    font-weight: 800;
+    
+  font-family: var(--font-body);
 
     cursor: pointer;
     transition: background 0.2s ease,
@@ -440,3 +425,172 @@ margin-top: 30px;
 .foro-page .dashboard-shell {
     position: relative;
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.forum-post-content h2,
+.forum-detail-header h2 { font-size: var(--fs-section); font-weight: 600; line-height: var(--lh-title); }
+.foro-back-btn {
+  background: var(--color-accent);
+  color: var(--color-primary-deep-dark);
+}
+.foro-back-btn:hover:not(:disabled) { background: var(--color-accent); color: var(--color-primary-deep-dark); filter: brightness(0.96); }
+.foro-back-btn { font-size: var(--fs-xs); font-weight: 800; }
+.forum-post { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+.forum-post-list > .forum-post:nth-child(2) { animation-delay: 0.05s; }
+.forum-post-list > .forum-post:nth-child(3) { animation-delay: 0.1s; }
+.forum-post-list > .forum-post:nth-child(4) { animation-delay: 0.15s; }
+.forum-post-list > .forum-post:nth-child(5) { animation-delay: 0.2s; }
+.forum-post-list > .forum-post:nth-child(6) { animation-delay: 0.25s; }
+.forum-detail-overlay { animation: vestra-fade-in 0.25s ease backwards; }
+/* =====================================================================
+   GLASSMORPHISM · superficies de vidrio sobre el fondo ambiental
+   ===================================================================== */
+
+.foro-page { background: transparent; }
+
+/* ---------- Header del foro ----------
+   Mismo lenguaje que el header de perfil y chatbot: turquesa plano de marca,
+   burbujas blancas/amarillas flotando, título blanco y botones redondeados.
+   Fila 1: volver (vidrio) · publicar (amarillo).  Fila 2: nombre del club. */
+.foro-page .dashboard-header {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 10px;
+  padding: 16px 16px 20px;
+  background: var(--color-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-primary);
+  color: #ffffff;
+}
+
+.foro-page .dashboard-header::before,
+.foro-page .dashboard-header::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.foro-page .dashboard-header::before {
+  width: 120px;
+  height: 120px;
+  top: -52px;
+  right: -28px;
+  background: var(--blob-white);
+  animation: vestra-float 9s ease-in-out infinite;
+}
+
+.foro-page .dashboard-header::after {
+  width: 76px;
+  height: 76px;
+  bottom: -36px;
+  left: -20px;
+  background: var(--blob-yellow);
+  animation: vestra-float-alt 11s ease-in-out infinite;
+}
+
+.foro-page .dashboard-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Volver: píldora de vidrio sobre el turquesa */
+.foro-page .foro-back-btn {
+  position: relative;
+  top: auto;
+  left: auto;
+  order: 1;
+  flex: 0 0 auto;
+  width: auto;
+  height: var(--btn-h-sm);
+  padding: 0 var(--btn-pad-x-sm);
+  background: rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  font-size: var(--btn-fs-sm);
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.foro-page .foro-back-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.34);
+  color: #ffffff;
+  filter: none;
+  transform: translateX(-2px);
+}
+
+/* Publicar: acento amarillo, a la derecha */
+.foro-page .dashboard-header > .dashboard-action-btn {
+  order: 2;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* Nombre del club: título de la pantalla, sin chip */
+.foro-page .dashboard-header-copy {
+  order: 3;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.foro-page .forum-club-label {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: var(--lh-title);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+/* Tarjetas del foro en vidrio; las publicaciones conservan su color de categoría */
+.foro-page .dashboard-card:not(.forum-post) {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.forum-search,
+.forum-comment-form input {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.forum-search,
+.forum-comment-form input {
+  min-height: var(--field-h);
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.forum-search:hover,
+.forum-comment-form input:hover { border-color: var(--color-border-strong); }
+.forum-search:focus,
+.forum-comment-form input:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.forum-search::placeholder,
+.forum-comment-form input::placeholder { color: var(--color-text-muted); }

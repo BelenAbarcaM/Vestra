@@ -421,3 +421,46 @@
   font: 800 1.2rem var(--font-heading);
   color: var(--color-primary-deep);
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.taf-titulo { font-size: var(--fs-title); font-weight: 600; line-height: var(--lh-title); letter-spacing: -0.01em; }
+.taf-subtitulo { font-size: var(--fs-subtitle); font-weight: 600; line-height: var(--lh-title); }
+.taf-btn {
+  min-height: var(--btn-h);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-heading);
+  font-size: var(--btn-fs);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.taf-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.taf-btn:active:not(:disabled) { transform: scale(0.97); }
+.taf-page { min-height: 100dvh; }
+.taf-card { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+/* =====================================================================
+   GLASSMORPHISM · superficies de vidrio sobre el fondo ambiental
+   ===================================================================== */
+.taf-page { background: transparent; }
+.taf-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.taf-btn:not(.taf-btn-suave) { box-shadow: var(--btn-gloss); }
+.taf-btn-suave {
+  background: var(--glass-bg-tint);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  box-shadow: 0 3px 10px rgba(51, 76, 114, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}

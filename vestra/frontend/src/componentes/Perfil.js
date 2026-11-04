@@ -423,7 +423,7 @@ if (
   onError={() => console.log("FOTO NO CARGADA:", imagenPerfil)}
 />
 ) : (
-  <span className="perfil-avatar-icon">:v</span>
+  <span className="perfil-avatar-icon">...</span>
 )}
           </div>
 

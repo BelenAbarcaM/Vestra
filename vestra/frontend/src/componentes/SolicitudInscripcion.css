@@ -25,14 +25,17 @@
     height:6px;
     background:var(--gradient-primary)
 }
-.solicitud-back{
-    border:0;
-    background:var(--tile-turquoise-bg);
-    color:var(--tile-turquoise-fg);
-    padding:8px 12px;
-    border-radius:var(--radius-pill);
-    font:700 .85rem var(--font-body);
-    cursor:pointer
+.solicitud-back {
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    border: 0;
+    background: var(--tile-turquoise-bg);
+    color: var(--tile-turquoise-fg);
+    padding: 8px 12px;
+    border-radius: var(--radius-pill);
+    font: 700 .85rem var(--font-body);
+    cursor: pointer;
 }
 .solicitud-heading{
     text-align:center;
@@ -368,3 +371,76 @@ padding: 14px;
 }
 
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.solicitud-heading h1 { font-size: var(--fs-title); font-weight: 600; line-height: var(--lh-title); letter-spacing: -0.01em; }
+.solicitud-requisitos h2,
+.solicitud-ok h2,
+.solicitud-antiguedad h2 { font-size: var(--fs-section); font-weight: 600; line-height: var(--lh-title); }
+.solicitud-submit {
+  min-height: var(--btn-h);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-heading);
+  font-size: var(--btn-fs);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.solicitud-submit:hover:not(:disabled) { transform: translateY(-1px); }
+.solicitud-submit:active:not(:disabled) { transform: scale(0.97); }
+.solicitud-page { min-height: 100dvh; }
+.solicitud-card { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+/* =====================================================================
+   GLASSMORPHISM · superficies de vidrio sobre el fondo ambiental
+   ===================================================================== */
+.solicitud-page { background: transparent; }
+.solicitud-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.solicitud-submit { box-shadow: var(--btn-gloss); }
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.solicitud-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+.solicitud-fecha-ingreso input[type='date'],
+.solicitud-form textarea {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.solicitud-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+.solicitud-fecha-ingreso input[type='date'] {
+  min-height: var(--field-h);
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.solicitud-form textarea {
+  padding: 14px var(--field-pad-x);
+  line-height: 1.5;
+}
+.solicitud-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):hover,
+.solicitud-fecha-ingreso input[type='date']:hover,
+.solicitud-form textarea:hover { border-color: var(--color-border-strong); }
+.solicitud-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):focus,
+.solicitud-fecha-ingreso input[type='date']:focus,
+.solicitud-form textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.solicitud-form input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range'])::placeholder,
+.solicitud-fecha-ingreso input[type='date']::placeholder,
+.solicitud-form textarea::placeholder { color: var(--color-text-muted); }

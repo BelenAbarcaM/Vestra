@@ -545,3 +545,117 @@
         gap: 8px;
     }
 }
+
+/* =====================================================================
+   UNIDAD VISUAL · tamaños de título, subtítulo y botón compartidos
+   Todo sale de las variables de theme.css (--fs-*, --btn-*), así esta
+   pantalla mide lo mismo que las demás. Animaciones: solo transform y
+   opacity, con "backwards" para no dejar transforms residuales.
+   ===================================================================== */
+.crud-header h1 { font-size: var(--fs-title); font-weight: 600; line-height: var(--lh-title); letter-spacing: -0.01em; }
+.crud-header p { font-size: var(--fs-sm); line-height: var(--lh-body); }
+.crud-form h2,
+.crud-list h2 { font-size: var(--fs-section); font-weight: 600; line-height: var(--lh-title); }
+.crud-item h3 { font-size: var(--fs-item); font-weight: 700; line-height: 1.25; }
+.crud-save,
+.crud-cancel {
+  min-height: var(--btn-h);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-heading);
+  font-size: var(--btn-fs);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.crud-save:hover:not(:disabled),
+.crud-cancel:hover:not(:disabled) { transform: translateY(-1px); }
+.crud-save:active:not(:disabled),
+.crud-cancel:active:not(:disabled) { transform: scale(0.97); }
+.crud-add,
+.crud-remove,
+.crud-edit,
+.crud-back {
+  min-height: var(--btn-h-sm);
+  padding: 0 var(--btn-pad-x-sm);
+  border-radius: var(--radius-btn, 999px) !important;
+  font-family: var(--font-body);
+  font-size: var(--btn-fs-sm);
+  font-weight: 800;
+  line-height: 1.2;
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease, opacity var(--dur-fast) ease, filter var(--dur-fast) ease;
+}
+.crud-add:active:not(:disabled),
+.crud-remove:active:not(:disabled),
+.crud-edit:active:not(:disabled),
+.crud-back:active:not(:disabled) { transform: scale(0.96); }
+.crud-page { min-height: 100dvh; }
+.crud-field input, .crud-field select, .crud-field textarea { font-size: 16px; }
+.crud-header,
+.crud-form,
+.crud-list { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+.crud-form { animation-delay: 0.06s; }
+.crud-list { animation-delay: 0.12s; }
+.crud-item { animation: vestra-fade-up var(--dur-base) var(--ease-out) backwards; }
+.crud-list .crud-item:nth-child(2) { animation-delay: 0.05s; }
+.crud-list .crud-item:nth-child(3) { animation-delay: 0.1s; }
+.crud-list .crud-item:nth-child(4) { animation-delay: 0.15s; }
+.crud-list .crud-item:nth-child(5) { animation-delay: 0.2s; }
+.crud-list .crud-item:nth-child(6) { animation-delay: 0.25s; }
+/* =====================================================================
+   GLASSMORPHISM · superficies de vidrio sobre el fondo ambiental
+   ===================================================================== */
+.crud-page { background: transparent; }
+.crud-header,
+.crud-form,
+.crud-list {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.crud-save { box-shadow: var(--btn-gloss); }
+.crud-cancel {
+  background: var(--glass-bg-tint);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  box-shadow: 0 3px 10px rgba(51, 76, 114, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+/* =====================================================================
+   ESTILO SUAVE (inspirado en la referencia): filas blancas redondeadas,
+   sombra cálida ligera y anillo turquesa al enfocar.
+   ===================================================================== */
+.crud-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+.crud-field select,
+.crud-field textarea {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--field-radius);
+  box-shadow: var(--field-shadow);
+  color: var(--color-text);
+  font-size: 16px;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.crud-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+.crud-field select {
+  min-height: var(--field-h);
+  padding-left: var(--field-pad-x);
+  padding-right: var(--field-pad-x);
+}
+.crud-field textarea {
+  padding: 14px var(--field-pad-x);
+  line-height: 1.5;
+}
+.crud-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):hover,
+.crud-field select:hover,
+.crud-field textarea:hover { border-color: var(--color-border-strong); }
+.crud-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):focus,
+.crud-field select:focus,
+.crud-field textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
+.crud-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range'])::placeholder,
+.crud-field select::placeholder,
+.crud-field textarea::placeholder { color: var(--color-text-muted); }

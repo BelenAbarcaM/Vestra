@@ -50,6 +50,8 @@ export default function Login({ onLoginCorrecto }) {
         return;
       }
 
+    
+
       localStorage.setItem('id_usuario', resultado.id_usuario);
 
       const tipo =

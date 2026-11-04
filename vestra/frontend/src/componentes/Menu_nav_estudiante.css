@@ -1,5 +1,17 @@
 @import '../theme.css';
 
+/* =====================================================================
+   BARRA DE NAVEGACIÓN INFERIOR
+   Posición y medidas del contenedor IDÉNTICAS a la versión original
+   (incluidas las reglas !important de móvil, que son las que ganan a
+   las reglas de ancho de Inicio.css). Solo cambia lo visual: pestaña
+   activa con puntito, feedback al tocar y entrada suave por opacidad.
+   ===================================================================== */
+
+@keyframes vestra-nav-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 .cedes-bottomnav {
   position: fixed;
@@ -25,10 +37,11 @@
 
   z-index: 9999;
   backdrop-filter: blur(10px);
+  animation: vestra-nav-in var(--dur-slow) ease backwards;
 }
 
-
 .nav-btn {
+  position: relative;
   width: 42px;
   height: 42px;
   background: transparent;
@@ -41,12 +54,23 @@
   font-size: 16px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  touch-action: manipulation;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease,
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.14);
   color: #ffffff;
+}
+
+.nav-btn:active {
+  transform: scale(0.92);
+}
+
+.nav-btn:focus-visible {
+  outline: 3px solid rgba(255, 201, 43, 0.7);
+  outline-offset: 1px;
 }
 
 .nav-btn i {
@@ -68,9 +92,15 @@
 }
 
 .nav-btn.add:hover {
+  background: var(--color-accent);
   transform: translateY(-8px);
 }
 
+.nav-btn.add:active {
+  transform: translateY(-5px) scale(0.94);
+}
+
+/* Pestaña activa: mismo fondo de antes + puntito amarillo */
 .nav-btn.active {
   background: rgba(255, 255, 255, 0.22);
   color: #ffffff;
@@ -78,16 +108,31 @@
   transform: translateY(-2px);
 }
 
+.nav-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: vestra-pop var(--dur-base) var(--ease-spring) backwards;
+}
+
 .nav-icon {
   line-height: 1;
   display: block;
   font-size: 19px;
 }
+
 /* Ocultar la navegación inferior mientras hay un chat abierto */
 body.chat-abierto .cedes-bottomnav {
   display: none !important;
 }
-/* Correcciones exclusivas para pantallas pequeñas */
+
+/* Correcciones exclusivas para pantallas pequeñas (igual que el original) */
 @media screen and (max-width: 600px) {
   .cedes-bottomnav {
     position: fixed !important;
@@ -111,5 +156,10 @@ body.chat-abierto .cedes-bottomnav {
     flex: 1 1 0 !important;
     min-width: 0 !important;
     width: auto !important;
+  }
+
+  .cedes-bottomnav .nav-btn.add {
+    flex: 0 0 46px !important;
+    width: 46px !important;
   }
 }
