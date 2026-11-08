@@ -1,5 +1,21 @@
 <?php
 
+ini_set('log_errors', '1');
+ini_set('display_errors', '0');
+
+error_reporting(E_ALL);
+
+register_shutdown_function(function () {
+    $error = error_get_last();
+
+    if ($error !== null) {
+        error_log("VESTRA CHATBOT SHUTDOWN ERROR:");
+        error_log(print_r($error, true));
+    }
+});
+
+
+
 require_once __DIR__ . '/../config/cors.php';
 session_start();
 if (function_exists('mysqli_report')) {
@@ -59,7 +75,12 @@ function normalizarTexto($texto) {
 
 function obtenerClubes($conexion) {
     $clubes = [];
-    $resultado = $conexion->query("SELECT Nombre, Descripcion FROM club ORDER BY Nombre LIMIT 8");
+
+    $resultado = $conexion->query("
+        SELECT Nombre, Descripcion
+        FROM club
+        ORDER BY Nombre
+    ");
 
     if ($resultado) {
         while ($fila = $resultado->fetch_assoc()) {
@@ -68,6 +89,287 @@ function obtenerClubes($conexion) {
     }
 
     return $clubes;
+}
+
+function obtenerHistorialGemini($conexion, $conversacionId) {
+    $historial = [];
+
+    if ($conversacionId <= 0) {
+        return $historial;
+    }
+
+    $stmt = $conexion->prepare("
+        SELECT remitente, mensaje
+        FROM (
+            SELECT id, remitente, mensaje
+            FROM mensajes
+            WHERE conversacion_id = ?
+            ORDER BY id DESC
+            LIMIT 12
+        ) AS recientes
+        ORDER BY id ASC
+    ");
+
+    if (!$stmt) return $historial;
+
+    $stmt->bind_param("i", $conversacionId);
+    $stmt->execute();
+
+    $resultado = $stmt->get_result();
+
+    while ($fila = $resultado->fetch_assoc()) {
+        if ($fila['remitente'] === 'user') {
+            $historial[] = [
+                'role' => 'user',
+                'parts' => [['text' => $fila['mensaje']]]
+            ];
+        } elseif ($fila['remitente'] === 'bot') {
+            $historial[] = [
+                'role' => 'model',
+                'parts' => [['text' => $fila['mensaje']]]
+            ];
+        }
+    }
+
+    $stmt->close();
+
+    return $historial;
+}
+
+function obtenerContextoVestra($conexion) {
+    $clubes = obtenerClubes($conexion);
+
+    $listaClubes = [];
+
+    foreach ($clubes as $club) {
+        $listaClubes[] =
+            $club['Nombre'] . ': ' . $club['Descripcion'];
+    }
+
+    return "
+INFORMACIÓN DE VESTRA:
+
+Vestra significa Vía Estudiantil Salesiana.
+
+Es una plataforma escolar para CEDES Don Bosco
+que busca mejorar la comunicación y participación
+de la comunidad educativa.
+
+FUNCIONALIDADES:
+- Publicaciones.
+- Clubes y asociaciones.
+- Inscripciones a clubes.
+- Eventos y actividades.
+- Comentarios.
+- Perfiles de usuarios.
+
+CLUBES REGISTRADOS:
+" . implode("\n", $listaClubes) . "
+
+DATOS DE LA PLATAFORMA:
+Publicaciones: " . contarFilas($conexion, 'publicacion') . "
+Comentarios: " . contarFilas($conexion, 'comentario') . "
+Eventos: " . contarFilas($conexion, 'evento') . "
+
+Utiliza estos datos cuando sean relevantes.
+Nunca inventes información que no esté disponible.
+";
+}
+
+
+function generarRespuestaGemini(
+    $mensaje,
+    $conexion,
+    $conversacionId,
+    $modoSinBd
+) {
+    $gemini = obtenerConfigGemini();
+
+    if (
+        empty($gemini['api_key']) ||
+        !function_exists('curl_init')
+    ) {
+        error_log("Vestra: Gemini no tiene API KEY o CURL.");
+        return '';
+    }
+
+    // Modelo principal y modelo de respaldo.
+    $modelos = array_unique([
+        $gemini['model'] ?? 'gemini-3.8-flash',
+        $gemini['fallback_model'] ?? 'gemini-3.5-flash-lite'
+    ]);
+
+    $historial = [];
+
+    if (!$modoSinBd) {
+        $historial = obtenerHistorialGemini(
+            $conexion,
+            $conversacionId
+        );
+
+        $contexto = obtenerContextoVestra($conexion);
+    } else {
+        $contexto = "
+Vestra es una red social escolar para CEDES Don Bosco.
+Centraliza publicaciones, clubes, inscripciones,
+eventos y comunicación estudiantil.
+
+No tienes acceso a la base de datos en este momento.
+No inventes registros ni información específica.
+";
+    }
+
+    $instrucciones = "
+Eres Vivi, la asistente virtual de Vestra.
+
+PERSONALIDAD:
+- Eres amable, inteligente y cercana.
+- Hablas español natural.
+- Tu tono es juvenil, pero respetuoso.
+- No pareces un robot ni un asistente excesivamente formal.
+- Evitas repetir estructuras y frases.
+- No comienzas todas tus respuestas con la misma expresión.
+
+COMPORTAMIENTO:
+- Comprende la intención de cada pregunta.
+- Analiza el contexto de los mensajes anteriores.
+- Responde directamente y con información útil.
+- Puedes explicar, comparar, dar ejemplos y desarrollar ideas.
+- No te limites a responder con definiciones.
+- Si el usuario hace una pregunta de seguimiento,
+  comprende a qué se refiere utilizando el historial.
+- No repitas información que ya explicaste innecesariamente.
+
+RESTRICCIONES:
+- Tu función principal es ayudar con Vestra y su funcionamiento.
+- Puedes conversar sobre CEDES Don Bosco,
+  clubes, actividades, inscripciones y funcionalidades.
+- Si te preguntan algo completamente ajeno al proyecto,
+  explica amablemente que tu especialidad es Vestra.
+- Nunca inventes clubes, eventos, horarios o registros.
+- Si no tienes acceso a un dato, dilo claramente.
+- No afirmes haber realizado acciones que no puedes ejecutar.
+
+INFORMACIÓN DEL PROYECTO:
+$contexto
+
+Responde según lo que realmente te está preguntando
+el estudiante. Prioriza la utilidad y la naturalidad.
+";
+
+    $historial[] = [
+        'role' => 'user',
+        'parts' => [
+            ['text' => $mensaje]
+        ]
+    ];
+
+    $payload = [
+        'systemInstruction' => [
+            'parts' => [
+                ['text' => $instrucciones]
+            ]
+        ],
+        'contents' => $historial,
+        'generationConfig' => [
+            'temperature' => 0.7,
+            'topP' => 0.9,
+            'maxOutputTokens' => 700
+        ]
+    ];
+
+    // Intentar primero el modelo principal y luego el alternativo.
+    foreach ($modelos as $indice => $modelo) {
+
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+            . rawurlencode($modelo)
+            . ':generateContent?key='
+            . urlencode($gemini['api_key']);
+
+        $curl = curl_init($url);
+
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+            CURLOPT_POSTFIELDS => json_encode(
+                $payload,
+                JSON_UNESCAPED_UNICODE
+            ),
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 25,
+            CURLOPT_PROXY => '',
+            CURLOPT_NOPROXY => '*'
+        ]);
+
+        $rawResponse = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+
+        curl_close($curl);
+
+        // Si la solicitud falla, registrar el error.
+        if (
+            $rawResponse === false ||
+            $httpCode < 200 ||
+            $httpCode >= 300
+        ) {
+            error_log("========== VESTRA GEMINI ERROR ==========");
+            error_log("MODELO: " . $modelo);
+            error_log("HTTP: " . $httpCode);
+            error_log("CURL: " . $curlError);
+            error_log("RESPUESTA GOOGLE: " . ($rawResponse ?: 'Sin respuesta'));
+            error_log("=========================================");
+
+            // Errores ante los que vale la pena probar el respaldo.
+            $erroresReintentables = [
+                0, 404, 429, 500, 502, 503, 504
+            ];
+
+            if (!in_array($httpCode, $erroresReintentables, true)) {
+                return '';
+            }
+
+            continue;
+        }
+
+        $respuesta = json_decode($rawResponse, true);
+
+        if (!is_array($respuesta)) {
+            error_log("Vestra: respuesta JSON inválida de " . $modelo);
+            continue;
+        }
+
+        // Si Google bloquea el mensaje, no probar otro modelo.
+        if (
+            !empty($respuesta['promptFeedback']['blockReason']) ||
+            (($respuesta['candidates'][0]['finishReason'] ?? '') === 'SAFETY')
+        ) {
+            return respuestaMensajeBloqueado();
+        }
+
+        $texto = extraerTextoGemini($respuesta);
+
+        if ($texto !== '') {
+
+            if ($indice > 0) {
+                error_log(
+                    "VESTRA: respuesta generada con modelo de respaldo: "
+                    . $modelo
+                );
+            }
+
+            return $texto;
+        }
+
+        error_log("Vestra: el modelo " . $modelo . " no devolvió texto.");
+    }
+
+    error_log("Vestra: fallaron el modelo principal y el de respaldo.");
+
+    return '';
 }
 
 function contarFilas($conexion, $tabla) {
@@ -207,21 +509,21 @@ function obtenerConfigGemini() {
         'model' => getenv('GEMINI_MODEL') ?: 'gemini-2.5-flash'
     ];
 
-    $localPath = __DIR__ . '/../config/gemini_local.php';
-    if (file_exists($localPath)) {
-        $localConfig = include $localPath;
+    $localPath = dirname(__DIR__, 3) . '/gemini_production.php';
 
-        if (is_array($localConfig)) {
-            if (!empty($localConfig['api_key'])) {
-                $config['api_key'] = $localConfig['api_key'];
-            }
+error_log("VESTRA CONFIG PATH: " . $localPath);
+error_log("VESTRA CONFIG EXISTE: " . (file_exists($localPath) ? 'SI' : 'NO'));
+error_log("VESTRA CONFIG LEGIBLE: " . (is_readable($localPath) ? 'SI' : 'NO'));
 
-            if (!empty($localConfig['model'])) {
-                $config['model'] = $localConfig['model'];
-            }
-        }
+if (file_exists($localPath)) {
+    $configLocal = require $localPath;
+
+    if (is_array($configLocal)) {
+        $config = array_merge($config, $configLocal);
     }
-
+}
+error_log("VESTRA API KEY DETECTADA: " . (!empty($config['api_key']) ? 'SI' : 'NO'));
+error_log("VESTRA MODELO: " . $config['model']);
     return $config;
 }
 
@@ -450,7 +752,19 @@ function generarRespuestaGeminiSinBd($mensaje) {
         return '';
     }
 
-    $prompt = "Eres Vivi, un asistente escolar amable para el proyecto Vestra de CEDES Don Bosco. La interfaz del chat ya mostro el saludo inicial, asi que NO empieces con hola, no digas Soy Vivi y no te presentes otra vez. Responde directamente la pregunta del usuario con un inicio natural y variado; puedes empezar con frases como Claro, Sobre eso, En Vestra, Buena pregunta, Te cuento, o directamente con la informacion. No uses siempre la frase La respuesta a tu pregunta es. Estas en modo de prueba sin base de datos, asi que no puedes guardar conversaciones ni consultar registros reales. Responde en espanol, natural y en 2 a 4 oraciones. Puedes ayudar con: que es Vestra, clubes, inscripciones, publicaciones, eventos, objetivo del proyecto, funcionamiento general y como se conectaria con MySQL. Si te preguntan por datos exactos de la base de datos, aclara que en este modo no tienes acceso a MySQL.\n\nDatos base del proyecto: Vestra significa Via Estudiantil Salesiana. Es una red social escolar para CEDES Don Bosco que centraliza publicaciones, clubes, eventos, comentarios e informacion importante para mejorar la comunicacion y participacion estudiantil.\n\nUsuario: " . $mensaje;
+    $modelos = [
+        $gemini['model'] ?? 'gemini-3.8-flash',
+        $gemini['fallback_model'] ?? 'gemini-3.5-flash-lite'
+    ];
+
+    // Evitar intentar dos veces el mismo modelo.
+    $modelos = array_unique($modelos);
+
+    $prompt = "Eres Vivi, un asistente escolar amable para el proyecto Vestra de CEDES Don Bosco. La interfaz del chat ya mostro el saludo inicial, asi que NO empieces con hola, no digas Soy Vivi y no te presentes otra vez. Responde directamente la pregunta del usuario con un inicio natural y variado; puedes empezar con frases como Claro, Sobre eso, En Vestra, Buena pregunta, Te cuento, o directamente con la informacion. No uses siempre la frase La respuesta a tu pregunta es. Estas en modo de prueba sin base de datos, asi que no puedes guardar conversaciones ni consultar registros reales. Responde en espanol, natural y en 2 a 4 oraciones. Puedes ayudar con: que es Vestra, clubes, inscripciones, publicaciones, eventos, objetivo del proyecto, funcionamiento general y como se conectaria con MySQL. Si te preguntan por datos exactos de la base de datos, aclara que en este modo no tienes acceso a MySQL.
+
+Datos base del proyecto: Vestra significa Via Estudiantil Salesiana. Es una red social escolar para CEDES Don Bosco que centraliza publicaciones, clubes, eventos, comentarios e informacion importante para mejorar la comunicacion y participacion estudiantil.
+
+Usuario: " . $mensaje;
 
     $payload = [
         'contents' => [
@@ -484,38 +798,76 @@ function generarRespuestaGeminiSinBd($mensaje) {
         ]
     ];
 
-    $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . rawurlencode($gemini['model']) . ':generateContent?key=' . urlencode($gemini['api_key']);
+    foreach ($modelos as $indice => $modelo) {
 
-    $curl = curl_init($url);
-    curl_setopt_array($curl, [
-        CURLOPT_POST => true,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 35,
-        CURLOPT_PROXY => '',
-        CURLOPT_NOPROXY => '*'
-    ]);
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+            . rawurlencode($modelo)
+            . ':generateContent?key='
+            . urlencode($gemini['api_key']);
 
-    $rawResponse = curl_exec($curl);
-    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
+        $curl = curl_init($url);
 
-    if ($rawResponse === false || $httpCode < 200 || $httpCode >= 300) {
-        return '';
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 25,
+            CURLOPT_PROXY => '',
+            CURLOPT_NOPROXY => '*'
+        ]);
+
+        $rawResponse = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+
+        curl_close($curl);
+
+        // Si la solicitud funcionó, procesamos la respuesta.
+        if ($rawResponse !== false && $httpCode >= 200 && $httpCode < 300) {
+
+            $respuesta = json_decode($rawResponse, true);
+
+            if (!is_array($respuesta)) {
+                return '';
+            }
+
+            if (
+                !empty($respuesta['promptFeedback']['blockReason']) ||
+                (($respuesta['candidates'][0]['finishReason'] ?? '') === 'SAFETY')
+            ) {
+                return respuestaMensajeBloqueado();
+            }
+
+            $texto = extraerTextoGemini($respuesta);
+
+            if ($texto !== '') {
+                if ($indice > 0) {
+                    error_log("VESTRA: respuesta generada con modelo de respaldo: " . $modelo);
+                }
+
+                return $texto;
+            }
+
+            return '';
+        }
+
+        error_log("VESTRA GEMINI ERROR - Modelo: " . $modelo);
+        error_log("HTTP: " . $httpCode);
+        error_log("CURL: " . $curlError);
+        error_log("RESPUESTA: " . ($rawResponse ?: 'Sin respuesta'));
+
+        // Solo cambiar de modelo ante errores que podrían ser temporales
+        // o problemas específicos del modelo principal.
+        $erroresReintentables = [0, 404, 429, 500, 502, 503, 504];
+
+        if (!in_array($httpCode, $erroresReintentables, true)) {
+            return '';
+        }
     }
 
-    $respuesta = json_decode($rawResponse, true);
-    if (!is_array($respuesta)) {
-        return '';
-    }
-
-    if (!empty($respuesta['promptFeedback']['blockReason']) || (($respuesta['candidates'][0]['finishReason'] ?? '') === 'SAFETY')) {
-        return respuestaMensajeBloqueado();
-    }
-
-    return extraerTextoGemini($respuesta);
+    return '';
 }
 
 function generarRespuesta($mensaje, $conexion) {
@@ -631,20 +983,26 @@ $fueraTema = false;
 $respuesta = respuestaMensajeBloqueado();
 
 if (!$moderacion['blocked']) {
-    $tema = validarTemaProyecto($mensaje);
-    $fueraTema = !$tema['on_topic'];
 
-    if ($fueraTema) {
-        $respuesta = respuestaFueraDelProyecto();
+    $tema = [
+        'on_topic' => true,
+        'source' => 'gemini_prompt',
+        'reason' => 'clasificacion_delegada'
+    ];
+
+    $fueraTema = false;
+
+    $respuestaGemini = generarRespuestaGemini(
+        $mensaje,
+        $conexion,
+        $conversacionId,
+        $modoSinBd
+    );
+
+    if ($respuestaGemini !== '') {
+        $respuesta = $respuestaGemini;
     } else {
-        if ($modoSinBd) {
-            $respuestaGemini = generarRespuestaGeminiSinBd($mensaje);
-            $respuesta = $respuestaGemini !== ''
-                ? $respuestaGemini
-                : "Estoy en modo de prueba sin base de datos. Puedo conversar sobre Vestra, pero no pude conectar con Gemini en este momento.";
-        } else {
-            $respuesta = generarRespuesta($mensaje, $conexion);
-        }
+        $respuesta = "No pude conectar con mi servicio de inteligencia artificial en este momento. Inténtalo nuevamente en unos segundos.";
     }
 }
 
