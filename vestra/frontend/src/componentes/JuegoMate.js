@@ -24,7 +24,7 @@ import {
      siguiente) pon BLOQUEAR_NIVELES en false.
    ===================================================================== */
 
-const BLOQUEAR_NIVELES = true;
+const BLOQUEAR_NIVELES = false;
 const CLAVE_ESTRELLAS = 'juego_mate_estrellas';
 const CLAVE_SONIDO = 'juego_mate_sonido';
 
