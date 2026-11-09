@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './JuegoCisco.css';
-import vivi from '../assets/Vivi.png';
+import vivi from '../assets/Vivi_cisco.png';
 import {
   NIVELES,
   MAX_ESTRELLAS_NIVEL,

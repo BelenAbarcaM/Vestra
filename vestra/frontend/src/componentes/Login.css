@@ -439,3 +439,33 @@
 .login-formulario input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):hover { border-color: var(--color-border-strong); }
 .login-formulario input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):focus { outline: none; border-color: var(--color-primary); box-shadow: var(--field-focus); background: #ffffff; }
 .login-formulario input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range'])::placeholder { color: var(--color-text-muted); }
+
+/* Contenedor del botón oficial de Google en navegador.
+   Es distinto de .login-google-boton (botón nativo de Android) para no
+   duplicar borde, fondo y la "G" falsa alrededor del botón real. */
+.login-google-web {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 340px;
+  min-height: var(--btn-h);
+}
+.login-google-web iframe { max-width: 100%; }
+
+/* Separador "o con tu correo" */
+.login-separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 16px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.login-separador::before,
+.login-separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.login-boton:disabled { opacity: 0.7; cursor: not-allowed; }

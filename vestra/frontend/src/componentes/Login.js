@@ -13,12 +13,71 @@ export default function Login({ onLoginCorrecto }) {
 
   const [mensaje, setMensaje] = useState('');
   const [googleNativoListo, setGoogleNativoListo] = useState(false);
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
   const esAndroid = Capacitor.getPlatform() === 'android';
 
   useEffect(() => {
     onLoginCorrectoRef.current = onLoginCorrecto;
   }, [onLoginCorrecto]);
+
+  // Guardar la sesión y avisar a la app (sirve para Google y para correo).
+  const finalizarLogin = (resultado) => {
+    localStorage.setItem('id_usuario', resultado.id_usuario);
+
+    const tipo =
+      extraerTipoUsuario(resultado) ??
+      resultado.tipo_usuario ??
+      resultado.id_tipo_usuario ??
+      resultado.tipo;
+
+    if (tipo !== null && tipo !== undefined) {
+      localStorage.setItem('tipo_usuario', tipo);
+    }
+
+    setMensaje(`¡Bienvenido/a, ${resultado.usuario}!`);
+    onLoginCorrectoRef.current?.();
+  };
+
+  // Iniciar sesión con correo y contraseña (login.php).
+  const iniciarConCorreo = async (e) => {
+    e.preventDefault();
+
+    if (enviando) return;
+
+    setEnviando(true);
+    setMensaje('Verificando tus datos...');
+
+    try {
+      // login.php lee $_POST['email'] y $_POST['pass'].
+      const datos = new URLSearchParams();
+      datos.append('email', correo.trim());
+      datos.append('pass', contrasena);
+
+      const respuesta = await fetch(apiUrl('login.php'), {
+        method: 'POST',
+        credentials: 'include',
+        body: datos
+      });
+
+      const resultado = await respuesta.json();
+
+      if (!respuesta.ok || !resultado.success) {
+        setMensaje(resultado.mensaje || 'No se pudo iniciar sesión.');
+        return;
+      }
+
+      setContrasena('');
+      finalizarLogin(resultado);
+    } catch (error) {
+      console.error('Error al iniciar sesión con correo:', error);
+      setMensaje('No se pudo conectar con el servidor de Vestra.');
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   // Enviar la credencial de Google al backend de Vestra.
   const procesarCredencial = async (credential) => {
@@ -49,22 +108,7 @@ export default function Login({ onLoginCorrecto }) {
         );
         return;
       }
-
-    
-
-      localStorage.setItem('id_usuario', resultado.id_usuario);
-
-      const tipo =
-        extraerTipoUsuario(resultado) ??
-        resultado.tipo_usuario ??
-        resultado.id_tipo_usuario;
-
-      if (tipo !== null && tipo !== undefined) {
-        localStorage.setItem('tipo_usuario', tipo);
-      }
-
-      setMensaje(`¡Bienvenido/a, ${resultado.usuario}!`);
-      onLoginCorrectoRef.current?.();
+      finalizarLogin(resultado);
 
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
@@ -264,11 +308,49 @@ export default function Login({ onLoginCorrecto }) {
           ) : (
             <div
               ref={botonGoogleRef}
-              className="login-google-boton"
+              className="login-google-web"
             />
           )}
 
         </div>
+
+        <div className="login-separador" role="separator">
+          <span>o con tu correo</span>
+        </div>
+
+        <form className="login-formulario" onSubmit={iniciarConCorreo}>
+          <label htmlFor="login-correo">Correo</label>
+          <input
+            id="login-correo"
+            type="email"
+            name="email"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            placeholder="tucorreo@ejemplo.com"
+            autoComplete="email"
+            required
+          />
+
+          <label htmlFor="login-contrasena">Contraseña</label>
+          <input
+            id="login-contrasena"
+            type="password"
+            name="pass"
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+            placeholder="Tu contraseña"
+            autoComplete="current-password"
+            required
+          />
+
+          <button
+            type="submit"
+            className="login-boton"
+            disabled={enviando}
+          >
+            {enviando ? 'Entrando...' : 'Iniciar sesión'}
+          </button>
+        </form>
 
         {mensaje && (
           <p className="login-mensaje" role="status">

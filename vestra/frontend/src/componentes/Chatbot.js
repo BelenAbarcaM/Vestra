@@ -158,15 +158,15 @@ export default function Chatbot({ onOpenChange }) {
         },
       ]);
     } catch (error) {
-      setMessages((previous) => [
-        ...previous,
-        {
-          id: `error-${Date.now()}`,
-          sender: "bot",
-          text: "No se pudo conectar con el servidor. Revisa que Apache, MySQL y la carpeta Vestra esten activos en localhost.",
-        },
-      ]);
-    } finally {
+  setMessages((previous) => [
+    ...previous,
+    {
+      id: `error-${Date.now()}`,
+      sender: "bot",
+      text: "No se pudo conectar con el servidor. Revisa que Apache, MySQL y la carpeta Vestra esten activos en localhost.",
+    },
+  ]);
+} finally {
       setLoading(false);
     }
   }

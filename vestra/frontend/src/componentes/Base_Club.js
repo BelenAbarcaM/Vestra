@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import "./Inicio.css";
 import "../fontello/css/fontello.css";
 import "./Base_Club.css";
-import logito from "../assets/logito.png";
+import logito from "../assets/club_default.jpeg";
 import NutriaEscondida from "./Nutria_escondida";
 
 

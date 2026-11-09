@@ -1,8 +1,8 @@
 import { APP_BASE_URL, apiUrl } from '../config/api';
 import React, { useEffect, useMemo, useState } from 'react';
 import './Inscripciones.css';
-import logito from '../assets/logito.png';
-import vivi from '../assets/Vivi.png';
+import logito from '../assets/club_default.jpeg';
+import vivi from '../assets/vivi_gamer.png';
 
 export default function Inscripciones({
   onAbrirClub,

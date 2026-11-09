@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import './Juegos.css';
-import vivi from '../assets/Vivi.png';
+import vivi from '../assets/vivi_gamer.png';
 import JuegoBanda from './JuegoBanda';
 import JuegoMate from './JuegoMate';
 import JuegoCisco from './JuegoCisco';
+import JuegoIdiomas from './JuegoIdiomas';
+import JuegoF1 from './JuegoF1';
+import JuegoFutbol from './JuegoFutbol';
 
-/* =====================================================================
-   JUEGOS DE LOS CLUBES · menú con un minijuego por club
-   Para agregar un juego nuevo:
-   1) crea su componente (ej. JuegoAjedrez.js) con la prop onVolver
-   2) impórtalo aquí, ponlo en COMPONENTES y agrégalo a la lista JUEGOS
-   ===================================================================== */
 
 const COMPONENTES = {
   banda: JuegoBanda,
   mate: JuegoMate,
-  cisco: JuegoCisco,    
+  cisco: JuegoCisco,
+  idiomas: JuegoIdiomas,
+  f1: JuegoF1,
+  futbol: JuegoFutbol,
 };
 
 const JUEGOS = [
@@ -41,11 +41,25 @@ const JUEGOS = [
     disponible: true,
   },
   {
-    id: 'pronto',
-    nombre: 'Próximamente',
-    emoji: '✨',
-    descripcion: 'Más clubes, más minijuegos.',
-    disponible: false,
+    id: 'idiomas',
+    nombre: 'Vivi políglota',
+    emoji: '🗣️',
+    descripcion: '6 niveles de inglés y 6 de portugués: parejas, burbujas, café, frases y charlas.',
+    disponible: true,
+  },
+  {
+    id: 'f1',
+    nombre: 'F1 in schools',
+    emoji: '🏎️',
+    descripcion: 'Diseña tu auto de CO₂, sal con reflejos y abre el DRS.',
+    disponible: true,
+  },
+  {
+    id: 'futbol',
+    nombre: 'Tiro al arco',
+    emoji: '⚽',
+    descripcion: 'Tira penaltis, rodea el muro y ataja con Vivi.',
+    disponible: true,
   },
 ];
 

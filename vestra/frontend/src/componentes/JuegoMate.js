@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './JuegoMate.css';
-import vivi from '../assets/Vivi.png';
+import vivi from '../assets/Vivi_mate.png';
 import {
   NIVELES,
   PLANTILLAS,

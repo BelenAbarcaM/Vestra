@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './JuegoBanda.css';
-import vivi from '../assets/Vivi.png';
+import vivi from '../assets/Vivi_banda.png';
 import { NIVELES, TIEMPOS_POR_COMPAS, parsearNivel, evaluarToques } from './JuegoBanda_logica';
 
 /* =====================================================================

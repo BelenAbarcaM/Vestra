@@ -1,7 +1,8 @@
 import { apiUrl } from '../config/api';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Nutria_escondida.css";
-import nutria from "../assets/Vivi.png";
+import nutriaEscondida from "../assets/nutria_escondida.png";
+import nutriaEncontrada from "../assets/nutria_encontrada.png";
 
 const API = apiUrl("/dinamica/nutria_escondida.php");
 const DURACION_CAPTURA = 1100;
@@ -82,7 +83,7 @@ export default function NutriaEscondida({ activa = true }) {
       if (!respuesta.ok || !datos.success) {
         throw new Error(datos.mensaje || "No se pudo registrar la captura.");
       }
-      setMensaje(datos.mensaje || (datos.insignia_nueva ? "¡Insignia Nutria Exploradora desbloqueada!" : "¡Encontraste a Vivi!"));
+      setMensaje("¡Me encontraste!");
     } catch (error) {
       console.error("Error registrando la captura:", error);
       setMensaje(error.message || "No se pudo guardar la captura. Inténtalo de nuevo.");
@@ -107,13 +108,13 @@ export default function NutriaEscondida({ activa = true }) {
       title="¡Encontraste a Vivi!"
       disabled={atrapada}
     >
-      <img src={nutria} alt="" />
+      <img src={atrapada ? nutriaEncontrada : nutriaEscondida} alt="" />
       {atrapada && (
         <>
           <span className="nutria-captura-destello nutria-captura-destello-uno" aria-hidden="true">✦</span>
           <span className="nutria-captura-destello nutria-captura-destello-dos" aria-hidden="true">✦</span>
           <span className="nutria-captura-destello nutria-captura-destello-tres" aria-hidden="true">✦</span>
-          <span className="nutria-captura-mensaje" role="status">{mensaje || "¡La atrapaste!"}</span>
+          <span className="nutria-captura-mensaje" role="status">{mensaje || "¡Me encontraste!"}</span>
         </>
       )}
     </button>
